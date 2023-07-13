@@ -63,15 +63,20 @@ public class AccountService : IAccountService
         // authentication successful so generate jwt and refresh tokens
         var jwtToken = _jwtUtils.GenerateJwtToken(account);
         var refreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-        /*account.RefreshTokens.Add(refreshToken);
+        DateTime localDate = DateTime.Now;
+        var genID = localDate.ToString("MMddhhmmss");
+        refreshToken.Id = Int32.Parse(genID);
+        account.RefreshTokens = new List<RefreshToken>();
+        account.RefreshTokens.Add(refreshToken);
+
         // remove old refresh tokens from account
         removeOldRefreshTokens(account);
-        
+
         // save changes to db
-        _context.Update(account);
-        _context.SaveChanges();*/
         _context.RefreshTokens.Add(refreshToken);
+        _context.Accounts.Update(account);
         _context.SaveChanges();
+
         var response = _mapper.Map<AuthenticateResponse>(account);
         response.JwtToken = jwtToken;
         response.RefreshToken = refreshToken.Token;
