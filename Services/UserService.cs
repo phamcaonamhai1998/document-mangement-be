@@ -124,4 +124,27 @@ public class UserService : IUserService
         return Task.FromResult(userDto);
 
     }
+
+    public Task<bool> Update(string id, UpdateUserRequest payload)
+    {
+        if(payload == null)
+        {
+            throw new Exception("payload_is_empty");
+        }
+
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        {
+            throw new Exception("id_is_empty");
+        }
+
+        var user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
+
+        user.IsActive = payload.IsActive;
+        user.FirstName = payload.FirstName;
+        user.LastName = payload.LastName;
+        user.Phone = payload.Phone;
+
+        _dbContext.SaveChanges();
+        return Task.FromResult(true);
+    }
 }

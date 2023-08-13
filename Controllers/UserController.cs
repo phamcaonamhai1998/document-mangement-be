@@ -30,13 +30,20 @@ public class UserController : Controller
         return getResult;
     }
 
-    [HttpPost()]
+    [HttpPost]
     public async Task<CreateUserResponse> Create([FromBody] CreateUserRequest req)
     {
         CreateUserResponse createResult  = await _userService.Create(req);
         return createResult;
     }
 
+
+    [HttpPut("{id}")]
+    public async Task<bool> Update(string id, [FromBody] UpdateUserRequest req)
+    {
+        bool updateResult = await _userService.Update(id, req);
+        return updateResult;
+    }
 
     [HttpDelete]
     public async Task<bool> Delete(string id)
