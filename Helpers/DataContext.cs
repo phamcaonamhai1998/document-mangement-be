@@ -6,10 +6,15 @@ using WebApi.Entities;
 public class DataContext : DbContext
 {
     public DbSet<Account> Accounts { get; set; }
-    public DbSet<Role>  Roles{ get; set; }
-    public DbSet<Organization> Organizations{ get; set; }
-    public DbSet<Department> Departments{ get; set; }
-    public DbSet<RolePermission> RolePermissions{ get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Organization> Organizations { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<ProcedureStep> ProcedureSteps { get; set; }
+    public DbSet<Document> Documents { get; set; }
+    public DbSet<Procedure> Procedures { get; set; }
+    public DbSet<DocumentProcedureStep> DocumentProcedureSteps { get; set; }
 
     private readonly IConfiguration Configuration;
 

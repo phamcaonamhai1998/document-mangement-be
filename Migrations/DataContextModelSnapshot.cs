@@ -137,6 +137,94 @@ namespace WebApi.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("WebApi.Entities.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ProcedureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcedureId");
+
+                    b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.DocumentProcedureStep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProcedureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProcedureStepId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("ProcedureStepId");
+
+                    b.ToTable("DocumentProcedureSteps");
+                });
+
             modelBuilder.Entity("WebApi.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -179,6 +267,124 @@ namespace WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Organizations");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GroupCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.Procedure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Procedures");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.ProcedureStep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssignId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ProcedureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcedureId");
+
+                    b.ToTable("ProcedureSteps");
                 });
 
             modelBuilder.Entity("WebApi.Entities.Role", b =>
@@ -284,14 +490,69 @@ namespace WebApi.Migrations
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("WebApi.Entities.Document", b =>
+                {
+                    b.HasOne("WebApi.Entities.Procedure", "Procedure")
+                        .WithMany()
+                        .HasForeignKey("ProcedureId");
+
+                    b.Navigation("Procedure");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.DocumentProcedureStep", b =>
+                {
+                    b.HasOne("WebApi.Entities.Document", null)
+                        .WithMany("DocumentProcedureSteps")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApi.Entities.ProcedureStep", null)
+                        .WithMany("DocumentProcedureSteps")
+                        .HasForeignKey("ProcedureStepId");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.Procedure", b =>
+                {
+                    b.HasOne("WebApi.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.ProcedureStep", b =>
+                {
+                    b.HasOne("WebApi.Entities.Procedure", "Procedure")
+                        .WithMany("ProcedureSteps")
+                        .HasForeignKey("ProcedureId");
+
+                    b.Navigation("Procedure");
+                });
+
             modelBuilder.Entity("WebApi.Entities.Department", b =>
                 {
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("WebApi.Entities.Document", b =>
+                {
+                    b.Navigation("DocumentProcedureSteps");
+                });
+
             modelBuilder.Entity("WebApi.Entities.Organization", b =>
                 {
                     b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.Procedure", b =>
+                {
+                    b.Navigation("ProcedureSteps");
+                });
+
+            modelBuilder.Entity("WebApi.Entities.ProcedureStep", b =>
+                {
+                    b.Navigation("DocumentProcedureSteps");
                 });
 #pragma warning restore 612, 618
         }

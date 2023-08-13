@@ -1,16 +1,20 @@
-﻿namespace WebApi.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
-public static class Permission
+namespace WebApi.Entities
 {
+    public class Permission: BaseEntity 
+    {
+        public static void ConfigurationEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Permission>().Property(b => b.Id).HasDefaultValueSql("uuid_generate_v4()");
+            modelBuilder.Entity<Permission>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
+        }
 
-    public static readonly string UserList = "User:List";
-    public static readonly string UserCretae = "User:Create";
-    public static readonly string UserUpdate = "User:Update";
-    public static readonly string UserDelete = "User:Delete";
+        public string Code { get; set; }
 
+        public string GroupCode { get; set; }
 
-    public static readonly string DocumentList = "Document:List";
-    public static readonly string DocumentCretae = "Document:Create";
-    public static readonly string DocumentUpdate = "Document:Update";
-    public static readonly string DocumentDelete = "Document:Delete";
+        public string Name { get; set; }
+
+    }
 }
