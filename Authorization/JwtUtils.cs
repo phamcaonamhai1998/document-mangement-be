@@ -8,10 +8,11 @@ using System.Security.Cryptography;
 using System.Text;
 using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.Users;
 
 public interface IJwtUtils
 {
-    public string GenerateJwtToken(Account account);
+    public string GenerateJwtToken(UserClaims claims);
     public int? ValidateJwtToken(string token);
 }
 
@@ -28,15 +29,21 @@ public class JwtUtils : IJwtUtils
         _appSettings = appSettings.Value;
     }
 
-    public string GenerateJwtToken(Account account)
+    public string GenerateJwtToken(UserClaims claims)
     {
         // generate token that is valid for 15 minutes
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", account.Id.ToString()) }),
-            Expires = DateTime.UtcNow.AddMinutes(15),
+            Subject = new ClaimsIdentity(new[] {
+                new Claim("id", claims.Id.ToString()),
+                new Claim("Org", claims.Organization.ToString()),
+                new Claim("Department", claims.Department.ToString()),
+                new Claim("RoleId", claims.Role.Id.ToString()),
+                new Claim("Rights", claims.Rights.ToString())
+            }),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
