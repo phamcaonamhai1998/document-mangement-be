@@ -78,4 +78,20 @@ public class UserService : IUserService
 
         return Task.FromResult(new CreateUserResponse(createAccount.Id));
     }
+
+    public Task<bool> Delete(string id)
+    {
+        try
+        {
+            if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+            {
+
+            }
+
+            return Task.FromResult(true);
+
+        } catch(Exception ex) {
+            return Task.FromResult(false);
+        }
+    }
 }
