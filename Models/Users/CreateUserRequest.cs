@@ -1,7 +1,10 @@
-namespace WebApi.Entities;
+﻿using WebApi.Entities;
 
-public class Account: BaseEntity
-{
+namespace WebApi.Models.Users;
+
+public class CreateUserRequest
+{   
+    public bool IsActive { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
@@ -9,7 +12,6 @@ public class Account: BaseEntity
     public string AvatarUrl { get; set; }
     public string Phone { get; set; }
     public string OrgId { get; set; }
-    public bool IsActive { get; set; }
     public Department Department { get; set; }
     public List<AccountRoles> AccountRoles { get; set; } = new();
 }

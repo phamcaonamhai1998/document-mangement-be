@@ -31,9 +31,6 @@ namespace WebApi.Migrations
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -57,6 +54,9 @@ namespace WebApi.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
@@ -66,32 +66,14 @@ namespace WebApi.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("PasswordReset")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ResetToken")
+                    b.Property<string>("Phone")
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("ResetTokenExpires")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("VerificationToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Verified")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -229,48 +211,6 @@ namespace WebApi.Migrations
                     b.ToTable("Organization");
                 });
 
-            modelBuilder.Entity("WebApi.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedByIp")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ReasonRevoked")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReplacedByToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Revoked")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RevokedByIp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("WebApi.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -348,20 +288,9 @@ namespace WebApi.Migrations
                     b.Navigation("Org");
                 });
 
-            modelBuilder.Entity("WebApi.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("WebApi.Entities.Account", "Account")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("AccountId");
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("WebApi.Entities.Account", b =>
                 {
                     b.Navigation("AccountRoles");
-
-                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("WebApi.Entities.Department", b =>

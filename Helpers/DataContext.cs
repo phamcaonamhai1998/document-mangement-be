@@ -6,7 +6,6 @@ using WebApi.Entities;
 public class DataContext : DbContext
 {
     public DbSet<Account> Accounts { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Role> Role { get; set; }
     public DbSet<AccountRoles> AccountRoles { get; set; }
     public DbSet<Organization> Organization { get; set; }

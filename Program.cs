@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using WebApi.Authorization;
 using WebApi.Helpers;
 using WebApi.Services;
+using WebApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IJwtUtils, JwtUtils>();
     services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<IEmailService, EmailService>();
+    services.AddScoped<IUserService, UserService>();
 }
 
 builder.Services.AddAuthorization();

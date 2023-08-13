@@ -7,11 +7,11 @@ using WebApi.Entities;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {
-    private readonly IList<Permission> _permissions;
+    private readonly IList<string> _permissions;
 
-    public AuthorizeAttribute(params Permission[] permissions)
+    public AuthorizeAttribute(params string[] permissions)
     {
-        _permissions = permissions ?? new Permission[] { };
+        _permissions = permissions;
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)

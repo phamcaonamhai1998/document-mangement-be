@@ -13,7 +13,6 @@ public interface IJwtUtils
 {
     public string GenerateJwtToken(Account account);
     public int? ValidateJwtToken(string token);
-    public RefreshToken GenerateRefreshToken(string ipAddress);
 }
 
 public class JwtUtils : IJwtUtils
@@ -74,20 +73,5 @@ public class JwtUtils : IJwtUtils
             // return null if validation fails
             return null;
         }
-    }
-
-    public RefreshToken GenerateRefreshToken(string ipAddress)
-    {
-        var refreshToken = new RefreshToken
-        {
-            // token is a cryptographically strong random sequence of values
-            Token = Convert.ToHexString(RandomNumberGenerator.GetBytes(64)),
-            // token is valid for 7 days
-            Expires = DateTime.UtcNow.AddDays(7),
-            Created = DateTime.UtcNow,
-            CreatedByIp = ipAddress
-        };
-
-        return refreshToken;
     }
 }
