@@ -19,7 +19,7 @@ public class CreateUserRequest
     public string Email { get; set; }
 
     [Required]
-    public string PasswordHash { get; set; }
+    public string Password { get; set; }
 
     public string AvatarUrl { get; set; }
 
@@ -29,7 +29,7 @@ public class CreateUserRequest
     [Required]
     public string OrgId { get; set; }
 
-    public Guid DepartmentId { get; set; }
+    public string DepartmentId { get; set; }
 
-    public Guid RoleId { get; set; }
+    public string RoleId { get; set; }
 }
