@@ -142,7 +142,7 @@ public class AccountService : IAccountService
 
         // first registered account is an admin
         var isFirstAccount = _context.Accounts.Count() == 0;
-        account.Role = isFirstAccount ? Role.Admin : Role.User;
+        //account.Role = isFirstAccount ? Role.Admin : Role.User;
         account.Created = DateTime.UtcNow;
         account.VerificationToken = generateVerificationToken();
 
@@ -150,7 +150,7 @@ public class AccountService : IAccountService
         account.PasswordHash = BCrypt.HashPassword(model.Password);
         DateTime localDate = DateTime.Now;
         var genID = localDate.ToString("yyyyMMddss");
-        account.Id = Int32.Parse(genID);
+        account.Id = new Guid();
         // save account
         _context.Accounts.Add(account);
         _context.SaveChanges();

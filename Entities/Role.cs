@@ -1,7 +1,13 @@
 namespace WebApi.Entities;
 
-public enum Role
+public class Role: BaseEntity
 {
-    Admin,
-    User
+    public string Name { get; set; }
+
+    public string Code { get; set; }
+
+    public string OrgId { get; set; }
+
+    public List<AccountRoles> AccountRoles { get; set; } = new();
+
 }

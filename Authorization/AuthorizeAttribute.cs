@@ -7,11 +7,11 @@ using WebApi.Entities;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {
-    private readonly IList<Role> _roles;
+    private readonly IList<Permission> _permissions;
 
-    public AuthorizeAttribute(params Role[] roles)
+    public AuthorizeAttribute(params Permission[] permissions)
     {
-        _roles = roles ?? new Role[] { };
+        _permissions = permissions ?? new Permission[] { };
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)
@@ -22,11 +22,13 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
             return;
 
         // authorization
-        var account = (Account)context.HttpContext.Items["Account"];
-        if (account == null || (_roles.Any() && !_roles.Contains(account.Role)))
-        {
-            // not logged in or role not authorized
-            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
-        }
+        //var account = (Account)context.HttpContext.Items["Account"];
+        //if (account == null || (_permissions.Any() && !_permissions.Contains(account.Rights)))
+        //{
+        //    // not logged in or role not authorized
+        //    context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+        //}
+
+        return;
     }
 }
