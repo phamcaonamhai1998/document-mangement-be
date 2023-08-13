@@ -10,7 +10,6 @@ public class BaseReponse<T>
         this.IsSuccess = isSuccess;
         this.Data = data;
         this.ErrorMessage = error;
-
     }
 
 

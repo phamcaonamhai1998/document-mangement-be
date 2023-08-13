@@ -25,7 +25,7 @@ public class UserService : IUserService
         _appSettings = appSettings.Value;
     }
 
-    public async Task<CreateUserResponse> Create(CreateUserRequest payload)
+    public Task<CreateUserResponse> Create(CreateUserRequest payload)
     {
         var account = _dbContext.Accounts.SingleOrDefault(x => x.Email == payload.Email);
         if (account != null) throw new Exception("user_email_is_existed");
@@ -39,7 +39,7 @@ public class UserService : IUserService
         {
             throw new Exception("password_is_empty");
         }
-        
+
         //check role
         if (String.IsNullOrEmpty(payload.RoleId) || String.IsNullOrWhiteSpace(payload.RoleId))
         {
@@ -76,7 +76,6 @@ public class UserService : IUserService
         _dbContext.Accounts.Add(createAccount);
         _dbContext.SaveChanges();
 
-
-        return new CreateUserResponse(createAccount.Id);
+        return Task.FromResult(new CreateUserResponse(createAccount.Id));
     }
 }
