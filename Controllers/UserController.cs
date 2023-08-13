@@ -22,4 +22,12 @@ public class UserController : Controller
         CreateUserResponse createResult  = await _userService.Create(req);
         return createResult;
     }
+
+
+    [HttpDelete]
+    public async Task<bool> Delete(string id)
+    {
+        bool deleteResult = await _userService.Delete(id);
+        return deleteResult;
+    }
 }

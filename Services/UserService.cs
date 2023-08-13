@@ -85,13 +85,22 @@ public class UserService : IUserService
         {
             if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
             {
-
+                throw new Exception("id_is_empty");
             }
 
+            var user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
+
+            if (user == null) throw new Exception("user_is_not_found");
+
+            _dbContext.Accounts.Remove(user);
+            _dbContext.SaveChanges();
             return Task.FromResult(true);
 
-        } catch(Exception ex) {
-            return Task.FromResult(false);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw ex;
         }
     }
 }
