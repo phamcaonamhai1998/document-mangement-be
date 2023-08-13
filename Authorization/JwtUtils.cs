@@ -4,15 +4,17 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.Users;
+using Json.Net;
+using WebApi.Models.Role;
 
 public interface IJwtUtils
 {
-    public string GenerateJwtToken(Account account);
-    public int? ValidateJwtToken(string token);
+    public string GenerateJwtToken(UserClaims claims);
+    public UserClaims? ValidateJwtToken(string token);
 }
 
 public class JwtUtils : IJwtUtils
@@ -28,22 +30,30 @@ public class JwtUtils : IJwtUtils
         _appSettings = appSettings.Value;
     }
 
-    public string GenerateJwtToken(Account account)
+    public string GenerateJwtToken(UserClaims claims)
     {
         // generate token that is valid for 15 minutes
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", account.Id.ToString()) }),
-            Expires = DateTime.UtcNow.AddMinutes(15),
+            Subject = new ClaimsIdentity(new[] {
+                new Claim("id", claims.Id.ToString()),
+                new Claim("org", JsonNet.Serialize(claims.Organization)),
+                new Claim("department",JsonNet.Serialize(claims.Department)),
+                new Claim("role", JsonNet.Serialize(claims.Role)),
+                new Claim("rights", JsonNet.Serialize(claims.Rights)),
+                new Claim("firstName", claims.FirstName.ToString()),
+                new Claim("lastName", claims.LastName.ToString()),
+            }),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
 
-    public int? ValidateJwtToken(string token)
+    public UserClaims? ValidateJwtToken(string token)
     {
         if (token == null)
             return null;
@@ -63,10 +73,17 @@ public class JwtUtils : IJwtUtils
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var accountId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+            
+            Guid UserId = Guid.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+            string firstName = jwtToken.Claims.First(x => x.Type == "firstName").Value;
+            string lastName = jwtToken.Claims.First(x => x.Type == "lastName").Value;
+            RoleDto role = JsonNet.Deserialize<RoleDto>(jwtToken.Claims.First(x => x.Type == "role").Value);
+            Organization org = JsonNet.Deserialize<Organization>(jwtToken.Claims.First(x => x.Type == "org").Value);
+            Department dep = JsonNet.Deserialize<Department>(jwtToken.Claims.First(x => x.Type == "department").Value);
+            List<string> rights = JsonNet.Deserialize<List<string>>(jwtToken.Claims.First(x => x.Type == "rights").Value);
 
-            // return account id from JWT token if validation successful
-            return accountId;
+            // return claim
+            return new UserClaims(UserId, firstName, lastName, role, dep, org, rights);
         }
         catch
         {

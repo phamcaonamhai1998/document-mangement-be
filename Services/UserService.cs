@@ -8,6 +8,7 @@ using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 using BCrypt.Net;
 using WebApi.Models.Role;
+using WebApi.Models.Auth;
 
 namespace WebApi.Services;
 
@@ -127,7 +128,7 @@ public class UserService : IUserService
 
     public Task<bool> Update(string id, UpdateUserRequest payload)
     {
-        if(payload == null)
+        if (payload == null)
         {
             throw new Exception("payload_is_empty");
         }
@@ -146,5 +147,42 @@ public class UserService : IUserService
 
         _dbContext.SaveChanges();
         return Task.FromResult(true);
+    }
+
+    public Task<LoginResponse> Login(LoginRequest payload)
+    {
+        Account user = _dbContext.Accounts
+            .Include(a => a.Department)
+            .Include(a => a.Role)
+            .SingleOrDefault(a => a.Email == payload.Email);
+
+        if (user == null)
+        {
+            throw new Exception("user_is_not_found");
+        }
+
+        string hashPwd = BCrypt.Net.BCrypt.HashPassword(payload.Password);
+        if (hashPwd != user.PasswordHash)
+        {
+            throw new Exception("password_is_incorrect");
+        }
+
+        RoleDto roleDto = _mapper.Map<RoleDto>(user.Role);
+
+        // get org
+        Organization org = _dbContext.Organizations.SingleOrDefault(o => o.Id == Guid.Parse(user.OrgId));
+
+        // get permissions
+        List<RolePermission> rps = _dbContext.RolePermissions.Where(rp => rp.RoleId == user.Role.Id).ToList();
+        List<string> rights = new List<string>();
+        rps.ForEach(rp =>
+        {
+            rights.Add($"{rp.Name}_{rp.Code}");
+        });
+
+        UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights);
+        string token = _jwtUtils.GenerateJwtToken(claims);
+
+        return Task.FromResult(new LoginResponse(token));
     }
 }

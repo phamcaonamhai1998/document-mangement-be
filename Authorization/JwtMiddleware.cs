@@ -2,6 +2,7 @@ namespace WebApi.Authorization;
 
 using Microsoft.Extensions.Options;
 using WebApi.Helpers;
+using WebApi.Models.Users;
 
 public class JwtMiddleware
 {
@@ -16,12 +17,12 @@ public class JwtMiddleware
 
     public async Task Invoke(HttpContext context, DataContext dataContext, IJwtUtils jwtUtils)
     {
-        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        var accountId = jwtUtils.ValidateJwtToken(token);
-        if (accountId != null)
+        string token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        UserClaims claims = jwtUtils.ValidateJwtToken(token);
+        if (claims != null)
         {
             // attach account to context on successful jwt validation
-            context.Items["Account"] = await dataContext.Accounts.FindAsync(accountId.Value);
+            context.Items["Claims"] = claims;
         }
 
         await _next(context);
