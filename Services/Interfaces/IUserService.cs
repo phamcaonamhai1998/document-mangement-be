@@ -4,5 +4,5 @@ namespace WebApi.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<CreateUserResponse> create(CreateUserRequest payload);
+    public Task<CreateUserResponse> Create(CreateUserRequest payload);
 }

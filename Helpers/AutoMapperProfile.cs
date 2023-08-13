@@ -3,17 +3,21 @@ namespace WebApi.Helpers;
 using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
+using WebApi.Models.Users;
 
 public class AutoMapperProfile : Profile
 {
     // mappings between model and entity objects
     public AutoMapperProfile()
     {
+        // Users/Accounts
         CreateMap<Account, AccountResponse>();
 
         CreateMap<Account, AuthenticateResponse>();
 
         CreateMap<RegisterRequest, Account>();
+
+        CreateMap<CreateRequest, Account>();
 
         CreateMap<CreateRequest, Account>();
 
@@ -31,5 +35,7 @@ public class AutoMapperProfile : Profile
                     return true;
                 }
             ));
+
+        CreateMap<CreateUserRequest, Account>();
     }
 }

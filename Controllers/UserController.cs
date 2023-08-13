@@ -17,7 +17,9 @@ public class UserController : Controller
     }
 
     [HttpPost("create")]
-    public IActionResult Create()
+    public async Task<CreateUserResponse> Create([FromBody] CreateUserRequest req)
     {
+        CreateUserResponse createResult  = await _userService.Create(req);
+        return createResult;
     }
 }

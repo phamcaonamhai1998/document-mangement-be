@@ -12,7 +12,7 @@ public class UserDto
     public string PasswordHash { get; set; }
     public string AvatarUrl { get; set; }
     public string Phone { get; set; }
-    public string OrgId { get; set; }
+    public Organization Org{ get; set; }
     public Department Department { get; set; }
-    public List<AccountRoles> AccountRoles { get; set; } = new();
+    public Role Role { get; set; }
 }
