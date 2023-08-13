@@ -16,6 +16,20 @@ public class UserController : Controller
         _userService = userService;
     }
 
+    [HttpGet]
+    public async Task<List<UserDto>> GetAll()
+    {
+        List<UserDto> users = await _userService.GetAll();
+        return users;
+    }
+
+    [HttpGet("{id}")]
+    public async Task<UserDto> GetById(string id)
+    {
+        UserDto getResult = await _userService.GetById(id);
+        return getResult;
+    }
+
     [HttpPost()]
     public async Task<CreateUserResponse> Create([FromBody] CreateUserRequest req)
     {

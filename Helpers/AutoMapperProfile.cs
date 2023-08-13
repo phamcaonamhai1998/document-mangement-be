@@ -3,6 +3,7 @@ namespace WebApi.Helpers;
 using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
+using WebApi.Models.Role;
 using WebApi.Models.Users;
 
 public class AutoMapperProfile : Profile
@@ -37,5 +38,9 @@ public class AutoMapperProfile : Profile
             ));
 
         CreateMap<CreateUserRequest, Account>();
+        CreateMap<Account, UserDto>();
+
+        //role
+        CreateMap<Role, RoleDto>();
     }
 }

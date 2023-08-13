@@ -1,4 +1,5 @@
 ﻿using WebApi.Entities;
+using WebApi.Models.Role;
 
 namespace WebApi.Models.Users;
 
@@ -14,5 +15,5 @@ public class UserDto
     public string Phone { get; set; }
     public Organization Org{ get; set; }
     public Department Department { get; set; }
-    public Role Role { get; set; }
+    public RoleDto Role { get; set; }
 }

@@ -7,6 +7,7 @@ using WebApi.Helpers;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 using BCrypt.Net;
+using WebApi.Models.Role;
 
 namespace WebApi.Services;
 
@@ -81,26 +82,46 @@ public class UserService : IUserService
 
     public Task<bool> Delete(string id)
     {
-        try
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
-            if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
-            {
-                throw new Exception("id_is_empty");
-            }
-
-            var user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
-
-            if (user == null) throw new Exception("user_is_not_found");
-
-            _dbContext.Accounts.Remove(user);
-            _dbContext.SaveChanges();
-            return Task.FromResult(true);
-
+            throw new Exception("id_is_empty");
         }
-        catch (Exception ex)
+
+        var user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
+
+        if (user == null) throw new Exception("user_is_not_found");
+
+        _dbContext.Accounts.Remove(user);
+        _dbContext.SaveChanges();
+        return Task.FromResult(true);
+    }
+
+    public Task<List<UserDto>> GetAll()
+    {
+        var users = _dbContext.Accounts.ToList();
+        List<UserDto> userDtos = new List<UserDto>();
+        users.ForEach(u =>
         {
-            Console.WriteLine(ex.Message);
-            throw ex;
+            var userDto = _mapper.Map<UserDto>(u);
+            userDtos.Add(userDto);
+        });
+        return Task.FromResult(userDtos);
+
+    }
+
+    public Task<UserDto> GetById(string id)
+    {
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        {
+            throw new Exception("id_is_empty");
         }
+        var user = _dbContext.Accounts.Include(a => a.Role).SingleOrDefault(a => a.Id == Guid.Parse(id));
+        UserDto userDto = _mapper.Map<UserDto>(user);
+        RoleDto roleDto = _mapper.Map<RoleDto>(user.Role);
+
+        userDto.Role = roleDto;
+
+        return Task.FromResult(userDto);
+
     }
 }

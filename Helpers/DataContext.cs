@@ -36,5 +36,9 @@ public class DataContext : DbContext
         Organization.ConfigurationEntity(modelBuilder);
         Department.ConfigurationEntity(modelBuilder);
         RolePermission.ConfigurationEntity(modelBuilder);
+        DocumentProcedureStep.ConfigurationEntity(modelBuilder);
+        ProcedureStep.ConfigurationEntity(modelBuilder);
+        Procedure.ConfigurationEntity(modelBuilder);
+        Permission.ConfigurationEntity(modelBuilder);
     }
 }
