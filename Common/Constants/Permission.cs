@@ -39,6 +39,7 @@ namespace WebApi.Common.Constants
     public static class SystemOrg
     {
         public static readonly string SystemOrgId = "b7759ac0-3aa7-11ee-be56-0242ac120002";
+        public static readonly string AdminId = "504f9ee8-0d19-4fea-9340-9e3d31614995";
     }
 
     public static class SysRole

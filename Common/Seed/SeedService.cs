@@ -4,6 +4,7 @@ using Entities = WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Entities;
 using System;
+using WebApi.Common.Enum;
 
 namespace WebApi.Common.Seed
 {
@@ -66,6 +67,43 @@ namespace WebApi.Common.Seed
             {
                 _dbContext.RolePermissions.Remove(item);
             });
+
+            Organization org = _dbContext.Organizations.FirstOrDefault(o => o.Id == Guid.Parse(SystemOrg.SystemOrgId));
+            if(org == null)
+            {
+                Organization root = new Organization();
+                root.Id = Guid.Parse(SystemOrg.SystemOrgId);
+                root.Name = "Root";
+                root.Email = string.Empty;
+                root.Phone = string.Empty;
+
+                _dbContext.Organizations.Add(root);
+                _dbContext.SaveChanges();
+
+            }
+
+            Account user = _dbContext.Accounts.FirstOrDefault(a => a.Id == Guid.Parse(SystemOrg.AdminId));
+            if (user == null)
+            {
+                Account admin = new Account();
+                admin.Email = "sysadmin@gmail.com";
+                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456");
+                admin.FirstName = "SysAdmin";
+                admin.LastName = "";
+                admin.Phone = "0000000000";
+                admin.IsActive = true;
+                admin.AccountType = AccountTypeEnum.Admin;
+                admin.OrgId = SystemOrg.SystemOrgId;
+                admin.Id = Guid.Parse(SystemOrg.AdminId);
+
+
+                Role role = _dbContext.Roles.Where(r => r.Id == Guid.Parse(SysRole.Admin)).SingleOrDefault();
+                admin.Role = role;
+
+                _dbContext.Accounts.Add(admin);
+                _dbContext.SaveChanges();
+            }
+
 
             _dbContext.SaveChanges();
         }
