@@ -51,13 +51,8 @@ public class DepartmentService : IDepartmentService
 
     public Task<List<DepartmentDto>> GetAll()
     {
-        var deps = _dbContext.Accounts.ToList();
-        List<DepartmentDto> depDtos = new List<DepartmentDto>();
-        depDtos.ForEach(item =>
-        {
-            var depDto = _mapper.Map<DepartmentDto>(item);
-            depDtos.Add(depDto);
-        });
+        var orgs = _dbContext.Departments.ToList();
+        var depDtos = _mapper.Map<List<DepartmentDto>>(orgs);
         return Task.FromResult(depDtos);
     }
 
