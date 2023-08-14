@@ -10,6 +10,8 @@ public class Role : BaseEntity
         modelBuilder.Entity<Role>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
     }
 
+    public Role() { }
+
     public Role(Guid id, string name, string orgId)
     {
         Id = id;

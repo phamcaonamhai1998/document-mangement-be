@@ -4,6 +4,7 @@ using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
 using WebApi.Models.Organizations;
+using WebApi.Models.Permissions;
 using WebApi.Models.Role;
 using WebApi.Models.Users;
 
@@ -51,5 +52,8 @@ public class AutoMapperProfile : Profile
         CreateMap<UpdateOrganizationRequest, Organization>();
 
         //Department
+
+        //Permission
+        CreateMap<Permission, PermissionDto>();
     }
 }
