@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using WebApi.Authorization;
 using WebApi.Models;
 using WebApi.Models.Users;
@@ -11,12 +12,10 @@ namespace WebApi.Controllers;
 public class UserController : BaseController
 {
     private readonly IUserService _userService;
-    private readonly IJwtUtils _jwtUtils;
 
     public UserController(IUserService userService, IJwtUtils jwtUtils)
     {
         _userService = userService;
-        _jwtUtils = jwtUtils;
     }
 
     [HttpGet]

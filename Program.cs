@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using WebApi.Authorization;
+using WebApi.Common.Seed;
 using WebApi.Helpers;
 using WebApi.Services;
 using WebApi.Services.Interfaces;
@@ -12,10 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 {
     var services = builder.Services;
     var env = builder.Environment;
- 
+
     services.AddDbContext<DataContext>();
     services.AddCors();
-    services.AddControllers().AddJsonOptions(x => 
+    services.AddControllers().AddJsonOptions(x =>
     {
         // serialize enums as strings in api responses (e.g. Role)
         x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -31,6 +33,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<IEmailService, EmailService>();
     services.AddScoped<IUserService, UserService>();
+
+    services.AddScoped<ISeeder, SeedService>();
 }
 
 builder.Services.AddAuthorization();
@@ -72,8 +76,20 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // migrate any database changes on startup (includes initial db creation)
 using (var scope = app.Services.CreateScope())
 {
-    var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();    
+    var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
     dataContext.Database.Migrate();
+}
+
+//Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var _configService = scope.ServiceProvider.GetService<IConfiguration>();
+    bool isSeed = _configService.GetValue<bool>("Seeding:Enabled");
+    if (isSeed)
+    {
+        var seedService = scope.ServiceProvider.GetRequiredService<ISeeder>();
+        seedService.SeedSystemRolePermissions();
+    }
 }
 
 // configure HTTP request pipeline
