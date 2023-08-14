@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Models;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
@@ -35,7 +36,7 @@ public class UserController : BaseController
     [HttpPost]
     public async Task<CreateUserResponse> Create([FromBody] CreateUserRequest req)
     {
-        CreateUserResponse createResult  = await _userService.Create(req);
+        CreateUserResponse createResult = await _userService.Create(req);
         return createResult;
     }
 
@@ -48,6 +49,7 @@ public class UserController : BaseController
     }
 
     [HttpDelete]
+    [AuthorizeAttribute("User:Delete")]
     public async Task<bool> Delete(string id)
     {
         bool deleteResult = await _userService.Delete(id);

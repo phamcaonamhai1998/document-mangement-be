@@ -3,6 +3,7 @@ namespace WebApi.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using WebApi.Entities;
+using WebApi.Models.Users;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
@@ -22,13 +23,15 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
             return;
 
         // authorization
-        //var account = (Account)context.HttpContext.Items["Account"];
-        //if (account == null || (_permissions.Any() && !_permissions.Contains(account.Rights)))
-        //{
-        //    // not logged in or role not authorized
-        //    context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
-        //}
+        var claims = (UserClaims)context.HttpContext.Items["Claims"];
+        if (claims == null || (_permissions.Any() && !_permissions.Any(p => claims.Rights.Any(r => r == p))))
+        {
+            // not logged in or role not authorized
+            context.Result = new JsonResult(new { message = "Forbidden" }) { StatusCode = StatusCodes.Status403Forbidden };
+            return;
+        }
 
         return;
+
     }
 }
