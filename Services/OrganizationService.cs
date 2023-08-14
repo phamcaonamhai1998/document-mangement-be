@@ -50,13 +50,8 @@ public class OrganizationService : IOrganizationService
 
     public Task<List<OrganizationDto>> GetAll()
     {
-        var orgs = _dbContext.Accounts.ToList();
-        List<OrganizationDto> orgDtos = new List<OrganizationDto>();
-        orgDtos.ForEach(u =>
-        {
-            var orgDto = _mapper.Map<OrganizationDto>(u);
-            orgDtos.Add(orgDto);
-        });
+        var orgs = _dbContext.Organizations.ToList();
+        var orgDtos = _mapper.Map<List<OrganizationDto>>(orgs);
         return Task.FromResult(orgDtos);
     }
 

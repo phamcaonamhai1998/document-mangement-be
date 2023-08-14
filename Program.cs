@@ -31,6 +31,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<IEmailService, EmailService>();
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IOrganizationService, OrganizationService>();
+    services.AddScoped<IDepartmentService, DepartmentService>();
 }
 
 builder.Services.AddAuthorization();
