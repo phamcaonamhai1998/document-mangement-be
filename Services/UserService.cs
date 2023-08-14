@@ -161,8 +161,8 @@ public class UserService : IUserService
             throw new Exception("user_is_not_found");
         }
 
-        string hashPwd = BCrypt.Net.BCrypt.HashPassword(payload.Password);
-        if (hashPwd != user.PasswordHash)
+        bool isValidPwd = BCrypt.Net.BCrypt.Verify(payload.Password, user.PasswordHash);
+        if (!isValidPwd)
         {
             throw new Exception("password_is_incorrect");
         }
@@ -173,12 +173,18 @@ public class UserService : IUserService
         Organization org = _dbContext.Organizations.SingleOrDefault(o => o.Id == Guid.Parse(user.OrgId));
 
         // get permissions
-        List<RolePermission> rps = _dbContext.RolePermissions.Where(rp => rp.RoleId == user.Role.Id).ToList();
         List<string> rights = new List<string>();
-        rps.ForEach(rp =>
+
+        if (roleDto != null)
         {
-            rights.Add($"{rp.Name}_{rp.Code}");
-        });
+
+            List<RolePermission> rps = _dbContext.RolePermissions.Where(rp => rp.RoleId == user.Role.Id).ToList();
+
+            rps.ForEach(rp =>
+            {
+                rights.Add($"{rp.Name}_{rp.Code}");
+            });
+        }
 
         UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights);
         string token = _jwtUtils.GenerateJwtToken(claims);
