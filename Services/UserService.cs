@@ -182,7 +182,7 @@ public class UserService : IUserService
 
             rps.ForEach(rp =>
             {
-                rights.Add($"{rp.Name}_{rp.Code}");
+                rights.Add($"{rp.Name}:{rp.Code}");
             });
         }
 

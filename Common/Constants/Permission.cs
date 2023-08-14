@@ -4,19 +4,19 @@ using Entities = WebApi.Entities;
 
 namespace WebApi.Common.Constants
 {
-    public static class Permission
+    public static class PermissionList
     {
 
-        public static readonly string UserList = "User:List";
-        public static readonly string UserCretae = "User:Create";
-        public static readonly string UserUpdate = "User:Update";
-        public static readonly string UserDelete = "User:Delete";
+        public static readonly string UserList = "User_List";
+        public static readonly string UserCretae = "User_Create";
+        public static readonly string UserUpdate = "User_Update";
+        public static readonly string UserDelete = "User_Delete";
 
 
-        public static readonly string DocumentList = "Document:List";
-        public static readonly string DocumentCretae = "Document:Create";
-        public static readonly string DocumentUpdate = "Document:Update";
-        public static readonly string DocumentDelete = "Document:Delete";
+        public static readonly string DocumentList = "Document_List";
+        public static readonly string DocumentCretae = "Document_Create";
+        public static readonly string DocumentUpdate = "Document_Update";
+        public static readonly string DocumentDelete = "Document_Delete";
     }
 
     public static class PermissionGroupCode
@@ -39,6 +39,7 @@ namespace WebApi.Common.Constants
     public static class SystemOrg
     {
         public static readonly string SystemOrgId = "b7759ac0-3aa7-11ee-be56-0242ac120002";
+        public static readonly string AdminId = "504f9ee8-0d19-4fea-9340-9e3d31614995";
     }
 
     public static class SysRole

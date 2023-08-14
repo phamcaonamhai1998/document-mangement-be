@@ -17,6 +17,7 @@ public class Account: BaseEntity
     public string AvatarUrl { get; set; }
     public string Phone { get; set; }
     public string OrgId { get; set; }
+
     public bool IsActive { get; set; }
     public AccountTypeEnum AccountType { get; set; }
     public Role Role { get; set; }
