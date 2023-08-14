@@ -3,6 +3,7 @@ namespace WebApi.Helpers;
 using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
+using WebApi.Models.Organizations;
 using WebApi.Models.Role;
 using WebApi.Models.Users;
 
@@ -42,5 +43,13 @@ public class AutoMapperProfile : Profile
 
         //role
         CreateMap<Role, RoleDto>();
+
+        //Organization
+        
+        CreateMap<Organization, OrganizationDto>(); 
+        CreateMap<CreateOrganizationRequest, Organization>(); 
+        CreateMap<UpdateOrganizationRequest, Organization>();
+
+        //Department
     }
 }

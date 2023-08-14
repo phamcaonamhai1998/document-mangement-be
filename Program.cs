@@ -34,6 +34,9 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IEmailService, EmailService>();
     services.AddScoped<IUserService, UserService>();
 
+    services.AddScoped<IOrganizationService, OrganizationService>();
+    services.AddScoped<IDepartmentService, DepartmentService>();
+    
     services.AddScoped<ISeeder, SeedService>();
 }
 
