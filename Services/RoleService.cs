@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.Permissions;
 using WebApi.Models.Role;
 using WebApi.Models.Roles;
 using WebApi.Models.Users;
@@ -41,21 +42,42 @@ namespace WebApi.Services
             _dbContext.SaveChanges();
             return Task.FromResult(role.Id.ToString());
         }
-        public async Task<RoleDto> Get(string id)
+        public async Task<RoleDetailDto> Get(string id, UserClaims claims)
+        {
+            RoleDto role = getOrgRoleById(Guid.Parse(id), claims.Organization.Id.ToString());
+
+            List<RolePermission> rolePermissions = _dbContext.RolePermissions.Where(rp => rp.RoleId == Guid.Parse(role.Id)).ToList();
+
+
+            RoleDetailDto result = new RoleDetailDto();
+            result.Permissions = _mapper.Map<List<RolePermissionDto>>(rolePermissions);
+            result.Id = role.Id;
+            result.Name= role.Name;
+
+            return result;
+
+        }
+        public async Task<List<RoleDto>> GetAll(UserClaims claims)
         {
             return null;
         }
-        public async Task<List<RoleDto>> GetAll()
-        {
-            return null;
-        }
-        public async Task<bool> Update(string id)
+        public async Task<bool> Update(string id, UpdateRoleRequest request, UserClaims claims)
         {
             return true;
         }
-        public async Task<bool> Delete(string id)
+        public async Task<bool> Delete(string id, UserClaims claims)
         {
             return true;
+        }
+
+
+        private RoleDto getOrgRoleById(Guid id, string orgId)
+        {
+
+            Role role = _dbContext.Roles.Where(r => r.OrgId == orgId && r.Id == id).SingleOrDefault();
+            RoleDto dto = _mapper.Map<RoleDto>(role);
+            return dto;
+
         }
     }
 }
