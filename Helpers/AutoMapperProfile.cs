@@ -47,9 +47,9 @@ public class AutoMapperProfile : Profile
         CreateMap<Role, RoleDto>();
 
         //Organization
-        
-        CreateMap<Organization, OrganizationDto>(); 
-        CreateMap<CreateOrganizationRequest, Organization>(); 
+
+        CreateMap<Organization, OrganizationDto>();
+        CreateMap<CreateOrganizationRequest, Organization>();
         CreateMap<UpdateOrganizationRequest, Organization>();
 
         //Department
@@ -59,5 +59,8 @@ public class AutoMapperProfile : Profile
 
         //Permission
         CreateMap<Permission, PermissionDto>();
+
+        //Role Permission
+        CreateMap<RolePermission, RolePermissionDto>();
     }
 }

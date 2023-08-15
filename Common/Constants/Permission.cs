@@ -22,6 +22,7 @@ namespace WebApi.Common.Constants
     public static class PermissionGroupCode
     {
         public static readonly string User = "User";
+        public static readonly string Role = "Role";
         public static readonly string Document = "Document";
         public static readonly string Organization = "Organization";
         public static readonly string Department = "Department";
@@ -90,6 +91,11 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.User, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.User, PermissionCode.Delete),
 
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Create),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Update),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Delete),
+
              // Organization
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Department, PermissionCode.List),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Department, PermissionCode.Create),
@@ -101,12 +107,25 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.User, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.User, PermissionCode.Delete),
 
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Create),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Update),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Delete),
+
             
              // Department
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.User, PermissionCode.List),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.User, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.User, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.User, PermissionCode.Delete),
+
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Create),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Update),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Delete),
+
+
+
 
         });
     }

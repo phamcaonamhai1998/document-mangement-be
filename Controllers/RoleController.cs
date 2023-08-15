@@ -20,27 +20,34 @@ public class RoleController : BaseController
     }
 
     [HttpPost]
-    [Authorize]
+    [AuthorizeAttribute("Role:Create")]
     public Task<string> Create([FromBody] CreateRoleRequest req)
     {
         return _service.Create(req, Claims);
     }
 
-    [Authorize]
+    [AuthorizeAttribute("Role:List")]
     [HttpGet]
     public async Task<List<RoleDto>> Get()
     {
         return null;
     }
 
-    [Authorize]
+    [AuthorizeAttribute("Role:List")]
+    [HttpGet("all")]
+    public async Task<List<RoleDto>> GetAll()
+    {
+        return null;
+    }
+
+    [AuthorizeAttribute("Role:Update")]
     [HttpPut]
     public async Task<bool> Update()
     {
         return true;
     }
 
-    [Authorize]
+    [AuthorizeAttribute("Role:Delete")]
     [HttpDelete]
     public async Task<bool> Delete()
     {
