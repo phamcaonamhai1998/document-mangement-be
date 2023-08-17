@@ -37,8 +37,12 @@ var builder = WebApplication.CreateBuilder(args);
 
     services.AddScoped<IOrganizationService, OrganizationService>();
     services.AddScoped<IDepartmentService, DepartmentService>();
-    
+
+    services.AddScoped<IDocumentService, DocumentService>();
+
     services.AddScoped<ISeeder, SeedService>();
+
+    services.AddScoped<StorageHelper>();
 }
 
 builder.Services.AddAuthorization();

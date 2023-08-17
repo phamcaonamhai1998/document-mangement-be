@@ -3,6 +3,7 @@ namespace WebApi.Helpers;
 using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
+using WebApi.Models.Documents;
 using WebApi.Models.Organizations;
 using WebApi.Models.Permissions;
 using WebApi.Models.Role;
@@ -58,5 +59,8 @@ public class AutoMapperProfile : Profile
 
         //Role Permission
         CreateMap<RolePermission, RolePermissionDto>();
+
+        //Documents
+        CreateMap<Document, DocumentDto>();
     }
 }
