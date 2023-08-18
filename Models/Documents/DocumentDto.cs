@@ -16,6 +16,8 @@ namespace WebApi.Models.Documents
 
         public Guid DepartmentId { get; set; }
 
+        public string Description { get; set; }
+
         public string DriveDocId { get; set; }
 
         public List<DocumentProcedureStep> DocumentProcedureSteps { get; set; }

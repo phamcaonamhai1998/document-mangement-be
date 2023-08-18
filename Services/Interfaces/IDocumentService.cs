@@ -7,7 +7,7 @@ namespace WebApi.Services.Interfaces
     public interface IDocumentService
     {
         public Task<bool> Create(CreateDocumentRequest payload, UserClaims claims);
-        public Task<bool> UpdateDocProcedure(UpdateDocProcedure payload, string id, UserClaims claims);
+        public Task<bool> UpdateDoc(UpdateDocProcedure payload, string id, UserClaims claims);
         public Task<List<DocumentDto>> GetAll(UserClaims claims);
         public Task<List<DocumentDto>> GetUserDocs(UserClaims claims);
         public Task<List<DocumentDto>> GetOrgDocs(UserClaims claims);

@@ -89,7 +89,7 @@ public class DocumentController : BaseController
     [AuthorizeAttribute("Document:Update")]
     public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
     {
-        var result = await _documentService.UpdateDocProcedure(req, id, Claims);
+        var result = await _documentService.UpdateDoc(req, id, Claims);
         return result;
     }
 

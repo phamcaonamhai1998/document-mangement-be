@@ -10,7 +10,7 @@ namespace WebApi.Entities
             modelBuilder.Entity<Document>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
         }
 
-        public Document(Guid userId, string title, string path, bool isActive, string driveDocId, Guid departmentId, Guid orgId) {
+        public Document(Guid userId, string title, string path, bool isActive, string driveDocId, string description, Guid departmentId, Guid orgId) {
             UserId = userId;            
             Title = title;            
             Path = path;            
@@ -18,6 +18,7 @@ namespace WebApi.Entities
             DriveDocId = driveDocId;
             DepartmentId = departmentId;
             OrgId = orgId;
+            Description = description;
         }
 
         public Guid UserId { get; set; }
@@ -25,6 +26,8 @@ namespace WebApi.Entities
         public string Title { get; set; }
 
         public string Path { get; set; }
+
+        public string Description { get; set; }
 
         public bool IsActive { get; set; }
 

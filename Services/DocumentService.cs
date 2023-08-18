@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Google.Apis.Drive.v3.Data;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Authorization;
@@ -41,7 +42,7 @@ namespace WebApi.Services
                 throw new Exception("procedure_is_not_found");
             }
 
-            Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, claims.Department.Id, claims.Organization.Id);
+            Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, claims.Department.Id, claims.Organization.Id);
             entity.CreatedAt = DateTime.UtcNow;
             entity.Procedure = proc;
 
@@ -127,16 +128,39 @@ namespace WebApi.Services
             return true;
         }
 
-        public async Task<bool> UpdateDocProcedure(UpdateDocProcedure payload, string id, UserClaims claims)
+        public async Task<bool> UpdateDoc(UpdateDocProcedure payload, string id, UserClaims claims)
         {
-            Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
 
             Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
             if (doc == null)
             {
                 throw new Exception("document_not_found");
             }
-            doc.Procedure = proc;
+
+            if (payload.ProcedureId != null)
+            {
+                Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
+                doc.Procedure = proc;
+            }
+
+            if (payload.DriveDocId != null || !string.IsNullOrWhiteSpace(payload.DriveDocId) || !string.IsNullOrEmpty(payload.DriveDocId))
+            {
+                doc.DriveDocId = payload.DriveDocId;
+                // get webViewLink of document from drive
+                var driveFile = await _storageHelper.GetFile(payload.DriveDocId);
+                if (driveFile.Id == null)
+                {
+                    throw new Exception("drive_document_is_not_found");
+                }
+
+                doc.Path = driveFile.WebViewLink;
+            }
+
+            doc.Title = payload.Title;
+            doc.Description = payload.Description;
+            doc.IsActive = payload.IsActive;
+
+
             _dbContext.Documents.Update(doc);
             _dbContext.SaveChanges();
             return true;
