@@ -4,6 +4,7 @@ using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
 using WebApi.Models.Departments;
+using WebApi.Models.Documents;
 using WebApi.Models.Organizations;
 using WebApi.Models.Permissions;
 using WebApi.Models.Procedures;
@@ -80,5 +81,7 @@ public class AutoMapperProfile : Profile
         CreateMap<CreateRoleRequest, Role>();
         CreateMap<UpdateRoleRequest, Role>();
 
+        //Documents
+        CreateMap<Document, DocumentDto>();
     }
 }

@@ -14,5 +14,9 @@ namespace WebApi.Entities
 
         public Guid ProcedureId { get; set; }
 
+        public string Status { get; set; }
+
+        public string RejectReason { get; set; }
+
     }
 }

@@ -39,7 +39,11 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IDepartmentService, DepartmentService>();
     services.AddScoped<IProcedureService, ProcedureService>();
 
+    services.AddScoped<IDocumentService, DocumentService>();
+
     services.AddScoped<ISeeder, SeedService>();
+
+    services.AddScoped<StorageHelper>();
 }
 
 builder.Services.AddAuthorization();

@@ -1,22 +1,29 @@
 ﻿using System.Collections.ObjectModel;
 using Entities = WebApi.Entities;
 
-
 namespace WebApi.Common.Constants
 {
+
+    public class RoleConstants
+    {
+        public const string ADMIN_ROLE_ID = "aadb999a-3aa7-11ee-be56-0242ac120002";
+        public const string ORG_OWNER_ID = "b5c49a0a-3aa7-11ee-be56-0242ac120002";
+        public const string DEP_OWNER_ID = "ae6d324e-3aa7-11ee-be56-0242ac120002";
+    }
+
     public static class PermissionList
     {
 
-        public static readonly string UserList = "User_List";
-        public static readonly string UserCretae = "User_Create";
-        public static readonly string UserUpdate = "User_Update";
-        public static readonly string UserDelete = "User_Delete";
+        public static readonly string UserList = "User:List";
+        public static readonly string UserCreate = "User:Create";
+        public static readonly string UserUpdate = "User:Update";
+        public static readonly string UserDelete = "User:Delete";
 
 
-        public static readonly string DocumentList = "Document_List";
-        public static readonly string DocumentCretae = "Document_Create";
-        public static readonly string DocumentUpdate = "Document_Update";
-        public static readonly string DocumentDelete = "Document_Delete";
+        public static readonly string DocumentList = "Document:List";
+        public static readonly string DocumentCreate = "Document:Create";
+        public static readonly string DocumentUpdate = "Document:Update";
+        public static readonly string DocumentDelete = "Document:Delete";
     }
 
     public static class PermissionGroupCode
@@ -30,7 +37,7 @@ namespace WebApi.Common.Constants
 
     public static class PermissionCode
     {
-        public static readonly string List = "List";
+        public static  readonly string List = "List";
         public static readonly string Create = "Create";
         public static readonly string Update = "Update";
         public static readonly string Delete = "Delete";
@@ -45,11 +52,13 @@ namespace WebApi.Common.Constants
 
     public static class SysRole
     {
-        public static readonly string Admin = "aadb999a-3aa7-11ee-be56-0242ac120002";
-        public static readonly string OrgOwner = "b5c49a0a-3aa7-11ee-be56-0242ac120002";
-        public static readonly string DepOwner = "ae6d324e-3aa7-11ee-be56-0242ac120002";
+
+        public static readonly string Admin = RoleConstants.ADMIN_ROLE_ID;
+        public static readonly string OrgOwner = RoleConstants.ORG_OWNER_ID;
+        public static readonly string DepOwner = RoleConstants.DEP_OWNER_ID;
     }
-    public class ConfigConstants
+
+    public class ConfigRolePermissionConstants
     {
         public static readonly IList<Entities.Permission> PERMISSION_SEEDS = new ReadOnlyCollection<Entities.Permission>(new List<Entities.Permission>
             {
@@ -95,6 +104,11 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Delete),
+
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Create),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Update),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Delete),
 
              // Organization
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Department, PermissionCode.List),
