@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Permissions;
+using WebApi.Models.Procedures;
 using WebApi.Models.Role;
 using WebApi.Models.Roles;
 using WebApi.Models.Users;
@@ -57,9 +59,18 @@ namespace WebApi.Services
             return result;
 
         }
-        public async Task<List<RoleDto>> GetAll(UserClaims claims)
+
+        public Task<List<RoleDto>> GetAll()
         {
-            return null;
+            var roles = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin)).ToList();
+            List<RoleDto> roleDtos = new List<RoleDto>();
+            roles.ForEach((role) =>
+            {
+            var roleDto = _mapper.Map<RoleDto>(role);
+                roleDtos.Add(roleDto);
+            });
+
+            return Task.FromResult(roleDtos);
         }
         public async Task<bool> Update(string id, UpdateRoleRequest request, UserClaims claims)
         {

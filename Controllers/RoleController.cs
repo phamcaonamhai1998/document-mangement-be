@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
 using WebApi.Models.Accounts;
+using WebApi.Models.Procedures;
 using WebApi.Models.Role;
 using WebApi.Models.Roles;
 using WebApi.Models.Users;
+using WebApi.Services;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers;
@@ -37,7 +40,8 @@ public class RoleController : BaseController
     [HttpGet("all")]
     public async Task<List<RoleDto>> GetAll()
     {
-        return null;
+        List<RoleDto> roles = await _service.GetAll();
+        return roles;
     }
 
     [AuthorizeAttribute("Role:Update")]

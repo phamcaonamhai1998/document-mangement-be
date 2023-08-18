@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Organizations;
@@ -50,7 +51,7 @@ public class OrganizationService : IOrganizationService
 
     public Task<List<OrganizationDto>> GetAll()
     {
-        var orgs = _dbContext.Organizations.ToList();
+        var orgs = _dbContext.Organizations.Where((org)=>org.Id != Guid.Parse(SystemOrg.SystemOrgId)).ToList();
         var orgDtos = _mapper.Map<List<OrganizationDto>>(orgs);
         return Task.FromResult(orgDtos);
     }

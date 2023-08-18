@@ -16,8 +16,20 @@ namespace WebApi.Entities
 
         public Guid AssignId { get; set; }
 
+        public Guid ProcedureId { get; set; }
+
         public Procedure Procedure { get; set; }
 
         public List<DocumentProcedureStep> DocumentProcedureSteps { get; set; }
+
+        public ProcedureStep() { }
+
+        public ProcedureStep(Guid id, int priority, string description , Guid assignId)
+        {
+            Id = id;
+            Description = description;
+            Priority = priority;
+            AssignId = assignId;
+        }
     }
 }

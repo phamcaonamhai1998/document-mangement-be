@@ -14,7 +14,7 @@ using WebApi.Models.Role;
 public interface IJwtUtils
 {
     public string GenerateJwtToken(UserClaims claims);
-    public UserClaims? ValidateJwtToken(string token);
+    public UserClaims ValidateJwtToken(string token);
 }
 
 public class JwtUtils : IJwtUtils

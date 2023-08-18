@@ -36,7 +36,6 @@ public class OrganizationController : Controller
         return createResult;
     }
 
-
     [HttpPut("{id}")]
     public async Task<bool> Update(string id, [FromBody] UpdateOrganizationRequest req)
     {
@@ -44,7 +43,7 @@ public class OrganizationController : Controller
         return updateResult;
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<bool> Delete(string id)
     {
         bool deleteResult = await _organizationService.Delete(id);
