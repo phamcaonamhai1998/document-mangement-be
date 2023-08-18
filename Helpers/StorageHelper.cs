@@ -76,6 +76,18 @@ namespace WebApi.Helpers
             return result;
         }
 
+
+        public async Task<bool> DeleteFile(string driveDocId)
+        {
+            DriveService service = await GetService();
+
+            var request = service.Files.Delete(driveDocId);
+
+            request.Execute();
+
+            return true;
+        }
+
         //public async Task<string> Download(string fileId)
         //{
         //    DriveService service = await GetService();

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
@@ -32,22 +33,62 @@ namespace WebApi.Services
                 throw new Exception("document_has_not_been_uploaded");
             }
 
-            Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, claims.Organization.Id);
+            Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, claims.Department.Id, claims.Organization.Id);
+            entity.CreatedAt = DateTime.UtcNow;
             _dbContext.Documents.Add(entity);
             _dbContext.SaveChanges();
             return true;
         }
 
-        public async Task<List<DocumentDto>> GetAll(UserClaims claims)
+        public async Task<List<DocumentDto>> GetUserDocs(UserClaims claims)
         {
-            return null;
+            if (claims.Id.ToString().IsNullOrEmpty())
+            {
+                return new List<DocumentDto>();
+            }
+
+            var docs = _dbContext.Documents.Where(d => d.UserId == claims.Id).ToList();
+
+            return _mapper.Map<List<DocumentDto>>(docs);
         }
-        public async Task<string> Get(string id, UserClaims claims)
+
+        public async Task<List<DocumentDto>> GetOrgDocs(UserClaims claims)
         {
-            return "";
+            if (claims.Organization != null && claims.Organization.Id.ToString().IsNullOrEmpty())
+            {
+                return new List<DocumentDto>();
+            }
+
+            var docs = _dbContext.Documents.Where(d => d.OrgId == claims.Organization.Id).ToList();
+
+            return _mapper.Map<List<DocumentDto>>(docs);
+        }
+
+        public async Task<DocumentDto> GetUserDoc(string id, UserClaims claims)
+        {
+            var doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+
+            if (doc == null || doc.UserId != claims.Id || doc.OrgId != claims.Organization.Id)
+            {
+                throw new Exception("document_not_found");
+            }
+            return _mapper.Map<DocumentDto>(doc);
         }
         public async Task<bool> Delete(string id, UserClaims claims)
         {
+            var document = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+            if (document == null)
+            {
+                throw new Exception("document_is_not_found");
+            }
+
+            if (document.DriveDocId != null)
+            {
+                await _storageHelper.DeleteFile(document.DriveDocId);
+            }
+
+            _dbContext.Documents.Remove(document);
+            _dbContext.SaveChanges();
             return true;
         }
     }

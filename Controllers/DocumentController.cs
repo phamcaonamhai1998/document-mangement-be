@@ -47,16 +47,41 @@ public class DocumentController : BaseController
 
     [HttpPost]
     [AuthorizeAttribute("Document:Create")]
-    public async Task<bool> Create([FromBody] CreateDocumentRequest req) 
+    public async Task<bool> Create([FromBody] CreateDocumentRequest req)
     {
         var result = await _documentService.Create(req, Claims);
         return result;
     }
 
-    [HttpGet]
-    public async Task<Google.Apis.Drive.v3.Data.File> SearchFile([FromQuery] string id)
+    [HttpGet("users")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<List<DocumentDto>> GetUserDocs()
     {
-        var result = await _storageHelper.GetFile(id);
+        var result = await _documentService.GetUserDocs(Claims);
+        return result;
+    }
+
+    [HttpGet("orgs")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<List<DocumentDto>> GetOrgDocs()
+    {
+        var result = await _documentService.GetOrgDocs(Claims);
+        return result;
+    }
+
+    [HttpGet("{id}")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<DocumentDto> GetUserDoc([FromQuery] string id)
+    {
+        var result = await _documentService.GetUserDoc(id, Claims);
+        return result;
+    }
+
+    [HttpDelete]
+    [AuthorizeAttribute("Document:Delete")]
+    public async Task<bool> Delete([FromQuery] string id)
+    {
+        var result = await _documentService.Delete(id, Claims);
         return result;
     }
 
