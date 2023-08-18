@@ -3,6 +3,7 @@ using WebApi.Helpers;
 using WebApi.Models.Documents;
 using WebApi.Services.Interfaces;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 
 namespace WebApi.Controllers;
 
@@ -53,21 +54,36 @@ public class DocumentController : BaseController
         return result;
     }
 
-    [HttpGet("users")]
+    [HttpGet]
     [AuthorizeAttribute("Document:List")]
-    public async Task<List<DocumentDto>> GetUserDocs()
+    public async Task<List<DocumentDto>> GetDocs()
     {
-        var result = await _documentService.GetUserDocs(Claims);
-        return result;
+        List<DocumentDto> result;
+        switch (Claims.Role.Id.ToString())
+        {
+            case RoleConstants.ADMIN_ROLE_ID:
+                result = await _documentService.GetAll(Claims);
+                return result;
+            case RoleConstants.ORG_OWNER_ID:
+                result = await _documentService.GetOrgDocs(Claims);
+                return result;
+            case RoleConstants.DEP_OWNER_ID:
+                result = await _documentService.GetDepartmentDocs(Claims);
+                return result;
+            default:
+                result = await _documentService.GetUserDocs(Claims);
+                return result;
+        }
+
     }
 
-    [HttpGet("orgs")]
-    [AuthorizeAttribute("Document:List")]
-    public async Task<List<DocumentDto>> GetOrgDocs()
-    {
-        var result = await _documentService.GetOrgDocs(Claims);
-        return result;
-    }
+    //[HttpGet("users")]
+    //[AuthorizeAttribute("Document:List")]
+    //public async Task<List<DocumentDto>> GetUserDocs()
+    //{
+    //    var result = await _documentService.GetUserDocs(Claims);
+    //    return result;
+    //}
 
     [HttpGet("{id}")]
     [AuthorizeAttribute("Document:List")]

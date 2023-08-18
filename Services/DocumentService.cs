@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Documents;
@@ -52,6 +53,18 @@ namespace WebApi.Services
             return _mapper.Map<List<DocumentDto>>(docs);
         }
 
+        public async Task<List<DocumentDto>> GetAll(UserClaims claims)
+        {
+            if (claims.Role != null && claims.Role.Id.ToString() != SysRole.Admin)
+            {
+                return new List<DocumentDto>();
+            }
+
+            var docs = _dbContext.Documents.ToList();
+
+            return _mapper.Map<List<DocumentDto>>(docs);
+        }
+
         public async Task<List<DocumentDto>> GetOrgDocs(UserClaims claims)
         {
             if (claims.Organization != null && claims.Organization.Id.ToString().IsNullOrEmpty())
@@ -74,6 +87,19 @@ namespace WebApi.Services
             }
             return _mapper.Map<DocumentDto>(doc);
         }
+
+        public async Task<List<DocumentDto>> GetDepartmentDocs(UserClaims claims)
+        {
+            if (claims.Department != null && claims.Department.Id.ToString().IsNullOrEmpty())
+            {
+                return new List<DocumentDto>();
+            }
+
+            var docs = _dbContext.Documents.Where(d => d.DepartmentId == claims.Department.Id).ToList();
+
+            return _mapper.Map<List<DocumentDto>>(docs);
+        }
+
         public async Task<bool> Delete(string id, UserClaims claims)
         {
             var document = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));

@@ -1,9 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using Entities = WebApi.Entities;
 
-
 namespace WebApi.Common.Constants
 {
+
+    public class RoleConstants
+    {
+        public const string ADMIN_ROLE_ID = "aadb999a-3aa7-11ee-be56-0242ac120002";
+        public const string ORG_OWNER_ID = "b5c49a0a-3aa7-11ee-be56-0242ac120002";
+        public const string DEP_OWNER_ID = "ae6d324e-3aa7-11ee-be56-0242ac120002";
+    }
+
     public static class PermissionList
     {
 
@@ -30,7 +37,7 @@ namespace WebApi.Common.Constants
 
     public static class PermissionCode
     {
-        public static readonly string List = "List";
+        public static  readonly string List = "List";
         public static readonly string Create = "Create";
         public static readonly string Update = "Update";
         public static readonly string Delete = "Delete";
@@ -45,10 +52,12 @@ namespace WebApi.Common.Constants
 
     public static class SysRole
     {
-        public static readonly string Admin = "aadb999a-3aa7-11ee-be56-0242ac120002";
-        public static readonly string OrgOwner = "b5c49a0a-3aa7-11ee-be56-0242ac120002";
-        public static readonly string DepOwner = "ae6d324e-3aa7-11ee-be56-0242ac120002";
+
+        public static readonly string Admin = RoleConstants.ADMIN_ROLE_ID;
+        public static readonly string OrgOwner = RoleConstants.ORG_OWNER_ID;
+        public static readonly string DepOwner = RoleConstants.DEP_OWNER_ID;
     }
+
     public class ConfigConstants
     {
         public static readonly IList<Entities.Permission> PERMISSION_SEEDS = new ReadOnlyCollection<Entities.Permission>(new List<Entities.Permission>
