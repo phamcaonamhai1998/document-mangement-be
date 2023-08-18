@@ -1,9 +1,12 @@
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Validations;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.Documents;
 using WebApi.Models.Procedures;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
@@ -31,13 +34,15 @@ public class ProcedureService : IProcedureService
         Procedure procedure = new Procedure(Guid.NewGuid(), payload.Name);
         procedure.Organization = org;
         procedure.DepartmentId = payload.DepartmentId;
+        procedure.CreatedBy = _claims.Id;
         _dbContext.Procedures.Add(procedure);
 
-        if ( payload.ProcedureSteps.Count() > 0){
+        if (payload.ProcedureSteps.Count() > 0)
+        {
             HandleProcedureStepDto dto = new HandleProcedureStepDto();
             dto.ProcedureId = procedure.Id;
             dto.ProcedureStepItems = payload.ProcedureSteps;
-            await _handleProcedureSteps(dto, procedure);
+            await _handleProcedureSteps(dto, procedure, _claims, false);
         };
         _dbContext.SaveChanges();
 
@@ -45,12 +50,21 @@ public class ProcedureService : IProcedureService
         return new CreateProcedureResponse(procedure.Id);
     }
 
-    private async Task<bool> _handleProcedureSteps(HandleProcedureStepDto payload,Procedure procedure)
+    private async Task<bool> _handleProcedureSteps(HandleProcedureStepDto payload, Procedure procedure, UserClaims _claims, bool isUpdate)
     {
 
-        for(int i = 0; i < payload.ProcedureStepItems.Count; i ++){
+        for (int i = 0; i < payload.ProcedureStepItems.Count; i++)
+        {
             ProcedureStep step = new ProcedureStep(Guid.NewGuid(), i, payload.ProcedureStepItems[i].Description, payload.ProcedureStepItems[i].AssignId);
             step.Procedure = procedure;
+            if (isUpdate == true)
+            {
+                step.UpdatedBy = _claims.Id;
+            }
+            else
+            {
+                step.CreatedBy = _claims.Id;
+            }
             _dbContext.ProcedureSteps.Add(step);
         }
         _dbContext.SaveChanges();
@@ -59,7 +73,7 @@ public class ProcedureService : IProcedureService
 
     public Task<bool> Delete(string id)
     {
-         if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
             throw new Exception("id_is_empty");
         }
@@ -73,8 +87,13 @@ public class ProcedureService : IProcedureService
         return Task.FromResult(true);
     }
 
-    public Task<List<ProcedureDto>> GetAll()
+    public Task<List<ProcedureDto>> GetAll(UserClaims claims)
     {
+
+        if (claims.Role != null && claims.Role.Id.ToString() != SysRole.Admin)
+        {
+            return Task.FromResult(new List<ProcedureDto>());
+        }
         var procedures = _dbContext.Procedures.ToList();
         List<ProcedureDto> procDtos = new List<ProcedureDto>();
         procedures.ForEach((pro) =>
@@ -83,6 +102,30 @@ public class ProcedureService : IProcedureService
             procDtos.Add(procDto);
         });
         return Task.FromResult(procDtos);
+    }
+    public Task<List<ProcedureDto>> GetOrgProcedures(UserClaims claims)
+    {
+        if (claims.Organization != null && claims.Organization.Id.ToString().IsNullOrEmpty())
+        {
+            return Task.FromResult(new List<ProcedureDto>());
+        }
+
+        var docs = _dbContext.Procedures.Where(d => d.Organization.Id == claims.Organization.Id).ToList();
+
+        return Task.FromResult(_mapper.Map<List<ProcedureDto>>(docs));
+    }
+
+    public Task<List<ProcedureDto>> GetDepartmentProcedures(UserClaims claims)
+    {
+
+        if (claims.Department != null && claims.Department.Id.ToString().IsNullOrEmpty())
+        {
+            return Task.FromResult(new List<ProcedureDto>());
+        }
+
+        var docs = _dbContext.Procedures.Where(p => Guid.Parse(p.DepartmentId) == claims.Department.Id).ToList();
+
+        return Task.FromResult(_mapper.Map<List<ProcedureDto>>(docs));
     }
 
     public Task<ProcedureDto> GetById(string id)
@@ -97,9 +140,9 @@ public class ProcedureService : IProcedureService
         return Task.FromResult(procDto);
     }
 
-    public Task<bool> Update(string id, UpdateProcedureRequest payload, UserClaims _claims)
+    public async Task<bool> Update(string id, UpdateProcedureRequest payload, UserClaims _claims)
     {
-        if(payload == null)
+        if (payload == null)
         {
             throw new Exception("payload_is_empty");
         }
@@ -108,18 +151,19 @@ public class ProcedureService : IProcedureService
         {
             throw new Exception("id_is_empty");
         }
-
         Procedure procedure = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
+        procedure.UpdatedBy = _claims.Id;
 
 
         procedure.Name = payload.Name;
-        if( payload.ProcedureSteps.Count() > 0){
+        if (payload.ProcedureSteps.Count() > 0)
+        {
             HandleProcedureStepDto dto = new HandleProcedureStepDto();
             dto.ProcedureStepItems = payload.ProcedureSteps;
-            _handleProcedureSteps(dto, procedure);
+            await _handleProcedureSteps(dto, procedure, _claims, true);
         };
-        
+
         _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        return true;
     }
 }

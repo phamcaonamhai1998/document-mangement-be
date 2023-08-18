@@ -40,8 +40,7 @@ public class DocumentController : BaseController
                 result = await _documentService.GetDepartmentDocs(Claims);
                 return result;
             default:
-                result = await _documentService.GetUserDocs(Claims);
-                return result;
+                return null;
         }
 
     }

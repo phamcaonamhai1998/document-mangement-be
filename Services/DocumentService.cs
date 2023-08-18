@@ -47,6 +47,7 @@ namespace WebApi.Services
             entity.CreatedAt = DateTime.UtcNow;
             entity.Procedure = proc;
             entity.Status = DocumentStatus.PROCESSING;
+            entity.CreatedBy = claims.Id;
 
             _dbContext.Documents.Add(entity);
             _dbContext.SaveChanges();
@@ -172,6 +173,7 @@ namespace WebApi.Services
             doc.Title = payload.Title;
             doc.Description = payload.Description;
             doc.IsActive = payload.IsActive;
+            doc.UpdatedBy = claims.Id;
 
 
             _dbContext.Documents.Update(doc);

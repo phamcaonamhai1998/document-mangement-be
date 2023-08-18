@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Common.Constants;
 using WebApi.Models.Departments;
+using WebApi.Models.Documents;
+using WebApi.Services;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class DepartmentController : Controller
+public class DepartmentController : BaseController
 {
     private readonly IDepartmentService _departmentService;
 
@@ -18,21 +21,31 @@ public class DepartmentController : Controller
     [HttpGet]
     public async Task<List<DepartmentDto>> GetAll()
     {
-        List<DepartmentDto> deps = await _departmentService.GetAll();
-        return deps;
+        List<DepartmentDto> result;
+        switch (Claims.Role.Id.ToString())
+        {
+            case RoleConstants.ADMIN_ROLE_ID:
+                result = await _departmentService.GetAll(Claims);
+                return result;
+            case RoleConstants.ORG_OWNER_ID:
+                result = await _departmentService.GetOrgDeps(Claims);
+                return result;
+            default:
+                return null;
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<DepartmentDto> GetById(string id)
     {
-        DepartmentDto getResult = await _departmentService.GetById(id);
+        DepartmentDto getResult = await _departmentService.GetById(id, Claims);
         return getResult;
     }
 
     [HttpPost]
     public async Task<CreateDepartmentResponse> Create([FromBody] CreateDepartmentRequest req)
     {
-        CreateDepartmentResponse createResult  = await _departmentService.Create(req);
+        CreateDepartmentResponse createResult = await _departmentService.Create(req, Claims);
         return createResult;
     }
 
@@ -40,14 +53,14 @@ public class DepartmentController : Controller
     [HttpPut("{id}")]
     public async Task<bool> Update(string id, [FromBody] UpdateDepartmentRequest req)
     {
-        bool updateResult = await _departmentService.Update(id, req);
+        bool updateResult = await _departmentService.Update(id, req, Claims);
         return updateResult;
     }
 
     [HttpDelete("{id}")]
     public async Task<bool> Delete(string id)
     {
-        bool deleteResult = await _departmentService.Delete(id);
+        bool deleteResult = await _departmentService.Delete(id, Claims);
         return deleteResult;
     }
 }

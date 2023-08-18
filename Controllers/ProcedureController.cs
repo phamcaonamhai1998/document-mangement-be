@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Common.Constants;
+using WebApi.Models.Documents;
 using WebApi.Models.Procedures;
+using WebApi.Services;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers;
@@ -18,8 +21,22 @@ public class ProcedureController : BaseController
     [HttpGet]
     public async Task<List<ProcedureDto>> GetAll()
     {
-        List<ProcedureDto> procedures = await _procedureService.GetAll();
-        return procedures;
+
+        List<ProcedureDto> result;
+        switch (Claims.Role.Id.ToString())
+        {
+            case RoleConstants.ADMIN_ROLE_ID:
+                result = await _procedureService.GetAll(Claims);
+                return result;
+            case RoleConstants.ORG_OWNER_ID:
+                result = await _procedureService.GetOrgProcedures(Claims);
+                return result;
+            case RoleConstants.DEP_OWNER_ID:
+                result = await _procedureService.GetDepartmentProcedures(Claims);
+                return result;
+            default:
+                return null;
+        }
     }
 
     [HttpGet("{id}")]
