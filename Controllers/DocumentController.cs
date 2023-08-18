@@ -85,7 +85,7 @@ public class DocumentController : BaseController
         return result;
     }
 
-    [HttpPut("/{id}/procedure")]
+    [HttpPut("{id}/procedure")]
     [AuthorizeAttribute("Document:Update")]
     public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
     {
