@@ -1,32 +1,45 @@
 ﻿<Properties StartupConfiguration="{230CCAB8-C171-4035-9E51-3E642A761EE8}|Default">
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.ItemProperties.WebApi PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Services/OrganizationService.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Services/UserService.cs">
     <Files>
-      <File FileName="Services/Interfaces/IOrganizationService.cs" Line="1" Column="1" />
-      <File FileName="Services/OrganizationService.cs" Line="71" Column="67" />
+      <File FileName="Controllers/RoleController.cs" Line="40" Column="18" />
+      <File FileName="Services/RoleService.cs" Line="64" Column="10" />
+      <File FileName="Common/Constants/Permission.cs" Line="46" Column="32" />
+      <File FileName="Services/UserService.cs" Line="82" Column="68" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="WebApi">
             <Node name="WebApi">
-              <Node name="Dependencies" expanded="True" />
               <Node name="Authorization" expanded="True" />
-              <Node name="Models" expanded="True" />
-              <Node name="Services">
-                <Node name="Interfaces" expanded="True" />
-                <Node name="OrganizationService.cs" selected="True" />
+              <Node name="Common" expanded="True">
+                <Node name="Constants" expanded="True" />
+              </Node>
+              <Node name="Controllers" expanded="True" />
+              <Node name="Entities" expanded="True" />
+              <Node name="Helpers" expanded="True" />
+              <Node name="Models" expanded="True">
+                <Node name="Roles" expanded="True" />
+              </Node>
+              <Node name="Services" expanded="True">
+                <Node name="UserService.cs" selected="True" />
               </Node>
             </Node>
           </Node>
         </State>
       </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/haipham/Documents/document-management/document-management-be/Services/ProcedureService.cs" relfile="Services/ProcedureService.cs" line="30" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
 </Properties>

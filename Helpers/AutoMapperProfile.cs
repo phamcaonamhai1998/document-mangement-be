@@ -3,10 +3,13 @@ namespace WebApi.Helpers;
 using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
+using WebApi.Models.Departments;
 using WebApi.Models.Documents;
 using WebApi.Models.Organizations;
 using WebApi.Models.Permissions;
+using WebApi.Models.Procedures;
 using WebApi.Models.Role;
+using WebApi.Models.Roles;
 using WebApi.Models.Users;
 
 public class AutoMapperProfile : Profile
@@ -53,12 +56,30 @@ public class AutoMapperProfile : Profile
         CreateMap<UpdateOrganizationRequest, Organization>();
 
         //Department
+        CreateMap<Department, DepartmentDto>();
+        CreateMap<CreateDepartmentRequest, Department>();
+        CreateMap<UpdateDepartmentRequest, Department>();
 
         //Permission
         CreateMap<Permission, PermissionDto>();
 
         //Role Permission
         CreateMap<RolePermission, RolePermissionDto>();
+
+        //Procedure
+        CreateMap<Procedure, ProcedureDto>();
+        CreateMap<CreateProcedureRequest, Procedure>();
+        CreateMap<UpdateProcedureRequest, Procedure>();
+
+        //ProcedureStep
+        CreateMap<ProcedureStep, ProcedureStepDto>();
+        CreateMap<CreateProcedureStepItemDto, ProcedureStep>();
+        // CreateMap<UpdateProcedureStepRequest, ProcedureStep>();
+
+        //Role
+        CreateMap<Role, RoleDto>();
+        CreateMap<CreateRoleRequest, Role>();
+        CreateMap<UpdateRoleRequest, Role>();
 
         //Documents
         CreateMap<Document, DocumentDto>();

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using WebApi.Authorization;
-using WebApi.Common.Constants;
-using WebApi.Models;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 

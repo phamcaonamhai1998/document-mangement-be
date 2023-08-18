@@ -9,6 +9,7 @@ using WebApi.Services.Interfaces;
 using BCrypt.Net;
 using WebApi.Models.Role;
 using WebApi.Models.Auth;
+using WebApi.Common.Constants;
 
 namespace WebApi.Services;
 
@@ -42,37 +43,37 @@ public class UserService : IUserService
             throw new Exception("password_is_empty");
         }
 
-        ////check role
-        //if (String.IsNullOrEmpty(payload.RoleId) || String.IsNullOrWhiteSpace(payload.RoleId))
-        //{
-        //    throw new Exception("role_is_empty");
-        //}
-        //else
-        //{
-        //    var roleId = Guid.Parse(payload.RoleId);
-        //    var role = _dbContext.Roles.SingleOrDefault(r => r.Id == roleId);
-        //    if (role == null) throw new Exception("invalid_role");
-        //}
+        //check role
+        if (String.IsNullOrEmpty(payload.RoleId) || String.IsNullOrWhiteSpace(payload.RoleId))
+        {
+            throw new Exception("role_is_empty");
+        }
+        else
+        {
+            var roleId = Guid.Parse(payload.RoleId);
+            var role = _dbContext.Roles.SingleOrDefault(r => r.Id == roleId);
+            if (role == null) throw new Exception("invalid_role");
+        }
 
-        ////check org
-        //if (String.IsNullOrEmpty(payload.OrgId) || String.IsNullOrWhiteSpace(payload.OrgId))
-        //{
-        //    throw new Exception("org_is_empty");
-        //}
-        //else
-        //{
-        //    var orgId = Guid.Parse(payload.OrgId);
-        //    var org = _dbContext.Organizations.SingleOrDefault(o => o.Id == orgId);
-        //    if (org == null) throw new Exception("invalid_org");
-        //}
+        //check org
+        if (String.IsNullOrEmpty(payload.OrgId) || String.IsNullOrWhiteSpace(payload.OrgId))
+        {
+            throw new Exception("org_is_empty");
+        }
+        else
+        {
+            var orgId = Guid.Parse(payload.OrgId);
+            var org = _dbContext.Organizations.SingleOrDefault(o => o.Id == orgId);
+            if (org == null) throw new Exception("invalid_org");
+        }
 
-        ////check dep
-        //if (payload.DepartmentId.Count() > 0)
-        //{
-        //    var depId = Guid.Parse(payload.DepartmentId);
-        //    var dep = _dbContext.Departments.SingleOrDefault(d => d.Id == depId);
-        //    if (dep == null) throw new Exception("invalid_department");
-        //}
+        //check dep
+        if (payload.DepartmentId.Count() > 0)
+        {
+            var depId = Guid.Parse(payload.DepartmentId);
+            var dep = _dbContext.Departments.SingleOrDefault(d => d.Id == depId);
+            if (dep == null) throw new Exception("invalid_department");
+        }
 
         createAccount.Id = Guid.NewGuid();
         _dbContext.Accounts.Add(createAccount);
@@ -99,7 +100,7 @@ public class UserService : IUserService
 
     public Task<List<UserDto>> GetAll()
     {
-        var users = _dbContext.Accounts.ToList();
+        var users = _dbContext.Accounts.Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).ToList();
         List<UserDto> userDtos = new List<UserDto>();
         users.ForEach(u =>
         {

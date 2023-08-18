@@ -44,7 +44,7 @@ public class DepartmentController : Controller
         return updateResult;
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<bool> Delete(string id)
     {
         bool deleteResult = await _departmentService.Delete(id);

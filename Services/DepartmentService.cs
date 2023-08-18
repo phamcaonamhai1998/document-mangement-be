@@ -4,6 +4,7 @@ using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Departments;
+using WebApi.Models.Organizations;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services;
@@ -14,6 +15,7 @@ public class DepartmentService : IDepartmentService
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
     private readonly AppSettings _appSettings;
+    private readonly OrganizationService _orgService;
 
     public DepartmentService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
     {
@@ -51,11 +53,11 @@ public class DepartmentService : IDepartmentService
 
     public Task<List<DepartmentDto>> GetAll()
     {
-        var deps = _dbContext.Accounts.ToList();
+        var deps = _dbContext.Departments.ToList();
         List<DepartmentDto> depDtos = new List<DepartmentDto>();
-        depDtos.ForEach(item =>
+        deps.ForEach((dep) =>
         {
-            var depDto = _mapper.Map<DepartmentDto>(item);
+            var depDto = _mapper.Map<DepartmentDto>(dep);
             depDtos.Add(depDto);
         });
         return Task.FromResult(depDtos);
@@ -63,12 +65,16 @@ public class DepartmentService : IDepartmentService
 
     public Task<DepartmentDto> GetById(string id)
     {
-          if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
             throw new Exception("id_is_empty");
         }
         var dep = _dbContext.Departments.SingleOrDefault(a => a.Id == Guid.Parse(id));
         DepartmentDto depDto = _mapper.Map<DepartmentDto>(dep);
+
+        OrganizationDto orgDto = _mapper.Map<OrganizationDto>(dep.Organization);
+
+        depDto.Organization = orgDto;
 
         return Task.FromResult(depDto);
     }

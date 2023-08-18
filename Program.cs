@@ -37,6 +37,7 @@ var builder = WebApplication.CreateBuilder(args);
 
     services.AddScoped<IOrganizationService, OrganizationService>();
     services.AddScoped<IDepartmentService, DepartmentService>();
+    services.AddScoped<IProcedureService, ProcedureService>();
 
     services.AddScoped<IDocumentService, DocumentService>();
 
