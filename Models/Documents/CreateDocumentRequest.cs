@@ -12,6 +12,9 @@ namespace WebApi.Models.Documents
         [Required]
         public string DriveDocId { get; set; }
 
+        [Required]
+        public string ProcedureId { get; set; }
+
         public bool IsActive { get; set; }
 
     }

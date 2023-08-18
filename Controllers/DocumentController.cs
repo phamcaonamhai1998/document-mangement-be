@@ -22,6 +22,37 @@ public class DocumentController : BaseController
         _documentService = documentService;
     }
 
+    [HttpGet]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<List<DocumentDto>> GetDocs()
+    {
+        List<DocumentDto> result;
+        switch (Claims.Role.Id.ToString())
+        {
+            case RoleConstants.ADMIN_ROLE_ID:
+                result = await _documentService.GetAll(Claims);
+                return result;
+            case RoleConstants.ORG_OWNER_ID:
+                result = await _documentService.GetOrgDocs(Claims);
+                return result;
+            case RoleConstants.DEP_OWNER_ID:
+                result = await _documentService.GetDepartmentDocs(Claims);
+                return result;
+            default:
+                result = await _documentService.GetUserDocs(Claims);
+                return result;
+        }
+
+    }
+
+    [HttpGet("{id}")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<DocumentDto> GetUserDoc([FromQuery] string id)
+    {
+        var result = await _documentService.GetUserDoc(id, Claims);
+        return result;
+    }
+
     [HttpPost("upload")]
     [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
     public async Task<string> UploadFile([FromForm] IFormFile file)
@@ -54,42 +85,11 @@ public class DocumentController : BaseController
         return result;
     }
 
-    [HttpGet]
-    [AuthorizeAttribute("Document:List")]
-    public async Task<List<DocumentDto>> GetDocs()
+    [HttpPut("/{id}/procedure")]
+    [AuthorizeAttribute("Document:Update")]
+    public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
     {
-        List<DocumentDto> result;
-        switch (Claims.Role.Id.ToString())
-        {
-            case RoleConstants.ADMIN_ROLE_ID:
-                result = await _documentService.GetAll(Claims);
-                return result;
-            case RoleConstants.ORG_OWNER_ID:
-                result = await _documentService.GetOrgDocs(Claims);
-                return result;
-            case RoleConstants.DEP_OWNER_ID:
-                result = await _documentService.GetDepartmentDocs(Claims);
-                return result;
-            default:
-                result = await _documentService.GetUserDocs(Claims);
-                return result;
-        }
-
-    }
-
-    //[HttpGet("users")]
-    //[AuthorizeAttribute("Document:List")]
-    //public async Task<List<DocumentDto>> GetUserDocs()
-    //{
-    //    var result = await _documentService.GetUserDocs(Claims);
-    //    return result;
-    //}
-
-    [HttpGet("{id}")]
-    [AuthorizeAttribute("Document:List")]
-    public async Task<DocumentDto> GetUserDoc([FromQuery] string id)
-    {
-        var result = await _documentService.GetUserDoc(id, Claims);
+        var result = await _documentService.UpdateDocProcedure(req, id, Claims);
         return result;
     }
 
@@ -100,11 +100,4 @@ public class DocumentController : BaseController
         var result = await _documentService.Delete(id, Claims);
         return result;
     }
-
-
-    //[HttpPost("download")]
-    //public async void Download([FromQuery] string id)
-    //{
-    //     _storageHelper.Download(id);
-    //}
 }

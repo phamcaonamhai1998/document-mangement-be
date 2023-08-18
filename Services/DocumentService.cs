@@ -34,8 +34,17 @@ namespace WebApi.Services
                 throw new Exception("document_has_not_been_uploaded");
             }
 
+            Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
+
+            if (proc == null)
+            {
+                throw new Exception("procedure_is_not_found");
+            }
+
             Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, claims.Department.Id, claims.Organization.Id);
             entity.CreatedAt = DateTime.UtcNow;
+            entity.Procedure = proc;
+
             _dbContext.Documents.Add(entity);
             _dbContext.SaveChanges();
             return true;
@@ -114,6 +123,21 @@ namespace WebApi.Services
             }
 
             _dbContext.Documents.Remove(document);
+            _dbContext.SaveChanges();
+            return true;
+        }
+
+        public async Task<bool> UpdateDocProcedure(UpdateDocProcedure payload, string id, UserClaims claims)
+        {
+            Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
+
+            Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+            if (doc == null)
+            {
+                throw new Exception("document_not_found");
+            }
+            doc.Procedure = proc;
+            _dbContext.Documents.Update(doc);
             _dbContext.SaveChanges();
             return true;
         }
