@@ -14,5 +14,7 @@ namespace WebApi.Services.Interfaces
         public Task<DocumentDto> GetUserDoc(string id, UserClaims claims);
         public Task<List<DocumentDto>> GetDepartmentDocs(UserClaims claims);
         public Task<bool> Delete(string id, UserClaims claims);
+        public Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims);
+        public Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims);
     }
 }

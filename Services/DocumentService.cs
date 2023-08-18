@@ -43,11 +43,15 @@ namespace WebApi.Services
             }
 
             Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, claims.Department.Id, claims.Organization.Id);
+            entity.Id = Guid.NewGuid();
             entity.CreatedAt = DateTime.UtcNow;
             entity.Procedure = proc;
+            entity.Status = DocumentStatus.PROCESSING;
 
             _dbContext.Documents.Add(entity);
             _dbContext.SaveChanges();
+
+            await _HandleAssignDocToProcedureSteps(entity.Id, proc.Id);
             return true;
         }
 
@@ -132,15 +136,24 @@ namespace WebApi.Services
         {
 
             Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+
             if (doc == null)
             {
                 throw new Exception("document_not_found");
             }
 
+            // check doc can update
+            // if one of doc steps has change status so can not update 
             if (payload.ProcedureId != null)
             {
                 Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
                 doc.Procedure = proc;
+
+                List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.DocumentId == doc.Id).ToList();
+                if (docSteps.Count() > 0 && !docSteps.All(ds => ds.Status == DocumentStepStatus.PROCESSING))
+                {
+                    throw new Exception("exist_step_status_change_of_document");
+                }
             }
 
             if (payload.DriveDocId != null || !string.IsNullOrWhiteSpace(payload.DriveDocId) || !string.IsNullOrEmpty(payload.DriveDocId))
@@ -162,6 +175,87 @@ namespace WebApi.Services
 
 
             _dbContext.Documents.Update(doc);
+            _dbContext.SaveChanges();
+
+            await _HandleAssignDocToProcedureSteps(doc.Id, doc.Procedure.Id);
+            return true;
+        }
+
+        public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
+        {
+            DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId));
+            if (docStep == null)
+            {
+                throw new Exception("doc_step_is_not_found");
+            }
+            docStep.Status = DocumentStepStatus.APPROVED;
+            _dbContext.DocumentProcedureSteps.Update(docStep);
+            _dbContext.SaveChanges();
+
+            //check if all doc steps is approved => change document to approved
+            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.DocumentId == Guid.Parse(id)).ToList();
+            bool isAllApproved = docSteps.All(ds => ds.Status == DocumentStepStatus.APPROVED);
+
+            if (isAllApproved)
+            {
+                Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+                doc.Status = DocumentStatus.PUBLISHED;
+                _dbContext.Documents.Update(doc);
+                _dbContext.SaveChanges();
+            }
+
+            return true;
+        }
+        public async Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims)
+        {
+            DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId));
+            if (docStep == null)
+            {
+                throw new Exception("doc_step_is_not_found");
+            }
+
+            docStep.Status = DocumentStepStatus.REJECTED;
+            _dbContext.DocumentProcedureSteps.Update(docStep);
+            _dbContext.SaveChanges();
+
+            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.DocumentId == Guid.Parse(id) && dps.Status == DocumentStepStatus.PROCESSING).ToList();
+            docSteps.ForEach(docStep =>
+            {
+
+                docStep.Status = DocumentStepStatus.REJECTED;
+                _dbContext.DocumentProcedureSteps.Update(docStep);
+
+            });
+
+            _dbContext.SaveChanges();
+            Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+            doc.Status = DocumentStatus.REJECTED;
+            _dbContext.Documents.Update(doc);
+            _dbContext.SaveChanges();
+
+            return true;
+        }
+
+        //pe-condition: all procedure steps of document must be processing
+        private async Task<bool> _HandleAssignDocToProcedureSteps(Guid docId, Guid procedureId)
+        {
+            //remove old steps
+            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(ds => ds.DocumentId == docId).ToList();
+
+            docSteps.ForEach(ds =>
+            {
+                _dbContext.DocumentProcedureSteps.Remove(ds);
+            });
+
+            _dbContext.SaveChanges();
+
+            //add new steps
+            List<ProcedureStep> steps = _dbContext.ProcedureSteps.Where(ps => ps.Procedure.Id == procedureId).ToList();
+            steps.ForEach(step =>
+            {
+                _dbContext.DocumentProcedureSteps.Add(new DocumentProcedureStep(docId, procedureId, DocumentStepStatus.PROCESSING));
+            });
+
             _dbContext.SaveChanges();
             return true;
         }

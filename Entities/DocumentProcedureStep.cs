@@ -10,6 +10,13 @@ namespace WebApi.Entities
             modelBuilder.Entity<DocumentProcedureStep>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
         }
 
+        public DocumentProcedureStep(Guid documentId, Guid procedureId, string status)
+        {
+            DocumentId = documentId;
+            ProcedureId = procedureId;
+            Status = status;
+        }   
+
         public Guid DocumentId { get; set; }
 
         public Guid ProcedureId { get; set; }

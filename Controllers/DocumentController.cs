@@ -4,6 +4,7 @@ using WebApi.Models.Documents;
 using WebApi.Services.Interfaces;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
+using Org.BouncyCastle.Ocsp;
 
 namespace WebApi.Controllers;
 
@@ -93,13 +94,23 @@ public class DocumentController : BaseController
         return result;
     }
 
-    //[HttpPut("procedure-step/{procedureStepId}/document/{id}")]
-    //[AuthorizeAttribute("Document:Update")]
-    //public async Task<bool> ApproveDocStep(string procedureStepId, string id)
-    //{
-    //    var result = await _documentService.UpdateDoc(req, id, Claims);
-    //    return result;
-    //}
+    [HttpPut("approve/{id}")]
+    [AuthorizeAttribute("Document:Update")]
+    public async Task<bool> ApproveDocStep([FromBody] ApproveDocumentRequest req, string id)
+    {
+        var result = await _documentService.ApproveDocStep(req, id, Claims);
+        return result;
+    }
+
+
+    [HttpPut("reject/{id}")]
+    [AuthorizeAttribute("Document:Update")]
+    public async Task<bool> RejectDocStep([FromBody] RejectDocumentRequest req, string id)
+    {
+        var result = await _documentService.RejectDocStep(req, id, Claims);
+        return result;
+    }
+
 
     [HttpDelete]
     [AuthorizeAttribute("Document:Delete")]

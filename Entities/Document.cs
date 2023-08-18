@@ -9,7 +9,7 @@ namespace WebApi.Entities
         {
             modelBuilder.Entity<Document>().Property(b => b.Id).HasDefaultValueSql("uuid_generate_v4()");
             modelBuilder.Entity<Document>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
-            modelBuilder.Entity<Document>().Property(b => b.Status).HasDefaultValueSql(DocumentStatus.DRAFT);
+            modelBuilder.Entity<Document>().Property(b => b.Status).HasDefaultValueSql(DocumentStatus.PROCESSING);
         }
 
         public Document(Guid userId, string title, string path, bool isActive, string driveDocId, string description, Guid departmentId, Guid orgId) {
