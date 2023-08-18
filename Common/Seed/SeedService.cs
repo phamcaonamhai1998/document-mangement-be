@@ -20,7 +20,7 @@ namespace WebApi.Common.Seed
         public async void SeedSystemRolePermissions()
         {
             //seed permissions
-            foreach (var item in ConfigConstants.PERMISSION_SEEDS)
+            foreach (var item in ConfigRolePermissionConstants.PERMISSION_SEEDS)
             {
                 Entities.Permission permission = _dbContext.Permissions.SingleOrDefault(p => p.Name == item.Name && p.GroupCode == item.GroupCode && p.Code == item.Code);
                 if (permission == null)
@@ -31,7 +31,7 @@ namespace WebApi.Common.Seed
             _dbContext.SaveChanges();
 
             //seed system roles permissions
-            foreach (var item in ConfigConstants.ROLE_SEEDS)
+            foreach (var item in ConfigRolePermissionConstants.ROLE_SEEDS)
             {
                 Entities.Role role = _dbContext.Roles.SingleOrDefault(r => r.Id == item.Id);
                 if (role == null)
@@ -43,7 +43,7 @@ namespace WebApi.Common.Seed
             _dbContext.SaveChanges();
 
             //seed system roles permissions
-            foreach (var item in ConfigConstants.ROLE_PERMISSION_SEEDS)
+            foreach (var item in ConfigRolePermissionConstants.ROLE_PERMISSION_SEEDS)
             {
                 Entities.RolePermission role = _dbContext.RolePermissions.SingleOrDefault(r => r.RoleId == item.RoleId && r.Name == item.Name && r.Code == item.Code);
                 if (role == null)
@@ -61,7 +61,7 @@ namespace WebApi.Common.Seed
 
             IEnumerable<Entities.RolePermission> rolePermissions = _dbContext.RolePermissions.ToList();
             IEnumerable<Entities.RolePermission> sysRolePermissions = rolePermissions.Where(rp => sysRoleIds.Any(id => Guid.Parse(id) == rp.RoleId));
-            IEnumerable<Entities.RolePermission> removeRolePermissions = sysRolePermissions.Where(srp => !ConfigConstants.ROLE_PERMISSION_SEEDS.Any(rps => rps.RoleId == srp.RoleId && rps.Code == srp.Code && rps.Name == srp.Name));
+            IEnumerable<Entities.RolePermission> removeRolePermissions = sysRolePermissions.Where(srp => !ConfigRolePermissionConstants.ROLE_PERMISSION_SEEDS.Any(rps => rps.RoleId == srp.RoleId && rps.Code == srp.Code && rps.Name == srp.Name));
 
             removeRolePermissions.ToList().ForEach(item =>
             {

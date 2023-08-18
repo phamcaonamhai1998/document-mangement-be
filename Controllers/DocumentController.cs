@@ -93,6 +93,14 @@ public class DocumentController : BaseController
         return result;
     }
 
+    //[HttpPut("procedure-step/{procedureStepId}/document/{id}")]
+    //[AuthorizeAttribute("Document:Update")]
+    //public async Task<bool> ApproveDocStep(string procedureStepId, string id)
+    //{
+    //    var result = await _documentService.UpdateDoc(req, id, Claims);
+    //    return result;
+    //}
+
     [HttpDelete]
     [AuthorizeAttribute("Document:Delete")]
     public async Task<bool> Delete([FromQuery] string id)

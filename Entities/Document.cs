@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WebApi.Common.Constants;
 
 namespace WebApi.Entities
 {
@@ -8,6 +9,7 @@ namespace WebApi.Entities
         {
             modelBuilder.Entity<Document>().Property(b => b.Id).HasDefaultValueSql("uuid_generate_v4()");
             modelBuilder.Entity<Document>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
+            modelBuilder.Entity<Document>().Property(b => b.Status).HasDefaultValueSql(DocumentStatus.DRAFT);
         }
 
         public Document(Guid userId, string title, string path, bool isActive, string driveDocId, string description, Guid departmentId, Guid orgId) {
@@ -36,6 +38,8 @@ namespace WebApi.Entities
         public Guid DepartmentId { get; set; }
 
         public string DriveDocId { get; set; }
+
+        public string Status { get; set; }  
 
         public List<DocumentProcedureStep> DocumentProcedureSteps { get; set; }
 
