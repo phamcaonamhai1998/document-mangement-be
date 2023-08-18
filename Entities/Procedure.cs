@@ -11,14 +11,15 @@ namespace WebApi.Entities
             modelBuilder.Entity<Procedure>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
         }
 
-        public Procedure(Guid id, string name) {
+        public Procedure(Guid id, string name)
+        {
             Id = id;
             Name = name;
         }
 
         public string Name { get; set; }
 
-        public string DepartmentId {get; set;}
+        public string DepartmentId { get; set; }
 
         public Organization Organization { get; set; }
 
