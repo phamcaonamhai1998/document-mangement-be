@@ -49,7 +49,7 @@ public class DocumentService : IDocumentService
             throw new Exception("procedure_is_not_found");
         }
         var documentId = claims.Department != null ? claims.Department.Id : Guid.Empty;
-        Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, documentId, claims.Organization.Id);
+        Document entity = new Document(claims.Id, payload.Title, driveFile.WebContentLink, payload.IsActive, payload.DriveDocId, payload.Description, documentId, claims.Organization.Id);
         entity.Id = Guid.NewGuid();
         entity.CreatedAt = DateTime.UtcNow;
         entity.Procedure = proc;
@@ -191,7 +191,7 @@ public class DocumentService : IDocumentService
                 throw new Exception("drive_document_is_not_found");
             }
 
-            doc.Path = driveFile.WebViewLink;
+            doc.Path = driveFile.WebContentLink;
         }
 
         doc.Title = payload.Title;
@@ -379,11 +379,7 @@ public class DocumentService : IDocumentService
         var response = await _elasticSearchHelper.Client.SearchAsync<EsDocument>(
                    es =>
                    {
-                       es.Index(index)
-                       .From(payload.Page)
-                       .Size(payload.Size);
-
-
+                       es.Index(index);
 
                        if (payload.UserFullName.Count() > 0 && !payload.UserFullName.IsNullOrEmpty())
                        {
