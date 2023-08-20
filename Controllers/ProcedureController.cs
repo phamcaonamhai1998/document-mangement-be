@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Models.Documents;
 using WebApi.Models.Procedures;
@@ -19,6 +20,7 @@ public class ProcedureController : BaseController
     }
 
     [HttpGet]
+    [AuthorizeAttribute("Procedure:List")]
     public async Task<List<ProcedureDto>> GetAll()
     {
 
@@ -49,7 +51,7 @@ public class ProcedureController : BaseController
     [HttpPost]
     public async Task<CreateProcedureResponse> Create([FromBody] CreateProcedureRequest req)
     {
-        CreateProcedureResponse createResult  = await _procedureService.Create(req, Claims);
+        CreateProcedureResponse createResult = await _procedureService.Create(req, Claims);
         return createResult;
     }
 
@@ -61,7 +63,7 @@ public class ProcedureController : BaseController
         return updateResult;
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<bool> Delete(string id)
     {
         bool deleteResult = await _procedureService.Delete(id);

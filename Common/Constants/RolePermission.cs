@@ -24,6 +24,7 @@ namespace WebApi.Common.Constants
         public static readonly string DocumentCreate = "Document:Create";
         public static readonly string DocumentUpdate = "Document:Update";
         public static readonly string DocumentDelete = "Document:Delete";
+
     }
 
     public static class PermissionGroupCode
@@ -33,11 +34,12 @@ namespace WebApi.Common.Constants
         public static readonly string Document = "Document";
         public static readonly string Organization = "Organization";
         public static readonly string Department = "Department";
+        public static readonly string Procedure = "Procedure";
     }
 
     public static class PermissionCode
     {
-        public static  readonly string List = "List";
+        public static readonly string List = "List";
         public static readonly string Create = "Create";
         public static readonly string Update = "Update";
         public static readonly string Delete = "Delete";
@@ -110,6 +112,11 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Delete),
 
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.Create),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.Update),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.Delete),
+
              // Organization
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Department, PermissionCode.List),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Department, PermissionCode.Create),
@@ -137,10 +144,6 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Delete),
-
-
-
-
         });
     }
 }

@@ -58,7 +58,7 @@ public class DocumentController : BaseController
     public async Task<string> UploadFile([FromForm] IFormFile file)
     {
         string wwwPath = _hostingEnvironment.WebRootPath;
-        string path = Path.Combine("/", "Uploads");
+        string path = Path.Combine("~/", "Uploads");
 
         if (!Directory.Exists(path))
         {

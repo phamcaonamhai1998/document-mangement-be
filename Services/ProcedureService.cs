@@ -78,11 +78,11 @@ public class ProcedureService : IProcedureService
             throw new Exception("id_is_empty");
         }
 
-        var proc = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(id));
+        var proc = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
 
         if (proc == null) throw new Exception("procedure_is_not_found");
 
-        _dbContext.Organizations.Remove(proc);
+        _dbContext.Procedures.Remove(proc);
         _dbContext.SaveChanges();
         return Task.FromResult(true);
     }
