@@ -17,27 +17,37 @@ public class DepartmentService : IDepartmentService
     private readonly IMapper _mapper;
     private readonly AppSettings _appSettings;
     private readonly OrganizationService _orgService;
+    private readonly StorageHelper _storageHelper;
 
-    public DepartmentService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
+
+    public DepartmentService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings, StorageHelper storageHelper)
     {
         _dbContext = dbContext;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
         _appSettings = appSettings.Value;
+        _storageHelper = storageHelper;
+
     }
 
-    public Task<CreateDepartmentResponse> Create(CreateDepartmentRequest payload, UserClaims claim)
+    public async Task<CreateDepartmentResponse> Create(CreateDepartmentRequest payload, UserClaims claim)
     {
         var createDep = _mapper.Map<Department>(payload);
         createDep.Id = Guid.NewGuid();
         createDep.CreatedBy = claim.Id;
+
+
+        var org = _dbContext.Organizations.SingleOrDefault(org => org.Id == claim.Organization.Id);
+        createDep.Organization = org;
+        var depDriveFolderId = await _storageHelper.CreateDepFolder(createDep.Name, org.OrgDriveFolderId);
+        createDep.DepartmentDriveFolderId = depDriveFolderId;
         _dbContext.Departments.Add(createDep);
         _dbContext.SaveChanges();
 
-        return Task.FromResult(new CreateDepartmentResponse(createDep.Id));
+        return new CreateDepartmentResponse(createDep.Id);
     }
 
-    public Task<bool> Delete(string id, UserClaims claim)
+    public async Task<bool> Delete(string id, UserClaims claim)
     {
         if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
@@ -46,11 +56,16 @@ public class DepartmentService : IDepartmentService
 
         var dep = _dbContext.Departments.SingleOrDefault(a => a.Id == Guid.Parse(id));
 
+        if (dep.DepartmentDriveFolderId != null)
+        {
+            var depDriveFolderId = await _storageHelper.DeleteFolder(dep.DepartmentDriveFolderId);
+        }
+
         if (dep == null) throw new Exception("department_is_not_found");
 
         _dbContext.Departments.Remove(dep);
         _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        return true;
     }
 
     public Task<List<DepartmentDto>> GetAll(UserClaims claim)
@@ -93,7 +108,7 @@ public class DepartmentService : IDepartmentService
         return Task.FromResult(depDto);
     }
 
-    public Task<bool> Update(string id, UpdateDepartmentRequest payload, UserClaims claim)
+    public async Task<bool> Update(string id, UpdateDepartmentRequest payload, UserClaims claim)
     {
         if (payload == null)
         {
@@ -117,7 +132,8 @@ public class DepartmentService : IDepartmentService
         dep.Phone = payload.Phone;
         dep.UpdatedBy = claim.Id;
 
+        await _storageHelper.UpdateFolderName(dep.DepartmentDriveFolderId, payload.Name);
         _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        return true;
     }
 }

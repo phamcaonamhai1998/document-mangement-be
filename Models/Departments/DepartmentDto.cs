@@ -10,5 +10,7 @@ public class DepartmentDto
     public string Email { get; set; }
     public string Phone { get; set; }
     public string OrganizationId {get; set;}
+    public string DepartmentDriveFolderId { get; set; }
+
     public OrganizationDto Organization{ get; set; }
 }

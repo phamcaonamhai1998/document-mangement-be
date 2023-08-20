@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
+using System.Runtime.Intrinsics.Arm;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Entities;
@@ -25,17 +26,18 @@ public class OrganizationService : IOrganizationService
         _appSettings = appSettings.Value;
         _storageHelper = storageHelper;
     }
-    public Task<CreateOrganizationResponse> Create(CreateOrganizationRequest payload)
+    public async Task<CreateOrganizationResponse> Create(CreateOrganizationRequest payload)
     {
 		var createOrg = _mapper.Map<Organization>(payload);
+        var orgDriveFolderId = await _storageHelper.CreateOrgFolder(createOrg.Name);
 		createOrg.Id = Guid.NewGuid();
+        createOrg.OrgDriveFolderId= orgDriveFolderId;
         _dbContext.Organizations.Add(createOrg);
         _dbContext.SaveChanges();
-
-        return Task.FromResult(new CreateOrganizationResponse(createOrg.Id));
+        return  new CreateOrganizationResponse(createOrg.Id);
     }
 
-    public Task<bool> Delete(string id)
+    public async Task<bool> Delete(string id)
     {
         if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
@@ -44,11 +46,16 @@ public class OrganizationService : IOrganizationService
 
         var org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(id));
 
+        if (org.OrgDriveFolderId != null)
+        {
+            var depDriveFolderId = await _storageHelper.DeleteFolder(org.OrgDriveFolderId);
+        }
+
         if (org == null) throw new Exception("organization_is_not_found");
 
         _dbContext.Organizations.Remove(org);
         _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        return true;
     }
 
     public Task<List<OrganizationDto>> GetAll()
@@ -70,7 +77,7 @@ public class OrganizationService : IOrganizationService
         return Task.FromResult(orgDto);
     }
 
-    public Task<bool> Update(string id, UpdateOrganizationRequest payload)
+    public async Task<bool> Update(string id, UpdateOrganizationRequest payload)
     {
         if(payload == null)
         {
@@ -87,8 +94,9 @@ public class OrganizationService : IOrganizationService
         org.Name = payload.Name;
         org.Email = payload.Email;
         org.Phone = payload.Phone;
+        await _storageHelper.UpdateFolderName(org.OrgDriveFolderId, payload.Name);
 
         _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        return true;
     }
 }

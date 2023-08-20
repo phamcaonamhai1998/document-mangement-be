@@ -5,6 +5,7 @@ using WebApi.Services.Interfaces;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using Org.BouncyCastle.Ocsp;
+using WebApi.Models.Users;
 
 namespace WebApi.Controllers;
 
@@ -58,7 +59,8 @@ public class DocumentController : BaseController
 
     [HttpPost("upload")]
     [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
-    public async Task<string> UploadFile([FromForm] IFormFile file)
+    [AuthorizeAttribute("Document:Create")]
+    public async Task<string> UploadFile([FromForm] IFormFile file, UserClaims claims)
     {
         string wwwPath = _hostingEnvironment.WebRootPath;
         string path = Path.Combine("~/", "Uploads");
@@ -68,14 +70,18 @@ public class DocumentController : BaseController
             Directory.CreateDirectory(path);
         }
 
+
+
         string fileName = Path.GetFileName(file.Name);
         string fileId = "";
         using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
         {
             file.CopyTo(stream);
             string fileMime = MimeMapping.MimeUtility.GetMimeMapping(file.FileName);
-
-            fileId = await _storageHelper.UploadFile(stream, file.Name, fileMime);
+            string driveFolderId = null;
+            if (claims.Organization != null && claims.Organization.OrgDriveFolderId != null && claims.Organization.OrgDriveFolderId.Count() > 0) driveFolderId = claims.Organization.OrgDriveFolderId;
+            if (claims.Department != null && claims.Department.DepartmentDriveFolderId != null && claims.Department.DepartmentDriveFolderId.Count() > 0) driveFolderId = claims.Department.DepartmentDriveFolderId;
+            fileId = await _storageHelper.UploadFile(stream, file.Name, fileMime, driveFolderId);
         }
         return fileId;
     }

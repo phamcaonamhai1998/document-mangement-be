@@ -4,6 +4,7 @@ using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Microsoft.Extensions.Options;
 using System.Text;
+using WebApi.Entities;
 
 namespace WebApi.Helpers
 {
@@ -48,14 +49,19 @@ namespace WebApi.Helpers
             return file.Id;
         }
 
-        public async Task<string> UploadFile(Stream file, string fileName, string fileMime)
+        public async Task<string> UploadFile(Stream file, string fileName, string fileMime, string driveFolderId)
         {
             DriveService service = await GetService();
+
+            if (string.IsNullOrEmpty(driveFolderId) || string.IsNullOrWhiteSpace(driveFolderId))
+            {
+                driveFolderId = _appSettings.Google.SharedFolder;
+            }
 
             var driveFile = new Google.Apis.Drive.v3.Data.File();
             driveFile.Name = fileName;
             driveFile.MimeType = fileMime;
-            driveFile.Parents = new string[] { _appSettings.Google.SharedFolder };
+            driveFile.Parents = new string[] { driveFolderId };
 
             var request = service.Files.Create(driveFile, file, fileMime);
             request.Fields = "id";
@@ -104,10 +110,46 @@ namespace WebApi.Helpers
         //    return "";
         //}
 
-        //public async Task<bool> CreateFolder(string parentId)
-        //{
+        public async Task<string> CreateOrgFolder(string orgName)
+        {
+            var service = await GetService();
+            var driveFolder = new Google.Apis.Drive.v3.Data.File();
+            driveFolder.Name = orgName;
+            driveFolder.MimeType = "application/vnd.google-apps.folder";
+            driveFolder.Parents = new string[] { _appSettings.Google.SharedFolder };
+            var command = service.Files.Create(driveFolder);
+            var file = command.Execute();
+            return file.Id;
+        }
 
-        //}
+        public async Task<string> CreateDepFolder(string depName, string orgFolderId)
+        {
+            var service = await GetService();
+            var driveFolder = new Google.Apis.Drive.v3.Data.File();
+            driveFolder.Name = depName;
+            driveFolder.MimeType = "application/vnd.google-apps.folder";
+            driveFolder.Parents = new string[] { orgFolderId };
+            var command = service.Files.Create(driveFolder);
+            var file = command.Execute();
+            return file.Id;
+        }
 
+        public async Task<bool> DeleteFolder(string folderId)
+        {
+            var service = await GetService();
+            var command = service.Files.Delete(folderId);
+            command.Execute();
+            return true;
+        }
+
+        public async Task<bool> UpdateFolderName(string folderId, string name)
+        {
+            var service = await GetService();
+            var driveFolder = new Google.Apis.Drive.v3.Data.File();
+            driveFolder.Name = name;
+            var command = service.Files.Update(driveFolder, folderId);
+            command.Execute();
+            return true;
+        }
     }
 }
