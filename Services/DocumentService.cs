@@ -379,11 +379,7 @@ public class DocumentService : IDocumentService
         var response = await _elasticSearchHelper.Client.SearchAsync<EsDocument>(
                    es =>
                    {
-                       es.Index(index)
-                       .From(payload.Page)
-                       .Size(payload.Size);
-
-
+                       es.Index(index);
 
                        if (payload.UserFullName.Count() > 0 && !payload.UserFullName.IsNullOrEmpty())
                        {
