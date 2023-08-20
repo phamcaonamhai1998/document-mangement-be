@@ -49,7 +49,7 @@ public class DocumentService : IDocumentService
             throw new Exception("procedure_is_not_found");
         }
         var documentId = claims.Department != null ? claims.Department.Id : Guid.Empty;
-        Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, documentId, claims.Organization.Id);
+        Document entity = new Document(claims.Id, payload.Title, driveFile.WebContentLink, payload.IsActive, payload.DriveDocId, payload.Description, documentId, claims.Organization.Id);
         entity.Id = Guid.NewGuid();
         entity.CreatedAt = DateTime.UtcNow;
         entity.Procedure = proc;
@@ -83,7 +83,7 @@ public class DocumentService : IDocumentService
             return new List<DocumentDto>();
         }
 
-      
+
         return await FormatDocuments(query, claims);
     }
 
@@ -95,7 +95,7 @@ public class DocumentService : IDocumentService
         }
 
         query.OrgId = claims.Organization.Id.ToString();
-       
+
         return await FormatDocuments(query, claims);
     }
 
@@ -191,7 +191,7 @@ public class DocumentService : IDocumentService
                 throw new Exception("drive_document_is_not_found");
             }
 
-            doc.Path = driveFile.WebViewLink;
+            doc.Path = driveFile.WebContentLink;
         }
 
         doc.Title = payload.Title;
@@ -445,9 +445,9 @@ public class DocumentService : IDocumentService
             CreatedBy = claims.Id.ToString(),
             CreatedAt = DateTime.Now,
             DepartmentId = claims.Department != null ? claims.Department.Id.ToString() : string.Empty,
-            DepartmentName = claims.Department != null ?  claims.Department.Name : string.Empty,
+            DepartmentName = claims.Department != null ? claims.Department.Name : string.Empty,
             DriveDocId = entity.DriveDocId,
-            OrgId = claims.Organization != null ? claims.Organization.Id.ToString() :  string.Empty,
+            OrgId = claims.Organization != null ? claims.Organization.Id.ToString() : string.Empty,
             OrgName = claims.Organization != null ? claims.Organization.Name : string.Empty,
             ProcedureId = entity.Procedure.Id.ToString(),
             ProcedureName = entity.Procedure.Name,
