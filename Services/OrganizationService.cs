@@ -15,13 +15,15 @@ public class OrganizationService : IOrganizationService
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
     private readonly AppSettings _appSettings;
+    private readonly StorageHelper _storageHelper;
 
-    public OrganizationService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
+    public OrganizationService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings, StorageHelper storageHelper)
     {
         _dbContext = dbContext;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
         _appSettings = appSettings.Value;
+        _storageHelper = storageHelper;
     }
     public Task<CreateOrganizationResponse> Create(CreateOrganizationRequest payload)
     {

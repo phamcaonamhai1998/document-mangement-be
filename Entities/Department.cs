@@ -16,6 +16,8 @@ namespace WebApi.Entities
 
         public string Email { get; set; }
 
+        public string DepartmentDriveFolderId { get; set; }
+
         public Organization Organization { get; set; }
 
         public List<Account> Users { get; set; }

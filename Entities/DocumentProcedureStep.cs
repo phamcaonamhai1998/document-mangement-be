@@ -20,6 +20,7 @@ namespace WebApi.Entities
         public Guid DocumentId { get; set; }
 
         public Guid ProcedureId { get; set; }
+        public Guid ProcedureStepId { get; set; }
 
         public string Status { get; set; }
 

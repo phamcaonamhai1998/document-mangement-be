@@ -83,7 +83,7 @@ public class DocumentService : IDocumentService
             return new List<DocumentDto>();
         }
 
-      
+
         return await FormatDocuments(query, claims);
     }
 
@@ -95,7 +95,7 @@ public class DocumentService : IDocumentService
         }
 
         query.OrgId = claims.Organization.Id.ToString();
-       
+
         return await FormatDocuments(query, claims);
     }
 
@@ -219,11 +219,20 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStepId == Guid.Parse(payload.ProcedureStepId));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
         }
+
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+
+        if (step.AssignId != claims.Id)
+        {
+            throw new Exception("user_not_assigned_this_step");
+        }
+
+
         docStep.Status = DocumentStepStatus.APPROVED;
         _dbContext.DocumentProcedureSteps.Update(docStep);
         _dbContext.SaveChanges();
@@ -259,6 +268,13 @@ public class DocumentService : IDocumentService
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
+        }
+
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+
+        if (step.AssignId != claims.Id)
+        {
+            throw new Exception("user_not_assigned_this_step");
         }
 
         docStep.Status = DocumentStepStatus.REJECTED;
@@ -445,9 +461,9 @@ public class DocumentService : IDocumentService
             CreatedBy = claims.Id.ToString(),
             CreatedAt = DateTime.Now,
             DepartmentId = claims.Department != null ? claims.Department.Id.ToString() : string.Empty,
-            DepartmentName = claims.Department != null ?  claims.Department.Name : string.Empty,
+            DepartmentName = claims.Department != null ? claims.Department.Name : string.Empty,
             DriveDocId = entity.DriveDocId,
-            OrgId = claims.Organization != null ? claims.Organization.Id.ToString() :  string.Empty,
+            OrgId = claims.Organization != null ? claims.Organization.Id.ToString() : string.Empty,
             OrgName = claims.Organization != null ? claims.Organization.Name : string.Empty,
             ProcedureId = entity.Procedure.Id.ToString(),
             ProcedureName = entity.Procedure.Name,
