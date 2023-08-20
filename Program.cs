@@ -44,6 +44,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<ISeeder, SeedService>();
 
     services.AddScoped<StorageHelper>();
+    services.AddScoped<ElasticSearchHelper>();
 }
 
 builder.Services.AddAuthorization();

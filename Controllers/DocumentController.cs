@@ -13,34 +13,37 @@ namespace WebApi.Controllers;
 public class DocumentController : BaseController
 {
     StorageHelper _storageHelper;
+    ElasticSearchHelper _esHelper;
     IWebHostEnvironment _hostingEnvironment;
     IDocumentService _documentService;
 
-    public DocumentController(StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService)
+    public DocumentController(StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService, ElasticSearchHelper esHelper)
     {
         _storageHelper = storageHelper;
         _hostingEnvironment = hostingEnvironment;
         _documentService = documentService;
+        _esHelper = esHelper;
     }
 
     [HttpGet]
     [AuthorizeAttribute("Document:List")]
-    public async Task<List<DocumentDto>> GetDocs()
+    public async Task<List<DocumentDto>> GetDocs([FromQuery] GetDocumentsRequest query)
     {
         List<DocumentDto> result;
         switch (Claims.Role.Id.ToString())
         {
             case RoleConstants.ADMIN_ROLE_ID:
-                result = await _documentService.GetAll(Claims);
+                result = await _documentService.GetAll(Claims, query);
                 return result;
             case RoleConstants.ORG_OWNER_ID:
-                result = await _documentService.GetOrgDocs(Claims);
+                result = await _documentService.GetOrgDocs(Claims, query);
                 return result;
             case RoleConstants.DEP_OWNER_ID:
-                result = await _documentService.GetDepartmentDocs(Claims);
+                result = await _documentService.GetDepartmentDocs(Claims, query);
                 return result;
             default:
-                return null;
+                result = await _documentService.GetUserDocs(Claims, query);
+                return result;
         }
 
     }

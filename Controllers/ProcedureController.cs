@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Models.Documents;
 using WebApi.Models.Procedures;
@@ -19,6 +20,7 @@ public class ProcedureController : BaseController
     }
 
     [HttpGet]
+    [AuthorizeAttribute("Organization:List")]
     public async Task<List<ProcedureDto>> GetAll()
     {
 

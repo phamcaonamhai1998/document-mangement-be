@@ -4,6 +4,7 @@ namespace WebApi.Models.Documents
 {
     public class DocumentDto
     {
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
 
         public string Title { get; set; }
@@ -23,5 +24,15 @@ namespace WebApi.Models.Documents
         public List<DocumentProcedureStep> DocumentProcedureSteps { get; set; }
 
         public Procedure Procedure { get; set; }
+
+        public string OrgName { get; set; }
+
+        public string DepartmentName { get; set; }
+        
+        public string ProcedureName { get; set; }
+        
+        public string ProcedureId { get; set; }
+        
+        public string UserFullName { get; set; }
     }
 }
