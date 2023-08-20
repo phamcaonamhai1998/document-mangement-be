@@ -48,8 +48,8 @@ public class DocumentService : IDocumentService
         {
             throw new Exception("procedure_is_not_found");
         }
-
-        Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, claims.Department.Id, claims.Organization.Id);
+        var documentId = claims.Department != null ? claims.Department.Id : Guid.Empty;
+        Document entity = new Document(claims.Id, payload.Title, driveFile.WebViewLink, payload.IsActive, payload.DriveDocId, payload.Description, documentId, claims.Organization.Id);
         entity.Id = Guid.NewGuid();
         entity.CreatedAt = DateTime.UtcNow;
         entity.Procedure = proc;
@@ -444,11 +444,11 @@ public class DocumentService : IDocumentService
             Title = entity.Title,
             CreatedBy = claims.Id.ToString(),
             CreatedAt = DateTime.Now,
-            DepartmentId = claims.Department.Id.ToString(),
-            DepartmentName = claims.Department.Name,
+            DepartmentId = claims.Department != null ? claims.Department.Id.ToString() : string.Empty,
+            DepartmentName = claims.Department != null ?  claims.Department.Name : string.Empty,
             DriveDocId = entity.DriveDocId,
-            OrgId = claims.Organization.Id.ToString(),
-            OrgName = claims.Organization.Name,
+            OrgId = claims.Organization != null ? claims.Organization.Id.ToString() :  string.Empty,
+            OrgName = claims.Organization != null ? claims.Organization.Name : string.Empty,
             ProcedureId = entity.Procedure.Id.ToString(),
             ProcedureName = entity.Procedure.Name,
             Path = entity.Path,
