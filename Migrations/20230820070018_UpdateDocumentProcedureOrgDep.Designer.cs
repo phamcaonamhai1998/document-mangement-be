@@ -12,7 +12,7 @@ using WebApi.Helpers;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230820064853_UpdateDocumentProcedureOrgDep")]
+    [Migration("20230820070018_UpdateDocumentProcedureOrgDep")]
     partial class UpdateDocumentProcedureOrgDep
     {
         /// <inheritdoc />
@@ -225,13 +225,13 @@ namespace WebApi.Migrations
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DocumentId")
+                    b.Property<Guid?>("DocumentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ProcedureId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ProcedureStepId")
+                    b.Property<Guid?>("ProcedureStepId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("RejectReason")
@@ -546,17 +546,17 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("WebApi.Entities.DocumentProcedureStep", b =>
                 {
-                    b.HasOne("WebApi.Entities.Document", null)
+                    b.HasOne("WebApi.Entities.Document", "Document")
                         .WithMany("DocumentProcedureSteps")
-                        .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DocumentId");
 
-                    b.HasOne("WebApi.Entities.ProcedureStep", null)
+                    b.HasOne("WebApi.Entities.ProcedureStep", "ProcedureStep")
                         .WithMany("DocumentProcedureSteps")
-                        .HasForeignKey("ProcedureStepId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProcedureStepId");
+
+                    b.Navigation("Document");
+
+                    b.Navigation("ProcedureStep");
                 });
 
             modelBuilder.Entity("WebApi.Entities.Procedure", b =>
