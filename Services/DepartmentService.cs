@@ -36,8 +36,8 @@ public class DepartmentService : IDepartmentService
         createDep.Id = Guid.NewGuid();
         createDep.CreatedBy = claim.Id;
 
-
-        var org = _dbContext.Organizations.SingleOrDefault(org => org.Id == claim.Organization.Id);
+        var orgId = !string.IsNullOrEmpty(payload.OrgId) && !string.IsNullOrWhiteSpace(payload.OrgId) ? Guid.Parse(payload.OrgId) : claim.Organization.Id;
+        var org = _dbContext.Organizations.SingleOrDefault(org => org.Id == orgId);
         createDep.Organization = org;
         var depDriveFolderId = await _storageHelper.CreateDepFolder(createDep.Name, org.OrgDriveFolderId);
         createDep.DepartmentDriveFolderId = depDriveFolderId;

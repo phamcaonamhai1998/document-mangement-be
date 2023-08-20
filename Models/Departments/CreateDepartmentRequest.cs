@@ -12,4 +12,6 @@ public class CreateDepartmentRequest
 
     [Required]
     public string Phone { get; set; }
+
+    public string OrgId { get; set; }
 }
