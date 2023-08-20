@@ -39,13 +39,14 @@ public class UserController : BaseController
 
 
     [HttpPut("{id}")]
+    [AuthorizeAttribute("User:Update")]
     public async Task<bool> Update(string id, [FromBody] UpdateUserRequest req)
     {
         bool updateResult = await _userService.Update(id, req);
         return updateResult;
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     [AuthorizeAttribute("User:Delete")]
     public async Task<bool> Delete(string id)
     {
