@@ -6,6 +6,14 @@ public class GoogleConfig
 
 }
 
+public class ElasticSearchConfig
+{
+    public string Url { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string FingerPrint { get; set; }
+}
+
 public class AppSettings
 {
     public string Secret { get; set; }
@@ -21,4 +29,6 @@ public class AppSettings
     public string SmtpPass { get; set; }
 
     public GoogleConfig Google { get; set; }
+
+    public ElasticSearchConfig Elasticsearch { get; set; }
 }
