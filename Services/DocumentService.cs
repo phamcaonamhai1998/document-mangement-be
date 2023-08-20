@@ -1,14 +1,6 @@
 ﻿using AutoMapper;
-using Elastic.Clients.Elasticsearch;
-using Elastic.Clients.Elasticsearch.Fluent;
 using Elastic.Clients.Elasticsearch.QueryDsl;
-using Google.Apis.Drive.v3.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Linq;
-using System.Security.Claims;
-using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
@@ -380,15 +372,11 @@ public class DocumentService : IDocumentService
                    es =>
                    {
                        es.Index(index);
-
-                       if (payload.UserFullName.Count() > 0 && !payload.UserFullName.IsNullOrEmpty())
-                       {
-                           es.Query(q =>
-                                q.Bool(b =>
-                                    b.Must(conditionQuery)
-                                 )
-                           );
-                       }
+                       es.Query(q =>
+                               q.Bool(b =>
+                                   b.Must(conditionQuery)
+                                )
+                          );
                    });
 
         if (response.IsValidResponse)
@@ -475,7 +463,7 @@ public class DocumentService : IDocumentService
 
     private bool IsExistStringFilter(string value)
     {
-        return value.Count() > 0 && !value.IsNullOrEmpty();
+        return !value.IsNullOrEmpty() && value.Count() > 0;
     }
 
 }
