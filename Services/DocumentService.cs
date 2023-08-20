@@ -219,11 +219,20 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStepId == Guid.Parse(payload.ProcedureStepId));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
         }
+
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+
+        if (step.AssignId != claims.Id)
+        {
+            throw new Exception("user_not_assigned_this_step");
+        }
+
+
         docStep.Status = DocumentStepStatus.APPROVED;
         _dbContext.DocumentProcedureSteps.Update(docStep);
         _dbContext.SaveChanges();
@@ -259,6 +268,13 @@ public class DocumentService : IDocumentService
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
+        }
+
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+
+        if (step.AssignId != claims.Id)
+        {
+            throw new Exception("user_not_assigned_this_step");
         }
 
         docStep.Status = DocumentStepStatus.REJECTED;
