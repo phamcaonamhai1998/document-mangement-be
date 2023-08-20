@@ -59,7 +59,7 @@ public class DocumentService : IDocumentService
         _dbContext.Documents.Add(entity);
         _dbContext.SaveChanges();
 
-        await _HandleAssignDocToProcedureSteps(entity.Id, proc.Id);
+        await _HandleAssignDocToProcedureSteps(entity, proc.Id);
 
         //sync document to elastic search
         try
@@ -174,7 +174,7 @@ public class DocumentService : IDocumentService
             Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
             doc.Procedure = proc;
 
-            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.DocumentId == doc.Id).ToList();
+            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.Document.Id == doc.Id).ToList();
             if (docSteps.Count() > 0 && !docSteps.All(ds => ds.Status == DocumentStepStatus.PROCESSING))
             {
                 throw new Exception("exist_step_status_change_of_document");
@@ -203,7 +203,7 @@ public class DocumentService : IDocumentService
         _dbContext.Documents.Update(doc);
         _dbContext.SaveChanges();
 
-        await _HandleAssignDocToProcedureSteps(doc.Id, doc.Procedure.Id);
+        await _HandleAssignDocToProcedureSteps(doc, doc.Procedure.Id);
 
         try
         {
@@ -219,13 +219,13 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStepId == Guid.Parse(payload.ProcedureStepId));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
         }
 
-        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStep.Id);
 
         if (step.AssignId != claims.Id)
         {
@@ -238,7 +238,7 @@ public class DocumentService : IDocumentService
         _dbContext.SaveChanges();
 
         //check if all doc steps is approved => change document to approved
-        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.DocumentId == Guid.Parse(id)).ToList();
+        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.Document.Id == Guid.Parse(id)).ToList();
         bool isAllApproved = docSteps.All(ds => ds.Status == DocumentStepStatus.APPROVED);
 
         if (isAllApproved)
@@ -270,7 +270,7 @@ public class DocumentService : IDocumentService
             throw new Exception("doc_step_is_not_found");
         }
 
-        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStepId);
+        ProcedureStep step = _dbContext.ProcedureSteps.SingleOrDefault(ps => ps.Id == docStep.ProcedureStep.Id);
 
         if (step.AssignId != claims.Id)
         {
@@ -281,7 +281,7 @@ public class DocumentService : IDocumentService
         _dbContext.DocumentProcedureSteps.Update(docStep);
         _dbContext.SaveChanges();
 
-        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.DocumentId == Guid.Parse(id) && dps.Status == DocumentStepStatus.PROCESSING).ToList();
+        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where((dps) => dps.Document.Id == Guid.Parse(id) && dps.Status == DocumentStepStatus.PROCESSING).ToList();
         docSteps.ForEach(docStep =>
         {
 
@@ -428,10 +428,10 @@ public class DocumentService : IDocumentService
     }
 
     //pe-condition: all procedure steps of document must be processing
-    private async Task<bool> _HandleAssignDocToProcedureSteps(Guid docId, Guid procedureId)
+    private async Task<bool> _HandleAssignDocToProcedureSteps(Document doc, Guid procedureId)
     {
         //remove old steps
-        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(ds => ds.DocumentId == docId).ToList();
+        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(ds => ds.Document.Id == doc.Id).ToList();
 
         docSteps.ForEach(ds =>
         {
@@ -444,7 +444,10 @@ public class DocumentService : IDocumentService
         List<ProcedureStep> steps = _dbContext.ProcedureSteps.Where(ps => ps.Procedure.Id == procedureId).ToList();
         steps.ForEach(step =>
         {
-            _dbContext.DocumentProcedureSteps.Add(new DocumentProcedureStep(docId, procedureId, DocumentStepStatus.PROCESSING));
+            var dps = new DocumentProcedureStep(procedureId, DocumentStepStatus.PROCESSING);
+            dps.Document = doc;
+            dps.ProcedureStep = step;
+            _dbContext.DocumentProcedureSteps.Add(dps);
         });
 
         _dbContext.SaveChanges();
