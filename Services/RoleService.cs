@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Entities;
@@ -32,6 +34,7 @@ namespace WebApi.Services
             role.Name = request.Name;
             role.CreatedBy = _claims.Id;
             role.OrgId = _claims.Organization.Id.ToString();
+            role.DepartmentId = _claims.Department != null ? _claims.Department.Id.ToString() : null;
             _dbContext.Roles.Add(role);
             _dbContext.SaveChanges();
 
@@ -44,50 +47,117 @@ namespace WebApi.Services
             _dbContext.SaveChanges();
             return Task.FromResult(role.Id.ToString());
         }
+
         public async Task<RoleDetailDto> Get(string id, UserClaims claims)
         {
-            RoleDto role = getOrgRoleById(Guid.Parse(id), claims.Organization.Id.ToString());
+            Role role = await getRoleById(Guid.Parse(id));
 
-            List<RolePermission> rolePermissions = _dbContext.RolePermissions.Where(rp => rp.RoleId == Guid.Parse(role.Id)).ToList();
+            if (claims.Organization.Id.ToString() != role.OrgId)
+            {
+                throw new Exception("role_not_exist_in_org");
+            }
+
+            if (claims.Department != null && claims.Department.Id.ToString() != role.DepartmentId)
+            {
+                throw new Exception("role_not_exist_in_department");
+            }
+
+            List<RolePermission> rolePermissions = _dbContext.RolePermissions.Where(rp => rp.RoleId == role.Id).ToList();
 
 
             RoleDetailDto result = new RoleDetailDto();
             result.Permissions = _mapper.Map<List<RolePermissionDto>>(rolePermissions);
-            result.Id = role.Id;
-            result.Name= role.Name;
+            result.Id = role.Id.ToString();
+            result.Name = role.Name;
 
             return result;
 
         }
 
-        public Task<List<RoleDto>> GetAll()
+        public Task<List<RoleDto>> GetAll(UserClaims claims)
         {
-            var roles = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin)).ToList();
+            var command = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin));
+
+            switch (claims.Role.Id.ToString())
+            {
+                case RoleConstants.ORG_OWNER_ID:
+                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString());
+                    break;
+                case RoleConstants.DEP_OWNER_ID:
+                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString());
+                    break;
+                default:
+                    break;
+            }
+
+            var roles = command.ToList();
             List<RoleDto> roleDtos = new List<RoleDto>();
+
             roles.ForEach((role) =>
             {
-            var roleDto = _mapper.Map<RoleDto>(role);
+                var roleDto = _mapper.Map<RoleDto>(role);
                 roleDtos.Add(roleDto);
             });
 
             return Task.FromResult(roleDtos);
         }
+
         public async Task<bool> Update(string id, UpdateRoleRequest request, UserClaims claims)
         {
+            var role = _dbContext.Roles.SingleOrDefault(r => r.Id == Guid.Parse(id));
+            if (role == null)
+            {
+                throw new Exception("role_is_not_found");
+            }
+
+            role.Name = request.Name;
+            role.UpdatedBy = claims.Id;
+
+            _dbContext.Roles.Update(role);
+            _dbContext.SaveChanges();
+
+            var oldPermissions = _dbContext.RolePermissions.Where(rp => rp.Id == Guid.Parse(id)).ToList();
+            if (oldPermissions.Count() > 0)
+            {
+                oldPermissions.ForEach(op => _dbContext.RolePermissions.Remove(op));
+            }
+
+            // add new role permissions
+            request.Permissions.ForEach(permission =>
+            {
+                RolePermission rp = new RolePermission(role.Id, permission.GroupCode, permission.Code);
+                _dbContext.RolePermissions.Add(rp);
+            });
+
+            _dbContext.SaveChanges();
             return true;
         }
         public async Task<bool> Delete(string id, UserClaims claims)
         {
+
+            var role = _dbContext.Roles.SingleOrDefault(r => r.Id == Guid.Parse(id));
+            if (role == null)
+            {
+                throw new Exception("role_is_not_found");
+            }
+
+            var oldPermissions = _dbContext.RolePermissions.Where(rp => rp.Id == Guid.Parse(id)).ToList();
+            if (oldPermissions.Count() > 0)
+            {
+                oldPermissions.ForEach(op => _dbContext.RolePermissions.Remove(op));
+            }
+
+            _dbContext.Roles.Remove(role);
+            _dbContext.SaveChanges();
             return true;
         }
 
 
-        private RoleDto getOrgRoleById(Guid id, string orgId)
+        private async Task<Role> getRoleById(Guid id)
         {
 
-            Role role = _dbContext.Roles.Where(r => r.OrgId == orgId && r.Id == id).SingleOrDefault();
-            RoleDto dto = _mapper.Map<RoleDto>(role);
-            return dto;
+            Role role = _dbContext.Roles.Where(r => r.Id == id).SingleOrDefault();
+            return role;
 
         }
     }
