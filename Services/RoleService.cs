@@ -54,7 +54,7 @@ namespace WebApi.Services
             RoleDetailDto result = new RoleDetailDto();
             result.Permissions = _mapper.Map<List<RolePermissionDto>>(rolePermissions);
             result.Id = role.Id;
-            result.Name= role.Name;
+            result.Name = role.Name;
 
             return result;
 
@@ -66,7 +66,7 @@ namespace WebApi.Services
             List<RoleDto> roleDtos = new List<RoleDto>();
             roles.ForEach((role) =>
             {
-            var roleDto = _mapper.Map<RoleDto>(role);
+                var roleDto = _mapper.Map<RoleDto>(role);
                 roleDtos.Add(roleDto);
             });
 
