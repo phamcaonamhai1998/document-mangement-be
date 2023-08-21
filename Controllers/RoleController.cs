@@ -40,7 +40,8 @@ public class RoleController : BaseController
     [HttpGet("all")]
     public async Task<List<RoleDto>> GetAll()
     {
-        List<RoleDto> roles = await _service.GetAll();
+
+        List<RoleDto> roles = await _service.GetAll(Claims) ;
         return roles;
     }
 
