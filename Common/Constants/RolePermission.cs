@@ -11,21 +11,21 @@ namespace WebApi.Common.Constants
         public const string DEP_OWNER_ID = "ae6d324e-3aa7-11ee-be56-0242ac120002";
     }
 
-    public static class PermissionList
-    {
+    // public static class PermissionList
+    // {
 
-        public static readonly string UserList = "User:List";
-        public static readonly string UserCreate = "User:Create";
-        public static readonly string UserUpdate = "User:Update";
-        public static readonly string UserDelete = "User:Delete";
+    //     public static readonly string UserList = "User:List";
+    //     public static readonly string UserCreate = "User:Create";
+    //     public static readonly string UserUpdate = "User:Update";
+    //     public static readonly string UserDelete = "User:Delete";
 
 
-        public static readonly string DocumentList = "Document:List";
-        public static readonly string DocumentCreate = "Document:Create";
-        public static readonly string DocumentUpdate = "Document:Update";
-        public static readonly string DocumentDelete = "Document:Delete";
+    //     public static readonly string DocumentList = "Document:List";
+    //     public static readonly string DocumentCreate = "Document:Create";
+    //     public static readonly string DocumentUpdate = "Document:Update";
+    //     public static readonly string DocumentDelete = "Document:Delete";
 
-    }
+    // }
 
     public static class PermissionGroupCode
     {

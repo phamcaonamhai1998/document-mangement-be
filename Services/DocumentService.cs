@@ -74,8 +74,6 @@ public class DocumentService : IDocumentService
         {
             return new List<DocumentDto>();
         }
-
-
         return await FormatDocuments(query, claims);
     }
 
@@ -142,10 +140,25 @@ public class DocumentService : IDocumentService
             await _storageHelper.DeleteFile(document.DriveDocId);
         }
 
-        _dbContext.Documents.Remove(document);
-        _dbContext.SaveChanges();
+        try {
+            _dbContext.Documents.Remove(document);
+            _dbContext.SaveChanges();
+        }
 
-        await _elasticSearchHelper.Delete(id, ElasticSearchConstants.DOCUMENT_INDEX);
+        catch(Exception err){
+            Console.WriteLine(err);
+        }
+      
+        try
+        {
+            await _elasticSearchHelper.Delete(id, ElasticSearchConstants.DOCUMENT_INDEX);
+        }
+
+        catch (Exception err)
+        {
+            Console.WriteLine(err);
+        }
+
         return true;
     }
 
@@ -188,7 +201,6 @@ public class DocumentService : IDocumentService
 
         doc.Title = payload.Title;
         doc.Description = payload.Description;
-        doc.IsActive = payload.IsActive;
         doc.UpdatedBy = claims.Id;
 
 

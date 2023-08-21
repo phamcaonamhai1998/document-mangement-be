@@ -53,6 +53,7 @@ public class UserService : IUserService
             var roleId = Guid.Parse(payload.RoleId);
             var role = _dbContext.Roles.SingleOrDefault(r => r.Id == roleId);
             if (role == null) throw new Exception("invalid_role");
+            createAccount.Role = role;
         }
 
         //check org

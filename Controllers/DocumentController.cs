@@ -6,6 +6,7 @@ using WebApi.Authorization;
 using WebApi.Common.Constants;
 using Org.BouncyCastle.Ocsp;
 using WebApi.Models.Users;
+using WebApi.Entities;
 
 namespace WebApi.Controllers;
 
@@ -13,13 +14,15 @@ namespace WebApi.Controllers;
 [Route("[controller]")]
 public class DocumentController : BaseController
 {
+    DataContext _dbContext;
     StorageHelper _storageHelper;
     ElasticSearchHelper _esHelper;
     IWebHostEnvironment _hostingEnvironment;
     IDocumentService _documentService;
 
-    public DocumentController(StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService, ElasticSearchHelper esHelper)
+    public DocumentController(DataContext dbContext, StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService, ElasticSearchHelper esHelper)
     {
+        _dbContext = dbContext;
         _storageHelper = storageHelper;
         _hostingEnvironment = hostingEnvironment;
         _documentService = documentService;
@@ -51,16 +54,16 @@ public class DocumentController : BaseController
 
     [HttpGet("{id}")]
     [AuthorizeAttribute("Document:List")]
-    public async Task<DocumentDto> GetUserDoc([FromQuery] string id)
+    public async Task<DocumentDto> GetUserDoc(string id)
     {
         var result = await _documentService.GetUserDoc(id, Claims);
         return result;
     }
 
-    [HttpPost("upload")]
+    [HttpPost("upload/{id}")]
     [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
-    [AuthorizeAttribute("Document:Create")]
-    public async Task<string> UploadFile([FromForm] IFormFile file, UserClaims claims)
+    // [AuthorizeAttribute("Document:Create")]
+    public async Task<string> UploadFile([FromForm] IFormFile file, String id)
     {
         string wwwPath = _hostingEnvironment.WebRootPath;
         string path = Path.Combine("~/", "Uploads");
@@ -74,13 +77,26 @@ public class DocumentController : BaseController
 
         string fileName = Path.GetFileName(file.Name);
         string fileId = "";
+        Account user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
+        Organization org = new Organization();
+        Department dep = new Department();
+        if (user.OrgId != null)
+        {
+            org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(user.OrgId));
+        }
+        if (user.Department != null)
+        {
+            dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
+        }
+
         using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
         {
             file.CopyTo(stream);
             string fileMime = MimeMapping.MimeUtility.GetMimeMapping(file.FileName);
             string driveFolderId = null;
-            if (claims.Organization != null && claims.Organization.OrgDriveFolderId != null && claims.Organization.OrgDriveFolderId.Count() > 0) driveFolderId = claims.Organization.OrgDriveFolderId;
-            if (claims.Department != null && claims.Department.DepartmentDriveFolderId != null && claims.Department.DepartmentDriveFolderId.Count() > 0) driveFolderId = claims.Department.DepartmentDriveFolderId;
+
+            if (org != null && org.OrgDriveFolderId != null && org.OrgDriveFolderId.Count() > 0) driveFolderId = org.OrgDriveFolderId;
+            if (dep != null && dep.DepartmentDriveFolderId != null && dep.DepartmentDriveFolderId.Count() > 0) driveFolderId = dep.DepartmentDriveFolderId;
             fileId = await _storageHelper.UploadFile(stream, file.Name, fileMime, driveFolderId);
         }
         return fileId;
@@ -94,7 +110,7 @@ public class DocumentController : BaseController
         return result;
     }
 
-    [HttpPut("{id}/procedure")]
+    [HttpPut("{id}")]
     [AuthorizeAttribute("Document:Update")]
     public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
     {
@@ -120,9 +136,9 @@ public class DocumentController : BaseController
     }
 
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     [AuthorizeAttribute("Document:Delete")]
-    public async Task<bool> Delete([FromQuery] string id)
+    public async Task<bool> Delete(string id)
     {
         var result = await _documentService.Delete(id, Claims);
         return result;

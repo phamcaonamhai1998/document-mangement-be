@@ -3,6 +3,7 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Microsoft.Extensions.Options;
+using System;
 using System.Text;
 using WebApi.Entities;
 
@@ -85,12 +86,18 @@ namespace WebApi.Helpers
 
         public async Task<bool> DeleteFile(string driveDocId)
         {
-            DriveService service = await GetService();
+            try
+            {
+                DriveService service = await GetService();
 
-            var request = service.Files.Delete(driveDocId);
+                var request = service.Files.Delete(driveDocId);
 
-            request.Execute();
+                request.Execute();
 
+            }
+            catch (Exception err) {
+               Console.WriteLine(err);
+            }
             return true;
         }
 

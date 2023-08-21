@@ -1,31 +1,22 @@
 ﻿<Properties StartupConfiguration="{230CCAB8-C171-4035-9E51-3E642A761EE8}|Default">
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.WebApi PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Services/UserService.cs">
-    <Files>
-      <File FileName="Controllers/RoleController.cs" Line="40" Column="18" />
-      <File FileName="Services/RoleService.cs" Line="64" Column="10" />
-      <File FileName="Common/Constants/Permission.cs" Line="46" Column="32" />
-      <File FileName="Services/UserService.cs" Line="82" Column="68" />
-    </Files>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="WebApi">
+          <Node name="WebApi" expanded="True">
             <Node name="WebApi">
               <Node name="Authorization" expanded="True" />
-              <Node name="Common" expanded="True">
-                <Node name="Constants" expanded="True" />
-              </Node>
-              <Node name="Controllers" expanded="True" />
-              <Node name="Entities" expanded="True" />
-              <Node name="Helpers" expanded="True" />
-              <Node name="Models" expanded="True">
-                <Node name="Roles" expanded="True" />
+              <Node name="Models">
+                <Node name="Accounts" expanded="True" />
+                <Node name="Auth" expanded="True" />
+                <Node name="Procedures" expanded="True" />
               </Node>
               <Node name="Services" expanded="True">
-                <Node name="UserService.cs" selected="True" />
+                <Node name="Interfaces" expanded="True" />
+                <Node name="DocumentService.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -36,10 +27,12 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.WebApi PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/haipham/Documents/document-management/document-management-be/Services/ProcedureService.cs" relfile="Services/ProcedureService.cs" line="30" column="1" />
+      <Breakpoint file="/Users/haipham/Documents/document-management/document-management-be/Services/DocumentService.cs" relfile="Services/DocumentService.cs" line="405" column="1" />
+      <Breakpoint file="/Users/haipham/Documents/document-management/document-management-be/Services/DocumentService.cs" relfile="Services/DocumentService.cs" line="73" column="1" />
+      <Breakpoint file="/Users/haipham/Documents/document-management/document-management-be/Services/DocumentService.cs" relfile="Services/DocumentService.cs" line="320" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
 </Properties>
