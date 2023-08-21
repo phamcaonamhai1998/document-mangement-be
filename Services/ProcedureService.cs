@@ -137,6 +137,9 @@ public class ProcedureService : IProcedureService
         var proc = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
         ProcedureDto procDto = _mapper.Map<ProcedureDto>(proc);
 
+        var steps = _dbContext.ProcedureSteps.Where(step => step.Procedure.Id == proc.Id).ToList();
+        var stepDtos = _mapper.Map<List<ProcedureStepDto>>(steps);
+
         return Task.FromResult(procDto);
     }
 
