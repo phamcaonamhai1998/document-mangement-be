@@ -81,7 +81,7 @@ namespace WebApi.Services
             switch (claims.Role.Id.ToString())
             {
                 case RoleConstants.ORG_OWNER_ID:
-                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString());
+                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString() || r.Id == Guid.Parse(RoleConstants.DEP_OWNER_ID));
                     break;
                 case RoleConstants.DEP_OWNER_ID:
                     command = command.Where(r => r.OrgId == claims.Organization.Id.ToString());
