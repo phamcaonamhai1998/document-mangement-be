@@ -41,22 +41,23 @@ public class RoleController : BaseController
     public async Task<List<RoleDto>> GetAll()
     {
 
-        List<RoleDto> roles = await _service.GetAll(Claims) ;
+        List<RoleDto> roles = await _service.GetAll(Claims);
         return roles;
     }
 
     [AuthorizeAttribute("Role:Update")]
-    [HttpPut]
-    public async Task<bool> Update()
+    [HttpPut("{id}")]
+    public async Task<bool> Update([FromBody] UpdateRoleRequest request, string id)
     {
-        return true;
+        return await _service.Update(id, request, Claims);
     }
 
     [AuthorizeAttribute("Role:Delete")]
-    [HttpDelete]
-    public async Task<bool> Delete()
+    [HttpDelete("{id}")]
+    public async Task<bool> Delete(string id)
     {
-        return true;
+        return await _service.Delete(id, Claims);
+
     }
 
 }
