@@ -78,9 +78,9 @@ namespace WebApi.Common.Constants
 
         public static readonly IList<Entities.Role> ROLE_SEEDS = new ReadOnlyCollection<Entities.Role>(new List<Entities.Role>
             {
-                new Entities.Role(Guid.Parse(SysRole.Admin), "Admin", null),
-                new Entities.Role(Guid.Parse(SysRole.OrgOwner), "Organization Owner", null),
-                new Entities.Role(Guid.Parse(SysRole.DepOwner), "Department Owner", null),
+                new Entities.Role(Guid.Parse(SysRole.Admin), "Admin", null, null),
+                new Entities.Role(Guid.Parse(SysRole.OrgOwner), "Organization Owner", null, null),
+                new Entities.Role(Guid.Parse(SysRole.DepOwner), "Department Owner", null, null),
             });
 
         public static readonly IList<Entities.RolePermission> ROLE_PERMISSION_SEEDS = new ReadOnlyCollection<Entities.RolePermission>(new List<Entities.RolePermission>
