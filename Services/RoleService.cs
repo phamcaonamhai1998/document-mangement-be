@@ -102,6 +102,27 @@ namespace WebApi.Services
             return Task.FromResult(roleDtos);
         }
 
+        public Task<List<RoleDto>> GetList(UserClaims claims)
+        {
+            var sysRoles = new List<string>()
+                {
+                    RoleConstants.ADMIN_ROLE_ID,
+                    RoleConstants.ORG_OWNER_ID,
+                    RoleConstants.DEP_OWNER_ID
+                };
+            var command = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin)).Where(role => sysRoles.Any(sr => Guid.Parse(sr) != role.Id));
+            var roles = command.ToList();
+            List<RoleDto> roleDtos = new List<RoleDto>();
+
+            roles.ForEach((role) =>
+            {
+                var roleDto = _mapper.Map<RoleDto>(role);
+                roleDtos.Add(roleDto);
+            });
+
+            return Task.FromResult(roleDtos);
+        }
+
         public async Task<bool> Update(string id, UpdateRoleRequest request, UserClaims claims)
         {
             var role = _dbContext.Roles.SingleOrDefault(r => r.Id == Guid.Parse(id));

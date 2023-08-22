@@ -30,6 +30,15 @@ public class RoleController : BaseController
     }
 
     [AuthorizeAttribute("Role:List")]
+    [HttpGet]
+    public async Task<List<RoleDto>> GetAll()
+    {
+
+        List<RoleDto> roles = await _service.GetAll(Claims);
+        return roles;
+    }
+
+    [AuthorizeAttribute("Role:List")]
     [HttpGet("{id}")]
     public async Task<RoleDetailDto> Get(string id)
     {
@@ -38,7 +47,7 @@ public class RoleController : BaseController
 
     [AuthorizeAttribute("Role:List")]
     [HttpGet("all")]
-    public async Task<List<RoleDto>> GetAll()
+    public async Task<List<RoleDto>> GetList()
     {
 
         List<RoleDto> roles = await _service.GetAll(Claims);
