@@ -156,7 +156,7 @@ public class UserService : IUserService
         Account user = _dbContext.Accounts
             .Include(a => a.Department)
             .Include(a => a.Role)
-            .SingleOrDefault(a => a.Email == payload.Email);
+            .SingleOrDefault(a => a.Email == payload.Email && a.IsActive == true);
 
         if (user == null)
         {
