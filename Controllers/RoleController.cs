@@ -31,10 +31,10 @@ public class RoleController : BaseController
 
     [AuthorizeAttribute("Role:List")]
     [HttpGet]
-    public async Task<List<RoleDto>> GetAll()
+    public async Task<List<RoleDto>> GetList()
     {
 
-        List<RoleDto> roles = await _service.GetAll(Claims);
+        List<RoleDto> roles = await _service.GetList(Claims);
         return roles;
     }
 
@@ -47,7 +47,7 @@ public class RoleController : BaseController
 
     [AuthorizeAttribute("Role:List")]
     [HttpGet("all")]
-    public async Task<List<RoleDto>> GetList()
+    public async Task<List<RoleDto>> GetAll()
     {
 
         List<RoleDto> roles = await _service.GetAll(Claims);
