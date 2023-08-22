@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Elastic.Clients.Elasticsearch.QueryDsl;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Common.Constants;
 using WebApi.Entities;
@@ -49,6 +50,10 @@ public class DocumentService : IDocumentService
         entity.CreatedBy = claims.Id;
 
         _dbContext.Documents.Add(entity);
+        _dbContext.SaveChanges();
+
+        proc.IsActive = true;
+        _dbContext.Procedures.Update(proc);
         _dbContext.SaveChanges();
 
         await _HandleAssignDocToProcedureSteps(entity, proc.Id);
@@ -140,15 +145,17 @@ public class DocumentService : IDocumentService
             await _storageHelper.DeleteFile(document.DriveDocId);
         }
 
-        try {
+        try
+        {
             _dbContext.Documents.Remove(document);
             _dbContext.SaveChanges();
         }
 
-        catch(Exception err){
+        catch (Exception err)
+        {
             Console.WriteLine(err);
         }
-      
+
         try
         {
             await _elasticSearchHelper.Delete(id, ElasticSearchConstants.DOCUMENT_INDEX);
@@ -173,17 +180,18 @@ public class DocumentService : IDocumentService
         }
 
         // check doc can update
-        // if one of doc steps has change status so can not update 
+        // if one of doc steps has change status so can not update
+        Procedure updatedProc = null;
         if (payload.ProcedureId != null)
         {
             Procedure proc = _dbContext.Procedures.SingleOrDefault(proc => proc.Id == Guid.Parse(payload.ProcedureId));
-            doc.Procedure = proc;
-
             List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.Document.Id == doc.Id).ToList();
             if (docSteps.Count() > 0 && !docSteps.All(ds => ds.Status == DocumentStepStatus.PROCESSING))
             {
                 throw new Exception("exist_step_status_change_of_document");
             }
+            doc.Procedure = proc;
+            updatedProc = proc;
         }
 
         if (payload.DriveDocId != null || !string.IsNullOrWhiteSpace(payload.DriveDocId) || !string.IsNullOrEmpty(payload.DriveDocId))
@@ -206,6 +214,13 @@ public class DocumentService : IDocumentService
 
         _dbContext.Documents.Update(doc);
         _dbContext.SaveChanges();
+
+        if (updatedProc != null)
+        {
+            updatedProc.IsActive = true;
+            _dbContext.Procedures.Update(updatedProc);
+            _dbContext.SaveChanges();
+        }
 
         await _HandleAssignDocToProcedureSteps(doc, doc.Procedure.Id);
 

@@ -23,6 +23,7 @@
         <PackageReference Include="MimeMapping" Version="2.0.0" />
         <PackageReference Include="NEST" Version="7.17.5" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+        <PackageReference Include="Spire.PDF" Version="9.8.5" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
     </ItemGroup>
