@@ -20,6 +20,7 @@ namespace WebApi.Entities
         public string Name { get; set; }
 
         public string DepartmentId { get; set; }
+        public bool IsActive { get; set; }
 
         public Organization Organization { get; set; }
 
