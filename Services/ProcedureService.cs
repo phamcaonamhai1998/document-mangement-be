@@ -35,6 +35,7 @@ public class ProcedureService : IProcedureService
         procedure.Organization = org;
         procedure.DepartmentId = payload.DepartmentId;
         procedure.CreatedBy = _claims.Id;
+        procedure.IsActive = false;
         _dbContext.Procedures.Add(procedure);
 
         if (payload.ProcedureSteps.Count() > 0)
@@ -82,7 +83,7 @@ public class ProcedureService : IProcedureService
 
             var proc = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
 
-            if (proc == null) throw new Exception("procedure_is_not_found");
+            if (proc == null || proc.IsActive == true) throw new Exception("procedure_is_not_found_or_in_active");
 
             _dbContext.Procedures.Remove(proc);
             _dbContext.SaveChanges();
@@ -94,17 +95,23 @@ public class ProcedureService : IProcedureService
             Console.WriteLine(err);
             return null;
         }
-
     }
 
-    public Task<List<ProcedureDto>> GetAll(UserClaims claims)
+    public Task<List<ProcedureDto>> GetAll(UserClaims claims, ProcedureQuery query)
     {
 
         if (claims.Role != null && claims.Role.Id.ToString() != SysRole.Admin)
         {
             return Task.FromResult(new List<ProcedureDto>());
         }
-        var procedures = _dbContext.Procedures.ToList();
+        var cmd = _dbContext.Procedures;
+
+        //if (query.IsActive)
+        //{
+        //    cmd.Where(d => d.IsActive == true);
+        //}
+
+        var procedures = cmd.ToList();
         List<ProcedureDto> procDtos = new List<ProcedureDto>();
         procedures.ForEach((pro) =>
         {
@@ -113,19 +120,24 @@ public class ProcedureService : IProcedureService
         });
         return Task.FromResult(procDtos);
     }
-    public Task<List<ProcedureDto>> GetOrgProcedures(UserClaims claims)
+    public Task<List<ProcedureDto>> GetOrgProcedures(UserClaims claims, ProcedureQuery query)
     {
         if (claims.Organization != null && claims.Organization.Id.ToString().IsNullOrEmpty())
         {
             return Task.FromResult(new List<ProcedureDto>());
         }
 
-        var docs = _dbContext.Procedures.Where(d => d.Organization.Id == claims.Organization.Id).ToList();
+        var cmd = _dbContext.Procedures.Where(d => d.Organization.Id == claims.Organization.Id);
+        //if (query.IsActive)
+        //{
+        //    cmd.Where(d => d.IsActive == true);
+        //}
 
+        var docs = cmd.ToList();
         return Task.FromResult(_mapper.Map<List<ProcedureDto>>(docs));
     }
 
-    public Task<List<ProcedureDto>> GetDepartmentProcedures(UserClaims claims)
+    public Task<List<ProcedureDto>> GetDepartmentProcedures(UserClaims claims, ProcedureQuery query)
     {
 
         if (claims.Department != null && claims.Department.Id.ToString().IsNullOrEmpty())
@@ -133,7 +145,12 @@ public class ProcedureService : IProcedureService
             return Task.FromResult(new List<ProcedureDto>());
         }
 
-        var docs = _dbContext.Procedures.Where(p => Guid.Parse(p.DepartmentId) == claims.Department.Id).ToList();
+        var cmd = _dbContext.Procedures.Where(p => Guid.Parse(p.DepartmentId) == claims.Department.Id);
+        //if (query.IsActive)
+        //{
+        //    cmd.Where(d => d.IsActive == true);
+        //}
+        var docs = cmd.ToList();
 
         return Task.FromResult(_mapper.Map<List<ProcedureDto>>(docs));
     }
@@ -169,9 +186,10 @@ public class ProcedureService : IProcedureService
             throw new Exception("id_is_empty");
         }
         Procedure procedure = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
+
+        if (procedure.IsActive) throw new Exception("proc_is_active");
+
         procedure.UpdatedBy = _claims.Id;
-
-
         procedure.Name = payload.Name;
         if (payload.ProcedureSteps.Count() > 0)
         {

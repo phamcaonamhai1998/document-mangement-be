@@ -8,3 +8,9 @@ public class ProcedureDto
     public string departmentId { get; set; }
     public List<ProcedureStepDto> ProcedureSteps { get; set; }
 }
+
+public class ProcedureQuery
+{
+    public bool IsActive { get; set; }
+
+}

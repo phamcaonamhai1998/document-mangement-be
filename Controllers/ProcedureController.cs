@@ -21,20 +21,20 @@ public class ProcedureController : BaseController
 
     [HttpGet]
     [AuthorizeAttribute("Procedure:List")]
-    public async Task<List<ProcedureDto>> GetAll()
+    public async Task<List<ProcedureDto>> GetAll([FromQuery] ProcedureQuery query)
     {
 
         List<ProcedureDto> result;
         switch (Claims.Role.Id.ToString())
         {
             case RoleConstants.ADMIN_ROLE_ID:
-                result = await _procedureService.GetAll(Claims);
+                result = await _procedureService.GetAll(Claims, query);
                 return result;
             case RoleConstants.ORG_OWNER_ID:
-                result = await _procedureService.GetOrgProcedures(Claims);
+                result = await _procedureService.GetOrgProcedures(Claims, query);
                 return result;
             case RoleConstants.DEP_OWNER_ID:
-                result = await _procedureService.GetDepartmentProcedures(Claims);
+                result = await _procedureService.GetDepartmentProcedures(Claims, query);
                 return result;
             default:
                 return null;
