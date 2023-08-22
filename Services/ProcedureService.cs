@@ -53,9 +53,9 @@ public class ProcedureService : IProcedureService
     private async Task<bool> _handleProcedureSteps(HandleProcedureStepDto payload, Procedure procedure, UserClaims _claims, bool isUpdate)
     {
 
-        for (int i = 0; i < payload.ProcedureStepItems.Count; i++)
+        for (int i = 1; i < payload.ProcedureStepItems.Count; i++)
         {
-            ProcedureStep step = new ProcedureStep(Guid.NewGuid(), i, payload.ProcedureStepItems[i].Description, payload.ProcedureStepItems[i].AssignId);
+            ProcedureStep step = new ProcedureStep(Guid.NewGuid(), i + 1, payload.ProcedureStepItems[i].Description, payload.ProcedureStepItems[i].AssignId);
             step.Procedure = procedure;
             if (isUpdate == true)
             {
@@ -140,6 +140,10 @@ public class ProcedureService : IProcedureService
         var steps = _dbContext.ProcedureSteps.Where(step => step.Procedure.Id == proc.Id).ToList();
         var stepDtos = _mapper.Map<List<ProcedureStepDto>>(steps);
 
+        if (stepDtos?.Count() > 0)
+        {
+            procDto.ProcedureSteps = stepDtos;
+        }
         return Task.FromResult(procDto);
     }
 
