@@ -53,6 +53,16 @@ public class ProcedureService : IProcedureService
 
     private async Task<bool> _handleProcedureSteps(HandleProcedureStepDto payload, Procedure procedure, UserClaims _claims, bool isUpdate)
     {
+        if (isUpdate)
+        {
+            var procSteps = _dbContext.ProcedureSteps.Where(ps => ps.Procedure.Id == procedure.Id).ToList();
+
+            if (procSteps.Count() > 0)
+            {
+                procSteps.ForEach(ps => _dbContext.ProcedureSteps.Remove(ps));
+            }
+            _dbContext.SaveChanges();
+        }
 
         for (int i = 1; i < payload.ProcedureStepItems.Count; i++)
         {
