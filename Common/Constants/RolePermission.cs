@@ -73,6 +73,7 @@ namespace WebApi.Common.Constants
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Create),
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Update),
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Delete),
+                new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Approve),
             });
 
 
@@ -111,6 +112,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Delete),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Approve),
 
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.List),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Procedure, PermissionCode.Create),
@@ -133,6 +135,8 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Delete),
 
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Approve),
+
             
              // Department
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.User, PermissionCode.List),
@@ -144,6 +148,8 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Delete),
+
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Approve),
         });
     }
 }
