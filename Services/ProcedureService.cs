@@ -64,7 +64,7 @@ public class ProcedureService : IProcedureService
             _dbContext.SaveChanges();
         }
 
-        for (int i = 1; i < payload.ProcedureStepItems.Count; i++)
+        for (int i = 0; i < payload.ProcedureStepItems.Count; i++)
         {
             ProcedureStep step = new ProcedureStep(Guid.NewGuid(), i + 1, payload.ProcedureStepItems[i].Description, payload.ProcedureStepItems[i].AssignId);
             step.Procedure = procedure;
@@ -84,18 +84,27 @@ public class ProcedureService : IProcedureService
 
     public Task<bool> Delete(string id)
     {
-        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        try
         {
-            throw new Exception("id_is_empty");
+            if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+            {
+                throw new Exception("id_is_empty");
+            }
+
+            var proc = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
+
+            if (proc == null || proc.IsActive == true) throw new Exception("procedure_is_not_found_or_in_active");
+
+            _dbContext.Procedures.Remove(proc);
+            _dbContext.SaveChanges();
+            return Task.FromResult(true);
+
         }
-
-        var proc = _dbContext.Procedures.SingleOrDefault(a => a.Id == Guid.Parse(id));
-
-        if (proc == null || proc.IsActive == true) throw new Exception("procedure_is_not_found_or_is_active");
-
-        _dbContext.Procedures.Remove(proc);
-        _dbContext.SaveChanges();
-        return Task.FromResult(true);
+        catch (Exception err)
+        {
+            Console.WriteLine(err);
+            return null;
+        }
     }
 
     public Task<List<ProcedureDto>> GetAll(UserClaims claims, ProcedureQuery query)
