@@ -29,5 +29,6 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Migrations\" />
+      <Folder Include="Certs\" />
     </ItemGroup>
 </Project>

@@ -14,10 +14,10 @@ public class DigitalSignHelper
         doc.LoadFromFile("DocSample/test.pdf");
 
         // load cert
-        PdfCertificate cert = new PdfCertificate("", "pwd");
+        PdfCertificate cert = new PdfCertificate("Certs/document.pfx", "123456");
 
         //create signature obj
-        PdfSignature signature = new PdfSignature(doc, doc.Pages[doc.Pages.Count - 1], cert, "Signature name");
+        PdfSignature signature = new PdfSignature(doc, doc.Pages[doc.Pages.Count - 1], cert, "Document");
 
         RectangleF rectangleF = new RectangleF(doc.Pages[0].ActualSize.Width - 260 - 54, 200, 260, 110);
         signature.Bounds = rectangleF;
@@ -38,7 +38,7 @@ public class DigitalSignHelper
 
         signature.DocumentPermissions = PdfCertificationFlags.ForbidChanges | PdfCertificationFlags.AllowFormFill;
 
-        doc.SaveToFile("other.pdf");
+        doc.SaveToFile("DocSample/other.pdf");
         doc.Close();
 
     }

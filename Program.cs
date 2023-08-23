@@ -45,6 +45,7 @@ var builder = WebApplication.CreateBuilder(args);
 
     services.AddScoped<StorageHelper>();
     services.AddScoped<ElasticSearchHelper>();
+    services.AddScoped<DigitalSignHelper>();
 }
 
 builder.Services.AddAuthorization();

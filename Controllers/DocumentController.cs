@@ -19,14 +19,16 @@ public class DocumentController : BaseController
     ElasticSearchHelper _esHelper;
     IWebHostEnvironment _hostingEnvironment;
     IDocumentService _documentService;
+    DigitalSignHelper _digitalSignHelper;
 
-    public DocumentController(DataContext dbContext, StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService, ElasticSearchHelper esHelper)
+    public DocumentController(DataContext dbContext, StorageHelper storageHelper, IWebHostEnvironment hostingEnvironment, IDocumentService documentService, ElasticSearchHelper esHelper, DigitalSignHelper digitalSignHelper)
     {
         _dbContext = dbContext;
         _storageHelper = storageHelper;
         _hostingEnvironment = hostingEnvironment;
         _documentService = documentService;
         _esHelper = esHelper;
+        _digitalSignHelper = digitalSignHelper;
     }
 
     [HttpGet]
@@ -50,6 +52,14 @@ public class DocumentController : BaseController
                 return result;
         }
 
+    }
+
+    [HttpGet("assigned")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<bool> GetAssignedDocs()
+    {
+        var result = await _documentService.AssignedDocStep(Claims);
+        return result;
     }
 
     [HttpGet("{id}")]
@@ -142,5 +152,13 @@ public class DocumentController : BaseController
     {
         var result = await _documentService.Delete(id, Claims);
         return result;
+    }
+
+
+    [HttpPost("sign-doc")]
+    public async void SignDoc(string id)
+    {
+        _digitalSignHelper.SignDocument();
+        
     }
 }

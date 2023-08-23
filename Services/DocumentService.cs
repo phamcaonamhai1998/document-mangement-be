@@ -56,12 +56,13 @@ public class DocumentService : IDocumentService
         _dbContext.Procedures.Update(proc);
         _dbContext.SaveChanges();
 
-        await _HandleAssignDocToProcedureSteps(entity, proc.Id);
+        var assignIds = await _HandleAssignDocToProcedureSteps(entity, proc.Id);
 
         //sync document to elastic search
         try
         {
             var esDoc = GetESDoc(entity, claims);
+            esDoc.AssignIds = assignIds;
             await _elasticSearchHelper.CreateDoc<EsDocument>(esDoc, ElasticSearchConstants.DOCUMENT_INDEX);
         }
         catch (Exception ex)
@@ -119,6 +120,16 @@ public class DocumentService : IDocumentService
         query.CreatedBy = claims.Id.ToString();
 
         return await FormatDocuments(query, claims);
+    }
+
+    public async Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims)
+    {
+        return new List<DocumentDto>();
+    }
+
+    public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims)
+    {
+        return new List<DocumentDto>();
     }
 
     public async Task<DocumentDto> GetUserDoc(string id, UserClaims claims)
@@ -222,11 +233,12 @@ public class DocumentService : IDocumentService
             _dbContext.SaveChanges();
         }
 
-        await _HandleAssignDocToProcedureSteps(doc, doc.Procedure.Id);
+        var assignIds = await _HandleAssignDocToProcedureSteps(doc, doc.Procedure.Id);
 
         try
         {
             var esDoc = GetESDoc(doc, claims);
+            esDoc.AssignIds = assignIds;
             await _elasticSearchHelper.UpdateDoc<EsDocument>(esDoc, id, ElasticSearchConstants.DOCUMENT_INDEX);
         }
         catch (Exception ex)
@@ -327,7 +339,6 @@ public class DocumentService : IDocumentService
 
         return true;
     }
-
 
     public async Task<List<EsDocument>> SearchDocuments(GetDocumentsRequest payload, string index, UserClaims claims)
     {
@@ -439,7 +450,7 @@ public class DocumentService : IDocumentService
     }
 
     //pe-condition: all procedure steps of document must be processing
-    private async Task<bool> _HandleAssignDocToProcedureSteps(Document doc, Guid procedureId)
+    private async Task<List<string>> _HandleAssignDocToProcedureSteps(Document doc, Guid procedureId)
     {
         //remove old steps
         List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(ds => ds.Document.Id == doc.Id).ToList();
@@ -451,6 +462,7 @@ public class DocumentService : IDocumentService
 
         _dbContext.SaveChanges();
 
+        var assignIds = new List<string>();
         //add new steps
         List<ProcedureStep> steps = _dbContext.ProcedureSteps.Where(ps => ps.Procedure.Id == procedureId).ToList();
         steps.ForEach(step =>
@@ -458,11 +470,12 @@ public class DocumentService : IDocumentService
             var dps = new DocumentProcedureStep(procedureId, DocumentStepStatus.PROCESSING);
             dps.Document = doc;
             dps.ProcedureStep = step;
+            assignIds.Add(step.AssignId.ToString());
             _dbContext.DocumentProcedureSteps.Add(dps);
         });
 
         _dbContext.SaveChanges();
-        return true;
+        return assignIds;
     }
 
     private EsDocument GetESDoc(Document entity, UserClaims claims)
