@@ -122,14 +122,29 @@ public class DocumentService : IDocumentService
         return await FormatDocuments(query, claims);
     }
 
-    public async Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims)
+    public async Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
     {
-        return new List<DocumentDto>();
+        if (claims.Id.ToString().IsNullOrEmpty())
+        {
+            return new List<DocumentDto>();
+        }
+
+        query.AssignId = claims.Id.ToString();
+
+        return await FormatDocuments(query, claims);
     }
 
-    public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims)
+    public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims, GetDocumentsRequest query)
     {
-        return new List<DocumentDto>();
+        if (claims.Id.ToString().IsNullOrEmpty())
+        {
+            return new List<DocumentDto>();
+        }
+
+        query.RejectedBy = claims.Id.ToString();
+
+        return await FormatDocuments(query, claims);
+
     }
 
     public async Task<DocumentDto> GetUserDoc(string id, UserClaims claims)
@@ -330,6 +345,7 @@ public class DocumentService : IDocumentService
         try
         {
             var esDoc = GetESDoc(doc, claims);
+            esDoc.RejectedBy = claims.Id.ToString();
             await _elasticSearchHelper.UpdateDoc<EsDocument>(esDoc, id, ElasticSearchConstants.DOCUMENT_INDEX);
         }
         catch (Exception ex)
@@ -405,6 +421,17 @@ public class DocumentService : IDocumentService
             conditionQuery = conditionQuery.Term(term => term.UserId, payload.UserId);
         }
 
+        if (IsExistStringFilter(payload.AssignId))
+        {
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.AssignIds).Query(payload.AssignId)
+                                           );
+        }
+
+        if (IsExistStringFilter(payload.RejectedBy))
+        {
+            conditionQuery = conditionQuery.Term(term => term.RejectedBy, payload.UserId);
+        }
 
         var response = await _elasticSearchHelper.Client.SearchAsync<EsDocument>(
                    es =>

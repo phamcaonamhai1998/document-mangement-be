@@ -11,12 +11,13 @@ namespace WebApi.Services.Interfaces
         public Task<List<DocumentDto>> GetAll(UserClaims claims, GetDocumentsRequest query);
         public Task<List<DocumentDto>> GetUserDocs(UserClaims claims, GetDocumentsRequest query);
         public Task<List<DocumentDto>> GetOrgDocs(UserClaims claims, GetDocumentsRequest query);
-        public Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims);
-        public Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims);
+        public Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query);
+        public Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims, GetDocumentsRequest query);
         public Task<List<DocumentDto>> GetDepartmentDocs(UserClaims claims, GetDocumentsRequest query);
         public Task<DocumentDto> GetUserDoc(string id, UserClaims claims);
         public Task<bool> Delete(string id, UserClaims claims);
         public Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims);
         public Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims);
+     
     }
 }

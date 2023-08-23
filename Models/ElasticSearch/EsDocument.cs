@@ -21,5 +21,6 @@ namespace WebApi.Models.ElasticSearch
         public string UserId { get; set; }
         public string Status { get; set; }
         public List<string> AssignIds { get; set; }
+        public string RejectedBy { get; set; }
     }
 }

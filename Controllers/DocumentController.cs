@@ -56,9 +56,17 @@ public class DocumentController : BaseController
 
     [HttpGet("assigned")]
     [AuthorizeAttribute("Document:List")]
-    public async Task<bool> GetAssignedDocs()
+    public async Task<List<DocumentDto>> GetAssignedDocs([FromQuery] GetDocumentsRequest query)
     {
-        var result = await _documentService.AssignedDocStep(Claims);
+        var result = await _documentService.GetAssignedDocs(Claims, query);
+        return result;
+    }
+
+    [HttpGet("rejected")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<List<DocumentDto>> GetRejectedDocs([FromQuery] GetDocumentsRequest query)
+    {
+        var result = await _documentService.GetRejectedDocs(Claims, query);
         return result;
     }
 
@@ -159,6 +167,6 @@ public class DocumentController : BaseController
     public async void SignDoc(string id)
     {
         _digitalSignHelper.SignDocument();
-        
+
     }
 }

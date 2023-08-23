@@ -16,5 +16,9 @@ namespace WebApi.Models.Documents
         public string Status { get; set; }
         public string CreatedBy { get; set; }
 
+        public string AssignId { get; set; }
+        public string RejectedBy { get; set; }
+
+
     }
 }
