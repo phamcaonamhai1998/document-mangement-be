@@ -101,6 +101,19 @@ public class UserService : IUserService
 
     public Task<List<UserDto>> GetAll()
     {
+        var users = _dbContext.Accounts.Include(a => a.Role).Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).ToList();
+        List<UserDto> userDtos = new List<UserDto>();
+        users.ForEach(u =>
+        {
+            var userDto = _mapper.Map<UserDto>(u);
+            userDtos.Add(userDto);
+        });
+        return Task.FromResult(userDtos);
+
+    }
+
+    public Task<List<UserDto>> GetList()
+    {
         var users = _dbContext.Accounts.Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).ToList();
         List<UserDto> userDtos = new List<UserDto>();
         users.ForEach(u =>
