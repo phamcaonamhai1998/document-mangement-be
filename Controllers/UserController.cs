@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 
@@ -17,10 +18,32 @@ public class UserController : BaseController
     }
 
     [HttpGet]
+    [AuthorizeAttribute("User:List")]
     public async Task<List<UserDto>> GetAll()
     {
-        List<UserDto> users = await _userService.GetAll();
-        return users;
+        switch (Claims.Role.Id.ToString())
+        {
+            case RoleConstants.ADMIN_ROLE_ID:
+                return await _userService.GetAll();
+
+            case RoleConstants.ORG_OWNER_ID:
+                return await _userService.GetAll();
+
+            case RoleConstants.DEP_OWNER_ID:
+                return await _userService.GetAll();
+
+            default:
+                return new List<UserDto>();
+        }
+
+    }
+
+    [HttpGet("can-assigns")]
+    [AuthorizeAttribute("User:List")]
+    public async Task<List<UserDto>> GetUsersCanAssigns()
+    {
+        return await _userService.GetUsersCanAssign(Claims);
+
     }
 
     [HttpGet("{id}")]

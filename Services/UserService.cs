@@ -65,6 +65,7 @@ public class UserService : IUserService
         {
             var orgId = Guid.Parse(payload.OrgId);
             var org = _dbContext.Organizations.SingleOrDefault(o => o.Id == orgId);
+            createAccount.OrgId = org.Id.ToString();
             if (org == null) throw new Exception("invalid_org");
         }
 
@@ -74,9 +75,11 @@ public class UserService : IUserService
             var depId = Guid.Parse(payload.DepartmentId);
             var dep = _dbContext.Departments.SingleOrDefault(d => d.Id == depId);
             if (dep == null) throw new Exception("invalid_department");
+            createAccount.Department = dep;
         }
 
         createAccount.Id = Guid.NewGuid();
+
         _dbContext.Accounts.Add(createAccount);
         _dbContext.SaveChanges();
 
@@ -205,5 +208,75 @@ public class UserService : IUserService
         string token = _jwtUtils.GenerateJwtToken(claims);
 
         return Task.FromResult(new LoginResponse(token));
+    }
+
+    public async Task<List<UserDto>> GetOrgUsers(UserClaims claims)
+    {
+        try
+        {
+            var users = _dbContext.Accounts.Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
+            List<UserDto> userDtos = new List<UserDto>();
+            users.ForEach(u =>
+            {
+                var userDto = _mapper.Map<UserDto>(u);
+                userDtos.Add(userDto);
+            });
+            return userDtos;
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    public async Task<List<UserDto>> GetDepUsers(UserClaims claims)
+    {
+        try
+        {
+            var users = _dbContext.Accounts.Include(a => a.Department).Where((user) => user.Department != null && user.Department.Id == claims.Department.Id).ToList();
+            List<UserDto> userDtos = new List<UserDto>();
+            users.ForEach(u =>
+            {
+                var userDto = _mapper.Map<UserDto>(u);
+                userDtos.Add(userDto);
+            });
+            return userDtos;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    public async Task<List<UserDto>> GetUsersCanAssign(UserClaims claims)
+    {
+        try
+        {
+            //get all role can approve
+            var rolePermissions = _dbContext.RolePermissions.Where(rp => rp.Name == PermissionGroupCode.Document && rp.Code == PermissionCode.Approve).ToList();
+            var roleIds = rolePermissions.Select(rp => rp.RoleId).ToList();
+            var cmd = _dbContext.Accounts.Include(a => a.Role);
+            var users = new List<Account>();
+            switch (claims.Role.Id.ToString())
+            {
+                case RoleConstants.ADMIN_ROLE_ID:
+                    users = cmd.ToList();
+                    break;
+                case RoleConstants.ORG_OWNER_ID:
+                    users = cmd.Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
+                    break;
+                case RoleConstants.DEP_OWNER_ID:
+                    users = cmd.Include(a => a.Department).Where((user) => user.Department != null && user.Department.Id == claims.Department.Id).ToList();
+                    break;
+            }
+
+            var canAssignUsers = users.Select(u => roleIds.Any(id => id == u.Role.Id)).ToList();
+            var userDtos = _mapper.Map<List<UserDto>>(canAssignUsers);
+
+            return userDtos;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 }
