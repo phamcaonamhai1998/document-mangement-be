@@ -122,16 +122,35 @@ public class DocumentService : IDocumentService
         return await FormatDocuments(query, claims);
     }
 
-    public async Task<List<DocumentDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
+    public async Task<List<DocumentProcedureStepDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
     {
+        var result = new List<DocumentProcedureStepDto>();
         if (claims.Id.ToString().IsNullOrEmpty())
         {
-            return new List<DocumentDto>();
+            return result;
         }
 
         query.AssignId = claims.Id.ToString();
+        List<EsDocument> esDocuments = await SearchDocuments(query, ElasticSearchConstants.DOCUMENT_INDEX, claims);
+        List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
 
-        return await FormatDocuments(query, claims);
+        List<Document> docs = _dbContext.Documents.Where(doc => documentIds.Any(id => Guid.Parse(id) == doc.Id)).ToList();
+        List<DocumentDto> docDtos = _mapper.Map<List<DocumentDto>>(docs);
+        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).Where(dps => documentIds.Any(id => Guid.Parse(id) == dps.Document.Id)).ToList();
+
+        docSteps.ForEach(ds =>
+        {
+            var document = docDtos.FirstOrDefault(doc => doc.Id == ds.Document.Id);
+            if (document != null)
+            {
+
+                var documentStepDto = _mapper.Map<DocumentProcedureStepDto>(document);
+                documentStepDto.Step = ds.ProcedureStep;
+                result.Add(documentStepDto);
+            }
+        });
+
+        return result;  
     }
 
     public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims, GetDocumentsRequest query)

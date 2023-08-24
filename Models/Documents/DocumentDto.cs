@@ -35,4 +35,9 @@ namespace WebApi.Models.Documents
         
         public string UserFullName { get; set; }
     }
+
+    public class DocumentProcedureStepDto : DocumentDto
+    {
+        public ProcedureStep Step { get; set; }
+    }
 }
