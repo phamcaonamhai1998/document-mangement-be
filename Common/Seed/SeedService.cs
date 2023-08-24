@@ -45,7 +45,7 @@ namespace WebApi.Common.Seed
             //seed system roles permissions
             foreach (var item in ConfigRolePermissionConstants.ROLE_PERMISSION_SEEDS)
             {
-                Entities.RolePermission role = _dbContext.RolePermissions.SingleOrDefault(r => r.RoleId == item.RoleId && r.Name == item.Name && r.Code == item.Code);
+                Entities.RolePermission role = _dbContext.RolePermissions.FirstOrDefault(r => r.RoleId == item.RoleId && r.Name == item.Name && r.Code == item.Code);
                 if (role == null)
                 {
                     _dbContext.RolePermissions.Add(item);

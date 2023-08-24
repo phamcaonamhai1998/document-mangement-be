@@ -135,7 +135,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Delete),
 
-             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Approve),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Document, PermissionCode.Approve),
 
             
              // Department
@@ -149,7 +149,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Delete),
 
-             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Approve),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Document, PermissionCode.Approve),
         });
     }
 }
