@@ -269,7 +269,7 @@ public class UserService : IUserService
                     break;
             }
 
-            var canAssignUsers = users.Select(u => roleIds.Any(id => id == u.Role.Id)).ToList();
+            var canAssignUsers = users.Where(u => roleIds.Any(id => id == u.Role.Id)).ToList();
             var userDtos = _mapper.Map<List<UserDto>>(canAssignUsers);
 
             return userDtos;

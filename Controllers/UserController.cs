@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Models.Users;
