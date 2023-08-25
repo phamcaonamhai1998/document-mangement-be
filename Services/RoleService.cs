@@ -140,7 +140,7 @@ namespace WebApi.Services
             _dbContext.Roles.Update(role);
             _dbContext.SaveChanges();
 
-            var oldPermissions = _dbContext.RolePermissions.Where(rp => rp.Id == Guid.Parse(id)).ToList();
+            var oldPermissions = _dbContext.RolePermissions.Where(rp => rp.RoleId == Guid.Parse(id)).ToList();
             if (oldPermissions.Count() > 0)
             {
                 oldPermissions.ForEach(op => _dbContext.RolePermissions.Remove(op));
