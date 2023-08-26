@@ -254,7 +254,7 @@ public class UserService : IUserService
             //get all role can approve
             var rolePermissions = _dbContext.RolePermissions.Where(rp => rp.Name == PermissionGroupCode.Document && rp.Code == PermissionCode.Approve).ToList();
             var roleIds = rolePermissions.Select(rp => rp.RoleId).ToList();
-            var cmd = _dbContext.Accounts.Include(a => a.Role);
+            var cmd = _dbContext.Accounts.Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).Include(a => a.Role);
             var users = new List<Account>();
             switch (claims.Role.Id.ToString())
             {

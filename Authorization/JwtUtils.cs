@@ -32,12 +32,13 @@ public class JwtUtils : IJwtUtils
 
     public string GenerateJwtToken(UserClaims claims)
     {
-        // generate token that is valid for 15 minutes
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[] {
+        try {
+            // generate token that is valid for 15 minutes
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] {
                 new Claim("id", claims.Id.ToString()),
                 new Claim("org", JsonNet.Serialize(claims.Organization)),
                 new Claim("department",JsonNet.Serialize(claims.Department)),
@@ -46,11 +47,17 @@ public class JwtUtils : IJwtUtils
                 new Claim("firstName", claims.FirstName.ToString()),
                 new Claim("lastName", claims.LastName.ToString()),
             }),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+        catch (Exception err) {
+            Console.WriteLine(err);
+            return null;
+        }
+        
     }
 
     public UserClaims? ValidateJwtToken(string token)
