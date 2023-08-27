@@ -134,6 +134,10 @@ public class DocumentService : IDocumentService
         List<EsDocument> esDocuments = await SearchDocuments(query, ElasticSearchConstants.DOCUMENT_INDEX, claims);
         List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
 
+        if (documentIds.Count() == 0 || documentIds == null) {
+            return result;
+        }
+
         List<Document> docs = _dbContext.Documents.Where(doc => documentIds.Any(id => Guid.Parse(id) == doc.Id)).ToList();
         List<DocumentDto> docDtos = _mapper.Map<List<DocumentDto>>(docs);
         List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).Where(dps => documentIds.Any(id => Guid.Parse(id) == dps.Document.Id)).ToList();
@@ -161,6 +165,7 @@ public class DocumentService : IDocumentService
         }
 
         query.RejectedBy = claims.Id.ToString();
+        query.UserId = claims.Id.ToString();
 
         return await FormatDocuments(query, claims);
 
@@ -476,6 +481,11 @@ public class DocumentService : IDocumentService
 
         List<EsDocument> esDocuments = await SearchDocuments(query, ElasticSearchConstants.DOCUMENT_INDEX, claims);
         List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
+
+        if (documentIds.Count() == 0 || documentIds == null)
+        {
+            return new List<DocumentDto>();
+        }
 
         var docs = _dbContext.Documents.Where(doc => documentIds.Any(id => id == doc.Id.ToString())).ToList();
 
