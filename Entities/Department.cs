@@ -10,6 +10,13 @@ namespace WebApi.Entities
             modelBuilder.Entity<Department>().Property(b => b.CreatedAt).HasDefaultValueSql("now()");
         }
 
+        public Department() { }
+
+        public Department(Guid id, string name) {
+            Id = id;
+            Name = name;
+        }
+
         public string Name { get; set; }
 
         public string Phone { get; set; }

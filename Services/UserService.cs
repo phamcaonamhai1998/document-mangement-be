@@ -204,6 +204,8 @@ public class UserService : IUserService
             });
         }
 
+        user.Department = user.Department != null ? new Department(user.Department.Id, user.Department.Name) : null;
+         
         UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights);
         string token = _jwtUtils.GenerateJwtToken(claims);
 
