@@ -11,4 +11,10 @@ namespace WebApi.Models.Roles
         [Required]
         public List<PermissionDto> Permissions { get; set; }
     }
+
+    public class RoleQuery
+    {
+        public string OrgId { get; set; }
+        public string DepartmentId { get; set; }
+    }
 }

@@ -205,7 +205,7 @@ public class UserService : IUserService
         }
 
         user.Department = user.Department != null ? new Department(user.Department.Id, user.Department.Name) : null;
-         
+
         UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights);
         string token = _jwtUtils.GenerateJwtToken(claims);
 
@@ -255,23 +255,28 @@ public class UserService : IUserService
         {
             //get all role can approve
             var rolePermissions = _dbContext.RolePermissions.Where(rp => rp.Name == PermissionGroupCode.Document && rp.Code == PermissionCode.Approve).ToList();
+
             var roleIds = rolePermissions.Select(rp => rp.RoleId).ToList();
+
             var cmd = _dbContext.Accounts.Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).Include(a => a.Role);
+
             var users = new List<Account>();
-            switch (claims.Role.Id.ToString())
+
+
+            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.Assign}"))
             {
-                case RoleConstants.ADMIN_ROLE_ID:
-                    users = cmd.ToList();
-                    break;
-                case RoleConstants.ORG_OWNER_ID:
-                    users = cmd.Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
-                    break;
-                case RoleConstants.DEP_OWNER_ID:
+                if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+                {
                     users = cmd.Include(a => a.Department).Where((user) => user.Department != null && user.Department.Id == claims.Department.Id).ToList();
-                    break;
+                }
+                else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+                {
+                    users = cmd.Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
+                }
             }
 
             var canAssignUsers = users.Where(u => roleIds.Any(id => id == u.Role.Id)).ToList();
+
             var userDtos = _mapper.Map<List<UserDto>>(canAssignUsers);
 
             return userDtos;

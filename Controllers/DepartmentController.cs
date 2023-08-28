@@ -4,6 +4,8 @@ using WebApi.Models.Departments;
 using WebApi.Models.Documents;
 using WebApi.Services;
 using WebApi.Services.Interfaces;
+using WebApi.Authorization;
+
 
 namespace WebApi.Controllers;
 
@@ -16,6 +18,14 @@ public class DepartmentController : BaseController
     public DepartmentController(IDepartmentService departmentService)
     {
         _departmentService = departmentService;
+    }
+
+
+    [HttpGet("org/{orgId}")]
+    [AuthorizeAttribute("Department:List")]
+    public async Task<List<DepartmentDto>> GetOrgDeps(string orgId)
+    {
+        return await _departmentService.GetDepsByOrgId(orgId);
     }
 
     [HttpGet]

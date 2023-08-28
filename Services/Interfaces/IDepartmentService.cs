@@ -12,4 +12,5 @@ public interface IDepartmentService
     public Task<DepartmentDto> GetById(string id, UserClaims claim);
 
     public Task<List<DepartmentDto>> GetOrgDeps(UserClaims claim);
+    public Task<List<DepartmentDto>> GetDepsByOrgId(string orgId);
 }

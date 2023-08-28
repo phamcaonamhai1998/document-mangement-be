@@ -40,7 +40,7 @@ public class UserController : BaseController
     }
 
     [HttpGet("can-assigns")]
-    [AuthorizeAttribute("User:List")]
+    [AuthorizeAttribute("User:Assign")]
     public async Task<List<UserDto>> GetUsersCanAssigns()
     {
         return await _userService.GetUsersCanAssign(Claims);

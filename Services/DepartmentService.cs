@@ -136,4 +136,10 @@ public class DepartmentService : IDepartmentService
         _dbContext.SaveChanges();
         return true;
     }
+
+    public async Task<List<DepartmentDto>> GetDepsByOrgId(string orgId)
+    {
+        var deps = _dbContext.Departments.Where(d => d.Organization.Id == Guid.Parse(orgId)).ToList();
+        return _mapper.Map<List<DepartmentDto>>(deps);
+    }
 }

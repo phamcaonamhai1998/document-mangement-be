@@ -31,9 +31,9 @@ public class RoleController : BaseController
 
     [AuthorizeAttribute("Role:List")]
     [HttpGet("/available")]
-    public async Task<List<RoleDto>> GetAvailableRoles()
+    public async Task<List<RoleDto>> GetAvailableRoles([FromQuery] RoleQuery query)
     {
-        return await _service.GetAvailableRoles(Claims);
+        return await _service.GetAvailableRoles(Claims, query);
     }
 
     [AuthorizeAttribute("Role:List")]

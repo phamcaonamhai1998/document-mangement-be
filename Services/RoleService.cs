@@ -186,7 +186,7 @@ namespace WebApi.Services
 
         }
 
-        public async Task<List<RoleDto>> GetAvailableRoles(UserClaims claims)
+        public async Task<List<RoleDto>> GetAvailableRoles(UserClaims claims, RoleQuery query)
         {
             var result = new List<RoleDto>();
             try
@@ -202,7 +202,14 @@ namespace WebApi.Services
 
                     if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
                     {
-                        var roles = _dbContext.Roles.Where(r => r.OrgId == claims.Organization.Id.ToString()).ToList();
+                        var cmd = _dbContext.Roles.Where(r => r.OrgId == claims.Organization.Id.ToString());
+
+                        if (!string.IsNullOrEmpty(query.DepartmentId) || !string.IsNullOrWhiteSpace(query.DepartmentId))
+                        {
+                            cmd.Where(r => r.DepartmentId == query.DepartmentId);
+                        }
+
+                        var roles = cmd.ToList();
                         result = _mapper.Map<List<RoleDto>>(roles);
                         return result;
                     }
@@ -210,8 +217,19 @@ namespace WebApi.Services
                     if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() == SystemOrg.SystemOrgId)
                     {
 
+                        var cmd = _dbContext.Roles.Where(r => r.Id != Guid.Parse(SysRole.Admin));
+                        if (!string.IsNullOrEmpty(query.DepartmentId) || !string.IsNullOrWhiteSpace(query.DepartmentId))
+                        {
+                            cmd.Where(r => r.DepartmentId == query.DepartmentId);
+                        }
+
+                        if (!string.IsNullOrEmpty(query.OrgId) || !string.IsNullOrWhiteSpace(query.OrgId))
+                        {
+                            cmd.Where(r => r.OrgId == query.OrgId);
+                        }
+
                         // user is admin
-                        var roles = _dbContext.Roles.Where(r => r.Id != Guid.Parse(SysRole.Admin)).ToList();
+                        var roles = cmd.ToList();
                         result = _mapper.Map<List<RoleDto>>(roles);
                         return result;
                     }
