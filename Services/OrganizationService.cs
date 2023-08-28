@@ -6,13 +6,14 @@ using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Organizations;
+using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services;
 
 public class OrganizationService : IOrganizationService
 {
-	private readonly DataContext _dbContext;
+    private readonly DataContext _dbContext;
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
     private readonly AppSettings _appSettings;
@@ -28,13 +29,13 @@ public class OrganizationService : IOrganizationService
     }
     public async Task<CreateOrganizationResponse> Create(CreateOrganizationRequest payload)
     {
-		var createOrg = _mapper.Map<Organization>(payload);
+        var createOrg = _mapper.Map<Organization>(payload);
         var orgDriveFolderId = await _storageHelper.CreateOrgFolder(createOrg.Name);
-		createOrg.Id = Guid.NewGuid();
-        createOrg.OrgDriveFolderId= orgDriveFolderId;
+        createOrg.Id = Guid.NewGuid();
+        createOrg.OrgDriveFolderId = orgDriveFolderId;
         _dbContext.Organizations.Add(createOrg);
         _dbContext.SaveChanges();
-        return  new CreateOrganizationResponse(createOrg.Id);
+        return new CreateOrganizationResponse(createOrg.Id);
     }
 
     public async Task<bool> Delete(string id)
@@ -60,14 +61,14 @@ public class OrganizationService : IOrganizationService
 
     public Task<List<OrganizationDto>> GetAll()
     {
-        var orgs = _dbContext.Organizations.Where((org)=>org.Id != Guid.Parse(SystemOrg.SystemOrgId)).ToList();
+        var orgs = _dbContext.Organizations.Where((org) => org.Id != Guid.Parse(SystemOrg.SystemOrgId)).ToList();
         var orgDtos = _mapper.Map<List<OrganizationDto>>(orgs);
         return Task.FromResult(orgDtos);
     }
 
     public Task<OrganizationDto> GetById(string id)
     {
-         if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
+        if (String.IsNullOrEmpty(id) || String.IsNullOrWhiteSpace(id))
         {
             throw new Exception("id_is_empty");
         }
@@ -79,7 +80,7 @@ public class OrganizationService : IOrganizationService
 
     public async Task<bool> Update(string id, UpdateOrganizationRequest payload)
     {
-        if(payload == null)
+        if (payload == null)
         {
             throw new Exception("payload_is_empty");
         }
@@ -98,5 +99,20 @@ public class OrganizationService : IOrganizationService
 
         _dbContext.SaveChanges();
         return true;
+    }
+
+    public async Task<List<OrganizationDto>> GetAvailableOrgToCreateOwner(UserClaims claims)
+    {
+        try
+        {
+            var orgs = _dbContext.Organizations.Where(o => o.Id != Guid.Parse(SystemOrg.SystemOrgId)).ToList();
+            var existOrgIds = _dbContext.Accounts.Where(a => a.OrgId != null).ToList().Select(a => a.OrgId).Distinct();
+            var newOrgs =  orgs.Where(o => !existOrgIds.Any(id => id == o.Id.ToString())).ToList();
+            return _mapper.Map<List<OrganizationDto>>(newOrgs);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 }

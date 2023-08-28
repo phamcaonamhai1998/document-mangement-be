@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
+using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
 using WebApi.Models.Departments;
@@ -141,5 +142,20 @@ public class DepartmentService : IDepartmentService
     {
         var deps = _dbContext.Departments.Where(d => d.Organization.Id == Guid.Parse(orgId)).ToList();
         return _mapper.Map<List<DepartmentDto>>(deps);
+    }
+
+    public async Task<List<DepartmentDto>> GetAvailableDepsToCreateOwner(UserClaims claims, string orgId)
+    {
+        try
+        {
+            var deps = _dbContext.Departments.Where(d => d.Organization.Id == Guid.Parse(orgId)).ToList();
+            var existDepIds = _dbContext.Accounts.Where(a => a.OrgId != orgId && a.Department != null).ToList().Select(a => a.Department.Id.ToString()).Distinct();
+            var newDeps = deps.Where(d => !existDepIds.Any(id => id == d.Id.ToString())).ToList();
+            return _mapper.Map<List<DepartmentDto>>(newDeps);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 }

@@ -5,8 +5,6 @@ using WebApi.Models.Documents;
 using WebApi.Services;
 using WebApi.Services.Interfaces;
 using WebApi.Authorization;
-
-
 namespace WebApi.Controllers;
 
 [ApiController]
@@ -26,6 +24,14 @@ public class DepartmentController : BaseController
     public async Task<List<DepartmentDto>> GetOrgDeps(string orgId)
     {
         return await _departmentService.GetDepsByOrgId(orgId);
+    }
+
+    [HttpGet("create-owner/{orgId}")]
+    [Authorize]
+    public async Task<List<DepartmentDto>> GetAvailableOrgToCreateOwner(string orgId)
+    {
+        List<DepartmentDto> deps = await _departmentService.GetAvailableDepsToCreateOwner(Claims, orgId);
+        return deps;
     }
 
     [HttpGet]

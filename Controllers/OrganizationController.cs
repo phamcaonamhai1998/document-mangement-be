@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Authorization;
 using WebApi.Models.Organizations;
 using WebApi.Services.Interfaces;
 
@@ -6,7 +7,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrganizationController : Controller
+public class OrganizationController : BaseController
 {
     private readonly IOrganizationService _organizationService;
 
@@ -19,6 +20,14 @@ public class OrganizationController : Controller
     public async Task<List<OrganizationDto>> GetAll()
     {
         List<OrganizationDto> orgs = await _organizationService.GetAll();
+        return orgs;
+    }
+
+    [HttpGet("create-owner")]
+    [Authorize]
+    public async Task<List<OrganizationDto>> GetAvailableOrgToCreateOwner()
+    {
+        List<OrganizationDto> orgs = await _organizationService.GetAvailableOrgToCreateOwner(Claims);
         return orgs;
     }
 

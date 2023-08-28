@@ -13,4 +13,5 @@ public interface IDepartmentService
 
     public Task<List<DepartmentDto>> GetOrgDeps(UserClaims claim);
     public Task<List<DepartmentDto>> GetDepsByOrgId(string orgId);
+    public Task<List<DepartmentDto>> GetAvailableDepsToCreateOwner(UserClaims claims, string orgId);
 }
