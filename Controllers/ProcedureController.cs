@@ -37,8 +37,16 @@ public class ProcedureController : BaseController
                 result = await _procedureService.GetDepartmentProcedures(Claims, query);
                 return result;
             default:
-                return null;
+                return new List<ProcedureDto>();
         }
+    }
+
+    [HttpGet("/available")]
+    [AuthorizeAttribute("Procedure:List")]
+    public async Task<List<ProcedureDto>> GetAvailableProcedures([FromQuery] ProcedureQuery query)
+    {
+
+        return await _procedureService.GetAvailableProcs(Claims, query);
     }
 
     [HttpGet("{id}")]

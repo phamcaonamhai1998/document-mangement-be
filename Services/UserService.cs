@@ -263,7 +263,7 @@ public class UserService : IUserService
             var users = new List<Account>();
 
 
-            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.Assign}"))
+            if (claims.Rights.Count() > 0 && claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.Assign}"))
             {
                 if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
                 {

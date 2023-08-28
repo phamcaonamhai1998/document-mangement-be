@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Validations;
+using System.Diagnostics;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Entities;
@@ -163,6 +164,24 @@ public class ProcedureService : IProcedureService
         var docs = cmd.ToList();
 
         return Task.FromResult(_mapper.Map<List<ProcedureDto>>(docs));
+    }
+    public async Task<List<ProcedureDto>> GetAvailableProcs(UserClaims claims, ProcedureQuery query)
+    {
+        var result = new List<ProcedureDto>();
+
+        if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+        {
+            var procs = _dbContext.Procedures.Where(p => p.DepartmentId == claims.Department.Id.ToString()).ToList();
+            result = _mapper.Map<List<ProcedureDto>>(procs);
+        }
+
+        else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+        {
+            var procs = _dbContext.Procedures.Where(p => p.Organization != null && p.Organization.Id.ToString() == claims.Organization.Id.ToString()).ToList();
+            result = _mapper.Map<List<ProcedureDto>>(procs);
+        }
+
+        return result;
     }
 
     public Task<ProcedureDto> GetById(string id)
