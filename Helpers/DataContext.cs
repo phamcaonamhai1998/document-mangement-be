@@ -15,6 +15,7 @@ public class DataContext : DbContext
     public DbSet<Document> Documents { get; set; }
     public DbSet<Procedure> Procedures { get; set; }
     public DbSet<DocumentProcedureStep> DocumentProcedureSteps { get; set; }
+    public DbSet<WebApi.Entities.DigitalSignature> DigitalSignature { get; set; }
 
     private readonly IConfiguration Configuration;
 
@@ -40,5 +41,6 @@ public class DataContext : DbContext
         ProcedureStep.ConfigurationEntity(modelBuilder);
         Procedure.ConfigurationEntity(modelBuilder);
         Permission.ConfigurationEntity(modelBuilder);
+        WebApi.Entities.DigitalSignature.ConfigurationEntity(modelBuilder);
     }
 }
