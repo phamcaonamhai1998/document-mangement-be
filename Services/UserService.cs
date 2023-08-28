@@ -206,7 +206,7 @@ public class UserService : IUserService
 
         user.Department = user.Department != null ? new Department(user.Department.Id, user.Department.Name) : null;
 
-        UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights);
+        UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights, user.Email);
         string token = _jwtUtils.GenerateJwtToken(claims);
 
         return Task.FromResult(new LoginResponse(token));
@@ -285,5 +285,28 @@ public class UserService : IUserService
         {
             throw ex;
         }
+    }
+
+    public async Task<bool> ChangePassword(ChangePasswordRequest payload, UserClaims claims)
+    {
+        Account user = _dbContext.Accounts.SingleOrDefault(a => a.Id.ToString() == claims.Id.ToString());
+
+        if (user == null)
+        {
+            throw new Exception("user_is_not_found");
+        }
+
+        bool isValidPwd = BCrypt.Net.BCrypt.Verify(payload.Password, user.PasswordHash);
+        if (!isValidPwd)
+        {
+            throw new Exception("password_is_incorrect");
+        }
+
+        var newPwd = BCrypt.Net.BCrypt.HashPassword(payload.NewPassword);
+        user.PasswordHash = newPwd;
+
+        _dbContext.Accounts.Update(user);
+        _dbContext.SaveChanges();
+        return true;
     }
 }

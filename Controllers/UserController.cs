@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
+using WebApi.Models.Auth;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 
@@ -59,6 +60,14 @@ public class UserController : BaseController
     {
         CreateUserResponse createResult = await _userService.Create(req);
         return createResult;
+    }
+
+    [HttpPut("password")]
+    [AuthorizeAttribute("User:Update")]
+    public async Task<bool> ChangePassword([FromBody] ChangePasswordRequest req)
+    {
+        bool updateResult = await _userService.ChangePassword(req, Claims);
+        return updateResult;
     }
 
 

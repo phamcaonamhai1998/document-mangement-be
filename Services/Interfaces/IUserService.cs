@@ -15,4 +15,5 @@ public interface IUserService
     public Task<bool> Update(string id, UpdateUserRequest payload);
     public Task<UserDto> GetById(string id);    
     public Task<LoginResponse> Login(LoginRequest payload);
+    public Task<bool> ChangePassword(ChangePasswordRequest payload, UserClaims claims);
 }

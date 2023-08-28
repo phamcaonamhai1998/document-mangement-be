@@ -32,7 +32,8 @@ public class JwtUtils : IJwtUtils
 
     public string GenerateJwtToken(UserClaims claims)
     {
-        try {
+        try
+        {
             // generate token that is valid for 15 minutes
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -40,6 +41,7 @@ public class JwtUtils : IJwtUtils
             {
                 Subject = new ClaimsIdentity(new[] {
                 new Claim("id", claims.Id.ToString()),
+                new Claim("email", claims.Email.ToString()),
                 new Claim("org", JsonNet.Serialize(claims.Organization)),
                 new Claim("department",JsonNet.Serialize(claims.Department)),
                 new Claim("role", JsonNet.Serialize(claims.Role)),
@@ -53,11 +55,12 @@ public class JwtUtils : IJwtUtils
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        catch (Exception err) {
+        catch (Exception err)
+        {
             Console.WriteLine(err);
             return null;
         }
-        
+
     }
 
     public UserClaims? ValidateJwtToken(string token)
@@ -80,17 +83,18 @@ public class JwtUtils : IJwtUtils
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            
+
             Guid UserId = Guid.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
             string firstName = jwtToken.Claims.First(x => x.Type == "firstName").Value;
             string lastName = jwtToken.Claims.First(x => x.Type == "lastName").Value;
+            string email = jwtToken.Claims.First(x => x.Type == "email").Value;
             RoleDto role = JsonNet.Deserialize<RoleDto>(jwtToken.Claims.First(x => x.Type == "role").Value);
             Organization org = JsonNet.Deserialize<Organization>(jwtToken.Claims.First(x => x.Type == "org").Value);
             Department dep = JsonNet.Deserialize<Department>(jwtToken.Claims.First(x => x.Type == "department").Value);
             List<string> rights = JsonNet.Deserialize<List<string>>(jwtToken.Claims.First(x => x.Type == "rights").Value);
 
             // return claim
-            return new UserClaims(UserId, firstName, lastName, role, dep, org, rights);
+            return new UserClaims(UserId, firstName, lastName, role, dep, org, rights, email);
         }
         catch
         {

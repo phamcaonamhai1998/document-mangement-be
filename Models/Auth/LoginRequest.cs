@@ -20,4 +20,14 @@ namespace WebApi.Models.Auth
 
         public string AccessToken { get; set; }
     }
+
+    public class ChangePasswordRequest
+    {
+
+        [Required]
+        public string Password { get; set; }
+        
+        [Required]
+        public string NewPassword { get; set; }
+    }
 }
