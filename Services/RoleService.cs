@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.Data;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
@@ -183,6 +184,45 @@ namespace WebApi.Services
             Role role = _dbContext.Roles.Where(r => r.Id == id).SingleOrDefault();
             return role;
 
+        }
+
+        public async Task<List<RoleDto>> GetAvailableRoles(UserClaims claims)
+        {
+            var result = new List<RoleDto>();
+            try
+            {
+                if (claims.Rights.Any(r => r == $"{PermissionGroupCode.Role}:{PermissionCode.Assign}"))
+                {
+                    if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+                    {
+                        var roles = _dbContext.Roles.Where(r => r.DepartmentId == claims.Department.Id.ToString()).ToList();
+                        result = _mapper.Map<List<RoleDto>>(roles);
+                        return result;
+                    }
+
+                    if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+                    {
+                        var roles = _dbContext.Roles.Where(r => r.OrgId == claims.Organization.Id.ToString()).ToList();
+                        result = _mapper.Map<List<RoleDto>>(roles);
+                        return result;
+                    }
+
+                    if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() == SystemOrg.SystemOrgId)
+                    {
+
+                        // user is admin
+                        var roles = _dbContext.Roles.Where(r => r.Id != Guid.Parse(SysRole.Admin)).ToList();
+                        result = _mapper.Map<List<RoleDto>>(roles);
+                        return result;
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

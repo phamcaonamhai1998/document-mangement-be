@@ -70,7 +70,7 @@ public class UserService : IUserService
         }
 
         //check dep
-        if (payload.DepartmentId.Count() > 0)
+        if (!string.IsNullOrEmpty(payload.DepartmentId) && payload.DepartmentId.Count() > 0)
         {
             var depId = Guid.Parse(payload.DepartmentId);
             var dep = _dbContext.Departments.SingleOrDefault(d => d.Id == depId);

@@ -44,6 +44,7 @@ namespace WebApi.Common.Constants
         public static readonly string Update = "Update";
         public static readonly string Delete = "Delete";
         public static readonly string Approve = "Approve";
+        public static readonly string Assign = "Assign";
     }
 
     public static class SystemOrg
@@ -74,6 +75,12 @@ namespace WebApi.Common.Constants
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Update),
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Delete),
                 new Entities.Permission(PermissionGroupCode.Document, PermissionGroupCode.Document, PermissionCode.Approve),
+
+                new Entities.Permission(PermissionGroupCode.Role, PermissionGroupCode.Role, PermissionCode.List),
+                new Entities.Permission(PermissionGroupCode.Role, PermissionGroupCode.Role, PermissionCode.Create),
+                new Entities.Permission(PermissionGroupCode.Role, PermissionGroupCode.Role, PermissionCode.Update),
+                new Entities.Permission(PermissionGroupCode.Role, PermissionGroupCode.Role, PermissionCode.Delete),
+                new Entities.Permission(PermissionGroupCode.Role, PermissionGroupCode.Role, PermissionCode.Assign),
             });
 
 
@@ -107,6 +114,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Delete),
+             new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Role, PermissionCode.Assign),
 
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.List),
              new Entities.RolePermission(Guid.Parse(SysRole.Admin), PermissionGroupCode.Document, PermissionCode.Create),
@@ -134,6 +142,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Delete),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Assign),
 
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Document, PermissionCode.Approve),
 
@@ -148,6 +157,7 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Delete),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Role, PermissionCode.Assign),
 
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Document, PermissionCode.Approve),
         });

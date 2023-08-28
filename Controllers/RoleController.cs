@@ -30,6 +30,13 @@ public class RoleController : BaseController
     }
 
     [AuthorizeAttribute("Role:List")]
+    [HttpGet("/available")]
+    public async Task<List<RoleDto>> GetAvailableRoles()
+    {
+        return await _service.GetAvailableRoles(Claims);
+    }
+
+    [AuthorizeAttribute("Role:List")]
     [HttpGet]
     public async Task<List<RoleDto>> GetList()
     {
