@@ -42,7 +42,7 @@ public class ProcedureController : BaseController
     }
 
     [HttpGet("/available")]
-    [AuthorizeAttribute("Procedure:List")]
+    [Authorize]
     public async Task<List<ProcedureDto>> GetAvailableProcedures([FromQuery] ProcedureQuery query)
     {
 
