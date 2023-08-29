@@ -77,7 +77,7 @@ namespace WebApi.Services
 
         public Task<List<RoleDto>> GetAll(UserClaims claims)
         {
-            var command = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin));
+            var command = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin) && role.Id != Guid.Parse(claims.Role.Id));
 
 
             if (claims.Rights.Any(r => r == $"{PermissionGroupCode.Role}:{PermissionCode.List}"))

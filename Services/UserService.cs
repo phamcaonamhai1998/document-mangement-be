@@ -224,6 +224,7 @@ public class UserService : IUserService
                 var userDto = _mapper.Map<UserDto>(u);
                 userDtos.Add(userDto);
             });
+            userDtos = userDtos.Where(u => u.Id != claims.Id).ToList();
             return userDtos;
 
         }
@@ -243,6 +244,9 @@ public class UserService : IUserService
                 var userDto = _mapper.Map<UserDto>(u);
                 userDtos.Add(userDto);
             });
+
+            userDtos = userDtos.Where(u => u.Id != claims.Id).ToList();
+
             return userDtos;
         }
         catch (Exception ex)
@@ -270,6 +274,7 @@ public class UserService : IUserService
                 }
             }
 
+            result = result.Where(u => u.Id != claims.Id).ToList();
             return result;
         }
         catch (Exception ex)
