@@ -79,16 +79,17 @@ namespace WebApi.Services
         {
             var command = _dbContext.Roles.Where(role => role.Id != Guid.Parse(SysRole.Admin));
 
-            switch (claims.Role.Id.ToString())
+
+            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.Role}:{PermissionCode.List}"))
             {
-                case RoleConstants.ORG_OWNER_ID:
-                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString() || r.Id == Guid.Parse(RoleConstants.DEP_OWNER_ID));
-                    break;
-                case RoleConstants.DEP_OWNER_ID:
-                    command = command.Where(r => r.OrgId == claims.Organization.Id.ToString());
-                    break;
-                default:
-                    break;
+                if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+                {
+                    command = command.Where(r => r.DepartmentId == claims.Department.Id.ToString());
+                }
+                else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+                {
+                    command = command.Where(r => r.OrgId != null && r.OrgId == claims.Organization.Id.ToString());
+                }
             }
 
             var roles = command.ToList();

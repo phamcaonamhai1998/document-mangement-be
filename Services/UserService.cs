@@ -10,6 +10,7 @@ using BCrypt.Net;
 using WebApi.Models.Role;
 using WebApi.Models.Auth;
 using WebApi.Common.Constants;
+using WebApi.Models.Procedures;
 
 namespace WebApi.Services;
 
@@ -249,6 +250,34 @@ public class UserService : IUserService
             throw ex;
         }
     }
+
+    public async Task<List<UserDto>> GetUsers(UserClaims claims)
+    {
+        try
+        {
+            var result = new List<UserDto>();
+            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.List}")) {
+
+                if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+                {
+                    var users = _dbContext.Accounts.Where(a => a.Department.Id == claims.Department.Id).ToList();
+                    result = _mapper.Map<List<UserDto>>(users);
+                }
+                else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+                {
+                    var users = _dbContext.Accounts.Where(a => a.OrgId != null && a.OrgId == claims.Organization.Id.ToString()).ToList();
+                    result = _mapper.Map<List<UserDto>>(users);
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     public async Task<List<UserDto>> GetUsersCanAssign(UserClaims claims)
     {
         try
