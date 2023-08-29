@@ -210,7 +210,9 @@ namespace WebApi.Services
                             cmd.Where(r => r.DepartmentId == query.DepartmentId);
                         }
 
+                        var ownerDepRole = _dbContext.Roles.SingleOrDefault(r => r.Id == Guid.Parse(RoleConstants.DEP_OWNER_ID));
                         var roles = cmd.ToList();
+                        roles.Add(ownerDepRole);
                         result = _mapper.Map<List<RoleDto>>(roles);
                         return result;
                     }
