@@ -22,5 +22,16 @@ namespace WebApi.Entities
         public string  WebsiteAddress { get; set; }
 
         public List<Department> Departments { get; set; }
+
+        public Organization(string name, string phone, string email, string orgDriveFolderId, string websiteAddress)
+        {
+            Name = name;
+            Phone = phone;
+            Email = email;
+            OrgDriveFolderId = orgDriveFolderId;
+            WebsiteAddress = websiteAddress;
+        }
+
+        public Organization() { }
     }
 }

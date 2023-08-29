@@ -206,6 +206,7 @@ public class UserService : IUserService
         }
 
         user.Department = user.Department != null ? new Department(user.Department.Id, user.Department.Name) : null;
+        org = new Organization(org.Name, org.Phone, org.Email, org.OrgDriveFolderId, org.WebsiteAddress);
 
         UserClaims claims = new UserClaims(user.Id, user.FirstName, user.LastName, roleDto, user.Department, org, rights, user.Email);
         string token = _jwtUtils.GenerateJwtToken(claims);
