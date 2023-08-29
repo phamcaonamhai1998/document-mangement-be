@@ -105,7 +105,7 @@ public class UserService : IUserService
 
     public Task<List<UserDto>> GetAll()
     {
-        var users = _dbContext.Accounts.Include(a => a.Role).Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).ToList();
+        var users = _dbContext.Accounts.Include(a => a.Role).Include(a => a.Department).Where((user) => user.Id != Guid.Parse(SystemOrg.AdminId)).ToList();
         List<UserDto> userDtos = new List<UserDto>();
         users.ForEach(u =>
         {
@@ -218,7 +218,7 @@ public class UserService : IUserService
     {
         try
         {
-            var users = _dbContext.Accounts.Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
+            var users = _dbContext.Accounts.Include(a => a.Role).Where((user) => user.OrgId == claims.Organization.Id.ToString()).ToList();
             List<UserDto> userDtos = new List<UserDto>();
             users.ForEach(u =>
             {
@@ -238,7 +238,7 @@ public class UserService : IUserService
     {
         try
         {
-            var users = _dbContext.Accounts.Include(a => a.Department).Where((user) => user.Department != null && user.Department.Id == claims.Department.Id).ToList();
+            var users = _dbContext.Accounts.Include(a => a.Department).Include(a => a.Role).Where((user) => user.Department != null && user.Department.Id == claims.Department.Id).ToList();
             List<UserDto> userDtos = new List<UserDto>();
             users.ForEach(u =>
             {
@@ -261,16 +261,17 @@ public class UserService : IUserService
         try
         {
             var result = new List<UserDto>();
-            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.List}")) {
+            if (claims.Rights.Any(r => r == $"{PermissionGroupCode.User}:{PermissionCode.List}"))
+            {
 
                 if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
                 {
-                    var users = _dbContext.Accounts.Where(a => a.Department.Id == claims.Department.Id).ToList();
+                    var users = _dbContext.Accounts.Include(a => a.Role).Include(a => a.Department).Where(a => a.Department.Id == claims.Department.Id).ToList();
                     result = _mapper.Map<List<UserDto>>(users);
                 }
                 else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
                 {
-                    var users = _dbContext.Accounts.Where(a => a.OrgId != null && a.OrgId == claims.Organization.Id.ToString()).ToList();
+                    var users = _dbContext.Accounts.Include(a => a.Role).Include(a => a.Department).Where(a => a.OrgId != null && a.OrgId == claims.Organization.Id.ToString()).ToList();
                     result = _mapper.Map<List<UserDto>>(users);
                 }
             }
