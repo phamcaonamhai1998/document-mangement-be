@@ -7,6 +7,7 @@ namespace WebApi.Services.Interfaces;
 public interface IUserService
 {
     public Task<List<UserDto>> GetAll();
+    public Task<List<UserDto>>GetUsers(UserClaims claims);
     public Task<List<UserDto>> GetOrgUsers(UserClaims claims);
     public Task<List<UserDto>> GetDepUsers(UserClaims claims);
     public Task<List<UserDto>> GetUsersCanAssign(UserClaims claims);

@@ -144,6 +144,9 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Role, PermissionCode.Assign),
 
              new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Document, PermissionCode.Approve),
+             new Entities.RolePermission(Guid.Parse(SysRole.OrgOwner), PermissionGroupCode.Document, PermissionCode.List),
+             
+             
 
             
              // Department

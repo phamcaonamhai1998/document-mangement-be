@@ -29,13 +29,13 @@ public class UserController : BaseController
                 return await _userService.GetAll();
 
             case RoleConstants.ORG_OWNER_ID:
-                return await _userService.GetAll();
+                return await _userService.GetOrgUsers(Claims);
 
             case RoleConstants.DEP_OWNER_ID:
-                return await _userService.GetAll();
+                return await _userService.GetDepUsers(Claims);
 
             default:
-                return new List<UserDto>();
+                return await _userService.GetUsers(Claims);
         }
 
     }

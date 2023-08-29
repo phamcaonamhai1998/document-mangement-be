@@ -28,7 +28,7 @@ public class DepartmentController : BaseController
 
     [HttpGet("create-owner/{orgId}")]
     [Authorize]
-    public async Task<List<DepartmentDto>> GetAvailableOrgToCreateOwner(string orgId)
+    public async Task<List<DepartmentDto>> GetAvailableDepsToCreateOwner(string orgId)
     {
         List<DepartmentDto> deps = await _departmentService.GetAvailableDepsToCreateOwner(Claims, orgId);
         return deps;

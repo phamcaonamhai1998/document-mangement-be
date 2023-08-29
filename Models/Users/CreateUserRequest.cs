@@ -26,7 +26,6 @@ public class CreateUserRequest
     [Required]
     public string Phone { get; set; }
 
-    [Required]
     public string OrgId { get; set; }
 
     public string DepartmentId { get; set; }
