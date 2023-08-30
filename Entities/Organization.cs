@@ -23,13 +23,19 @@ namespace WebApi.Entities
 
         public List<Department> Departments { get; set; }
 
-        public Organization(string name, string phone, string email, string orgDriveFolderId, string websiteAddress)
+        public Organization(Guid id, string name, string phone, string email, string orgDriveFolderId, string websiteAddress)
         {
+            Id = id;
             Name = name;
             Phone = phone;
             Email = email;
             OrgDriveFolderId = orgDriveFolderId;
             WebsiteAddress = websiteAddress;
+        }
+        
+        public Organization(Guid id, string name){
+            Id = id;
+            Name = name;
         }
 
         public Organization() { }

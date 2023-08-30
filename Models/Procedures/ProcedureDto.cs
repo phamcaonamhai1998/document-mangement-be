@@ -12,5 +12,4 @@ public class ProcedureDto
 public class ProcedureQuery
 {
     public bool IsActive { get; set; }
-
 }

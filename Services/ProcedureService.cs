@@ -136,7 +136,7 @@ public class ProcedureService : IProcedureService
 
         if (claims.Rights.Any(r => r == $"{PermissionGroupCode.Procedure}:{PermissionCode.List}"))
         {
-            if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+            if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrEmpty(claims.Department.Id.ToString()))
             {
                 command = command.Where(p => p.DepartmentId != null && p.DepartmentId== claims.Department.Id.ToString());
             }
