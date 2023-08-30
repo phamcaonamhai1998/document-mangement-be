@@ -111,12 +111,12 @@ public class UserService : IUserService
         users.ForEach(u =>
         {
             var userDto = _mapper.Map<UserDto>(u);
-            if (userDto.Org != null) {
-                userDto.Org = new Organization(userDto.Org.Id, userDto.Org?.Name);
-            }
-            if(userDto.Department != null) {
-                userDto.Department = new Department(userDto.Department.Id, userDto.Department?.Name);
-            }
+            // if (userDto.Org != null) {
+            //     userDto.Org = new Organization(userDto.Org.Id, userDto.Org?.Name);
+            // }
+            // if(userDto.Department != null) {
+            //     userDto.Department = new Department(userDto.Department.Id, userDto.Department?.Name);
+            // }
             userDtos.Add(userDto);
         });
         return Task.FromResult(userDtos);
@@ -250,8 +250,8 @@ public class UserService : IUserService
             users.ForEach(u =>
             {
                 var userDto = _mapper.Map<UserDto>(u);
-                userDto.Org = new Organization();
-                userDto.Department = new Department();
+                // userDto.Org = new Organization();
+                // userDto.Department = new Department();
                 userDtos.Add(userDto);
             });
 

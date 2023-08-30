@@ -1,4 +1,6 @@
 ﻿using WebApi.Entities;
+using WebApi.Models.Departments;
+using WebApi.Models.Organizations;
 using WebApi.Models.Role;
 
 namespace WebApi.Models.Users;
@@ -12,7 +14,7 @@ public class UserDto
     public string Email { get; set; }
     public string AvatarUrl { get; set; }
     public string Phone { get; set; }
-    public Organization Org{ get; set; }
-    public Department Department { get; set; }
+    public OrganizationDto Org{ get; set; }
+    public DepartmentDto Department { get; set; }
     public RoleDto Role { get; set; }
 }

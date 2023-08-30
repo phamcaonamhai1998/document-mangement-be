@@ -169,6 +169,8 @@ namespace WebApi.Common.Constants
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Procedure, PermissionCode.Update),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Procedure, PermissionCode.Delete),
 
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Document, PermissionCode.List),
+             new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Document, PermissionCode.Create),
              new Entities.RolePermission(Guid.Parse(SysRole.DepOwner), PermissionGroupCode.Document, PermissionCode.Approve),
         });
     }
