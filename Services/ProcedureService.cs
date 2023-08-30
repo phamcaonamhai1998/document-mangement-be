@@ -11,6 +11,7 @@ using WebApi.Models.Documents;
 using WebApi.Models.Procedures;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebApi.Services;
 
@@ -111,18 +112,41 @@ public class ProcedureService : IProcedureService
     public Task<List<ProcedureDto>> GetAll(UserClaims claims, ProcedureQuery query)
     {
 
-        if (claims.Role != null && claims.Role.Id.ToString() != SysRole.Admin)
-        {
-            return Task.FromResult(new List<ProcedureDto>());
-        }
-        var cmd = _dbContext.Procedures;
-
-        //if (query.IsActive)
+        //if (claims.Role != null && claims.Role.Id.ToString() != SysRole.Admin)
         //{
-        //    cmd.Where(d => d.IsActive == true);
+        //    return Task.FromResult(new List<ProcedureDto>());
         //}
+        //var cmd = _dbContext.Procedures;
 
-        var procedures = cmd.ToList();
+        ////if (query.IsActive)
+        ////{
+        ////    cmd.Where(d => d.IsActive == true);
+        ////}
+
+        //var procedures = cmd.ToList();
+        //List<ProcedureDto> procDtos = new List<ProcedureDto>();
+        //procedures.ForEach((pro) =>
+        //{
+        //    var procDto = _mapper.Map<ProcedureDto>(pro);
+        //    procDtos.Add(procDto);
+        //});
+        //return Task.FromResult(procDtos);
+
+        var command = _dbContext.Procedures.Where(p => p.Id != null);
+
+        if (claims.Rights.Any(r => r == $"{PermissionGroupCode.Procedure}:{PermissionCode.List}"))
+        {
+            if (claims.Department != null && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Department.Id.ToString()))
+            {
+                command = command.Where(p => p.DepartmentId != null && p.DepartmentId== claims.Department.Id.ToString());
+            }
+            else if (claims.Organization != null && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && !string.IsNullOrWhiteSpace(claims.Organization.Id.ToString()) && claims.Organization.Id.ToString() != SystemOrg.SystemOrgId)
+            {
+                command = command.Where(r => r.Organization.Id == claims.Organization.Id);
+            }
+        }
+
+        var procedures = command.ToList();
         List<ProcedureDto> procDtos = new List<ProcedureDto>();
         procedures.ForEach((pro) =>
         {

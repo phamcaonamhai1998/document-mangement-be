@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
 using WebApi.Models.Documents;
@@ -25,20 +26,8 @@ public class ProcedureController : BaseController
     {
 
         List<ProcedureDto> result;
-        switch (Claims.Role.Id.ToString())
-        {
-            case RoleConstants.ADMIN_ROLE_ID:
-                result = await _procedureService.GetAll(Claims, query);
-                return result;
-            case RoleConstants.ORG_OWNER_ID:
-                result = await _procedureService.GetOrgProcedures(Claims, query);
-                return result;
-            case RoleConstants.DEP_OWNER_ID:
-                result = await _procedureService.GetDepartmentProcedures(Claims, query);
-                return result;
-            default:
-                return new List<ProcedureDto>();
-        }
+        result = await _procedureService.GetAll(Claims, query);
+        return result;
     }
 
     [HttpGet("available")]
