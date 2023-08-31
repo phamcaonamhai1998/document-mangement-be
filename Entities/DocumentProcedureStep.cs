@@ -16,6 +16,14 @@ namespace WebApi.Entities
             Status = status;
         }
 
+        public DocumentProcedureStep(DocumentProcedureStep ds)
+        {
+            ProcedureId = ds.ProcedureId;
+            ProcedureStep = ds.ProcedureStep;
+            Status = ds.Status;
+            RejectReason = ds.RejectReason;
+        }
+
         public Document Document { get; set; }
 
         public Guid ProcedureId { get; set; }

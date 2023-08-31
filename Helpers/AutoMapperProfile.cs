@@ -84,5 +84,11 @@ public class AutoMapperProfile : Profile
         //Documents
         CreateMap<Document, DocumentDto>();
         CreateMap<Document, DocumentProcedureStepDto>();
+        CreateMap<DocumentDto, DocumentProcedureStepDto>();
+        CreateMap<DocumentDto, AssignDocumentDto>();
+        CreateMap<Document, AssignDocumentDto>();
+        CreateMap<ProcedureStep, AssignStepDto>();
+
+
     }
 }

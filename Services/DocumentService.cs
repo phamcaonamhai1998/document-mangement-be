@@ -122,39 +122,50 @@ public class DocumentService : IDocumentService
         return await FormatDocuments(query, claims);
     }
 
-    public async Task<List<DocumentProcedureStepDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
+    public async Task<List<AssignDocumentDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
     {
-        var result = new List<DocumentProcedureStepDto>();
-        if (claims.Id.ToString().IsNullOrEmpty())
-        {
-            return result;
-        }
-
-        query.AssignId = claims.Id.ToString();
-        List<EsDocument> esDocuments = await SearchDocuments(query, ElasticSearchConstants.DOCUMENT_INDEX, claims);
-        List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
-
-        if (documentIds.Count() == 0 || documentIds == null) {
-            return result;
-        }
-
-        List<Document> docs = _dbContext.Documents.Where(doc => documentIds.Any(id => Guid.Parse(id) == doc.Id)).ToList();
-        List<DocumentDto> docDtos = _mapper.Map<List<DocumentDto>>(docs);
-        List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).Where(dps => documentIds.Any(id => Guid.Parse(id) == dps.Document.Id)).ToList();
-
-        docSteps.ForEach(ds =>
-        {
-            var document = docDtos.FirstOrDefault(doc => doc.Id == ds.Document.Id);
-            if (document != null)
+        try {
+            var result = new List<AssignDocumentDto>();
+            if (claims.Id.ToString().IsNullOrEmpty())
             {
-
-                var documentStepDto = _mapper.Map<DocumentProcedureStepDto>(document);
-                documentStepDto.Step = ds.ProcedureStep;
-                result.Add(documentStepDto);
+                return result;
             }
-        });
 
-        return result;  
+            query.AssignId = claims.Id.ToString();
+            List<EsDocument> esDocuments = await SearchDocuments(query, ElasticSearchConstants.DOCUMENT_INDEX, claims);
+            List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
+
+            if (documentIds.Count() == 0 || documentIds == null)
+            {
+                return result;
+            }
+
+            List<Document> docs = _dbContext.Documents.Where(doc => documentIds.Contains(doc.Id.ToString())).ToList();
+            List<DocumentDto> docDtos = _mapper.Map<List<DocumentDto>>(docs);
+            List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).Where(dps => documentIds.Contains(dps.Document.Id.ToString())).ToList();
+
+            docSteps.ForEach(ds =>
+            {
+                var document = docDtos.FirstOrDefault(doc => doc.Id == ds.Document.Id);
+                ds = new DocumentProcedureStep(ds);
+                if (document != null)
+                {
+
+                    var documentStepDto = _mapper.Map<AssignDocumentDto>(document);
+                    var step = _mapper.Map<AssignStepDto>(ds.ProcedureStep);
+                    documentStepDto.Step = step;
+                    result.Add(documentStepDto);
+                }
+            });
+
+            return result;
+        }
+
+        catch (Exception err) {
+            Console.WriteLine(err);
+            return new List<AssignDocumentDto>();
+        }
+         
     }
 
     public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims, GetDocumentsRequest query)
@@ -422,7 +433,9 @@ public class DocumentService : IDocumentService
 
         if (IsExistStringFilter(payload.Status))
         {
-            conditionQuery = conditionQuery.Term(term => term.Status, payload.Status);
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.Status).Query(payload.Status)
+                                           );
         }
 
         if (IsExistStringFilter(payload.CreatedBy))
@@ -432,17 +445,23 @@ public class DocumentService : IDocumentService
 
         if (IsExistStringFilter(payload.OrgId))
         {
-            conditionQuery = conditionQuery.Term(term => term.OrgId, payload.OrgId);
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.OrgId).Query(payload.OrgId)
+                                           );
         }
 
         if (IsExistStringFilter(payload.DepartmentId))
         {
-            conditionQuery = conditionQuery.Term(term => term.DepartmentId, payload.DepartmentId);
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.DepartmentId).Query(payload.DepartmentId)
+                                           );
         }
 
         if (IsExistStringFilter(payload.UserId))
         {
-            conditionQuery = conditionQuery.Term(term => term.UserId, payload.UserId);
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.UserId).Query(payload.UserId)
+                                           );
         }
 
         if (IsExistStringFilter(payload.AssignId))
@@ -454,7 +473,9 @@ public class DocumentService : IDocumentService
 
         if (IsExistStringFilter(payload.RejectedBy))
         {
-            conditionQuery = conditionQuery.Term(term => term.RejectedBy, payload.UserId);
+            conditionQuery = conditionQuery.Match(mat =>
+                                            mat.Field(f => f.RejectedBy).Query(payload.RejectedBy)
+                                           );
         }
 
         var response = await _elasticSearchHelper.Client.SearchAsync<EsDocument>(

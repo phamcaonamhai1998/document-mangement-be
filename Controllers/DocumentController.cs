@@ -56,7 +56,7 @@ public class DocumentController : BaseController
 
     [HttpGet("assigned")]
     [AuthorizeAttribute("Document:List")]
-    public async Task<List<DocumentProcedureStepDto>> GetAssignedDocs([FromQuery] GetDocumentsRequest query)
+    public async Task<List<AssignDocumentDto>> GetAssignedDocs([FromQuery] GetDocumentsRequest query)
     {
         var result = await _documentService.GetAssignedDocs(Claims, query);
         return result;
