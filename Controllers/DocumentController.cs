@@ -138,7 +138,7 @@ public class DocumentController : BaseController
     }
 
     [HttpPut("approve/{id}")]
-    [AuthorizeAttribute("Document:Update")]
+    [AuthorizeAttribute("Document:Approve")]
     public async Task<bool> ApproveDocStep([FromBody] ApproveDocumentRequest req, string id)
     {
         var result = await _documentService.ApproveDocStep(req, id, Claims);
@@ -147,7 +147,7 @@ public class DocumentController : BaseController
 
 
     [HttpPut("reject/{id}")]
-    [AuthorizeAttribute("Document:Update")]
+    [AuthorizeAttribute("Document:Approve")]
     public async Task<bool> RejectDocStep([FromBody] RejectDocumentRequest req, string id)
     {
         var result = await _documentService.RejectDocStep(req, id, Claims);
