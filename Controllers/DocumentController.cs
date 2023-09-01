@@ -7,6 +7,7 @@ using WebApi.Common.Constants;
 using Org.BouncyCastle.Ocsp;
 using WebApi.Models.Users;
 using WebApi.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Controllers;
 
@@ -95,7 +96,7 @@ public class DocumentController : BaseController
 
         string fileName = Path.GetFileName(file.Name);
         string fileId = "";
-        Account user = _dbContext.Accounts.SingleOrDefault(a => a.Id == Guid.Parse(id));
+        Account user = _dbContext.Accounts.Include(a => a.Department).SingleOrDefault(a => a.Id == Guid.Parse(id));
         Organization org = new Organization();
         Department dep = new Department();
         if (user.OrgId != null)
