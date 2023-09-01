@@ -124,7 +124,8 @@ public class DocumentService : IDocumentService
 
     public async Task<List<AssignDocumentDto>> GetAssignedDocs(UserClaims claims, GetDocumentsRequest query)
     {
-        try {
+        try
+        {
             var result = new List<AssignDocumentDto>();
             if (claims.Id.ToString().IsNullOrEmpty())
             {
@@ -161,11 +162,12 @@ public class DocumentService : IDocumentService
             return result;
         }
 
-        catch (Exception err) {
+        catch (Exception err)
+        {
             Console.WriteLine(err);
             return new List<AssignDocumentDto>();
         }
-         
+
     }
 
     public async Task<List<DocumentDto>> GetRejectedDocs(UserClaims claims, GetDocumentsRequest query)
@@ -300,7 +302,7 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
@@ -345,7 +347,7 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
