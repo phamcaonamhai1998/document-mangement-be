@@ -70,5 +70,7 @@ namespace WebApi.Models.Documents
         public Guid AssignId { get; set; }
         public Guid ProcedureId { get; set; }
 
+        public string Status { get; set; }
+
     }
 }

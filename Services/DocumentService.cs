@@ -154,6 +154,7 @@ public class DocumentService : IDocumentService
 
                     var documentStepDto = _mapper.Map<AssignDocumentDto>(document);
                     var step = _mapper.Map<AssignStepDto>(ds.ProcedureStep);
+                    step.Status = ds.Status;
                     documentStepDto.Step = step;
                     result.Add(documentStepDto);
                 }
