@@ -4,6 +4,7 @@ using AutoMapper;
 using WebApi.Entities;
 using WebApi.Models.Accounts;
 using WebApi.Models.Departments;
+using WebApi.Models.DigitalSignature;
 using WebApi.Models.Documents;
 using WebApi.Models.Organizations;
 using WebApi.Models.Permissions;
@@ -90,5 +91,6 @@ public class AutoMapperProfile : Profile
         CreateMap<ProcedureStep, AssignStepDto>();
 
 
+        CreateMap<DigitalSignature, DigitalSignDto>();
     }
 }

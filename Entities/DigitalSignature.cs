@@ -12,9 +12,10 @@ public class DigitalSignature: BaseEntity
 
     public DigitalSignature() { }
 
-
     public string Path { get; set; }
     public string Name { get; set; }
     public Account User { get; set; }
     public bool IsDefault { get; set; }
+    public string FileId { get; set; }
+    public string HashPassword { get; set; }
 }

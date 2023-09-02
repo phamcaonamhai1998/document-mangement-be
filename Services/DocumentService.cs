@@ -2,9 +2,11 @@
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto.Digests;
 using WebApi.Common.Constants;
 using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.DigitalSignature;
 using WebApi.Models.Documents;
 using WebApi.Models.ElasticSearch;
 using WebApi.Models.Users;
@@ -18,6 +20,7 @@ public class DocumentService : IDocumentService
     private readonly IMapper _mapper;
     private readonly StorageHelper _storageHelper;
     private readonly ElasticSearchHelper _elasticSearchHelper;
+    private readonly DigitalSignHelper _digitalSignHelper;
     public DocumentService(DataContext dbContext, IMapper mapper, StorageHelper storageHelper, ElasticSearchHelper elasticSearchHelper)
     {
         _dbContext = dbContext;
@@ -329,6 +332,22 @@ public class DocumentService : IDocumentService
         }
 
 
+        if (payload.IsSign)
+        {
+            //sign document;
+            var signedDocId = await SignDoc(id, payload.SignaturePassword, claims);
+            var driveDoc = await _storageHelper.GetFile(signedDocId);
+
+            docStep.DocSignedPath = driveDoc.WebContentLink;
+            docStep.DocSignedId = driveDoc.Id;
+            docStep.IsSigned = true;
+        }
+        else
+        {
+            docStep.IsSigned = false;
+        }
+
+
         docStep.Status = DocumentStepStatus.APPROVED;
         _dbContext.DocumentProcedureSteps.Update(docStep);
         _dbContext.SaveChanges();
@@ -356,6 +375,59 @@ public class DocumentService : IDocumentService
 
 
         return true;
+    }
+
+
+    private async Task<string> SignDoc(string docId, string pwd, UserClaims claims)
+    {
+        try
+        {
+            //get data
+            var user = _dbContext.Accounts.Where(a => a.Id == claims.Id).SingleOrDefault();
+            var sign = _dbContext.DigitalSignature.Where(ds => ds.User.Id == user.Id && ds.IsDefault == true).FirstOrDefault();
+            var doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(docId));
+
+            if (string.IsNullOrEmpty(doc.DriveDocId) || string.IsNullOrWhiteSpace(doc.DriveDocId))
+            {
+                throw new Exception("drive_doc_is_not_exist");
+            }
+
+            //sign
+            var fileStream = await _storageHelper.DownloadDoc(doc.DriveDocId);
+            var cert = await _storageHelper.DownloadCert(sign.FileId);
+            var signedDoc = await _digitalSignHelper.SignDocument(fileStream, cert, docId, sign, pwd, user);
+
+            //save signed file
+            Organization org = new Organization();
+            Department dep = new Department();
+            string driveFolderId = "";
+            string fileId = "";
+
+            if (user.OrgId != null)
+            {
+                org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(user.OrgId));
+            }
+            if (user.Department != null)
+            {
+                dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
+            }
+
+            using (FileStream stream = new FileStream(Path.Combine(signedDoc.Path), FileMode.Open))
+            {
+
+                if (org != null && org.OrgDriveFolderId != null && org.OrgDriveFolderId.Count() > 0) driveFolderId = org.OrgDriveFolderId;
+                if (dep != null && dep.DepartmentDriveFolderId != null && dep.DepartmentDriveFolderId.Count() > 0) driveFolderId = dep.DepartmentDriveFolderId;
+
+                string fileMime = MimeMapping.MimeUtility.GetMimeMapping(signedDoc.Name);
+                fileId = await _storageHelper.UploadFile(stream, signedDoc.Name, fileMime, driveFolderId);
+            }
+            return fileId;
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     public async Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims)

@@ -7,6 +7,10 @@ namespace WebApi.Models.Documents
         [Required]
         public string ProcedureStepId { get; set; }
 
+        public bool IsSign { get; set; }
+
+        public string SignaturePassword { get; set; }
+
     }
 
     public class RejectDocumentRequest

@@ -22,5 +22,7 @@ public class Account : BaseEntity
     public AccountTypeEnum AccountType { get; set; }
     public Role Role { get; set; }
     public Department Department { get; set; }
+    
+    public string CertFolderId { get; set; }
     public List<DigitalSignature> DigitalSignatures { get; set; }
 }
