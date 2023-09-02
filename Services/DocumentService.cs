@@ -694,8 +694,7 @@ public class DocumentService : IDocumentService
             var dps = new DocumentProcedureStep(procedureId, DocumentStepStatus.PROCESSING);
             dps.Document = doc;
             dps.ProcedureStep = step;
-            assignIds.Concat(",");
-            assignIds.Concat(step.AssignId.ToString());
+            assignIds = assignIds == "" ? $"{step.AssignId}" : $"{assignIds},{step.AssignId}";
             _dbContext.DocumentProcedureSteps.Add(dps);
         });
 
