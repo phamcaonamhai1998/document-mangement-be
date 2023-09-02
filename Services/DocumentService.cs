@@ -608,10 +608,10 @@ public class DocumentService : IDocumentService
             //    }
             //});
 
-            mustQueries.Add(new Nest.MatchPhraseQuery
+            mustQueries.Add(new Nest.TermQuery
             {
                 Field = "assignIds",
-                Query = payload.AssignId
+                Value = payload.AssignId
             });
         }
 
