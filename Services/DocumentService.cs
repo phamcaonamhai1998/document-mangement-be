@@ -164,6 +164,18 @@ public class DocumentService : IDocumentService
                 }
             });
 
+            result.ForEach(dto =>
+            {
+                var esDoc = esDocuments.SingleOrDefault(ed => ed.Id == dto.Id.ToString());
+                if (esDoc != null)
+                {
+                    dto.OrgName = esDoc.OrgName;
+                    dto.DepartmentName = esDoc.DepartmentName;
+                    dto.ProcedureName = esDoc.ProcedureName;
+                    dto.UserFullName = esDoc.UserFullName;
+                }
+            });
+
             return result;
         }
 
@@ -441,7 +453,7 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
@@ -670,7 +682,8 @@ public class DocumentService : IDocumentService
             Path = entity.Path,
             UserFullName = $"{claims.FirstName} {claims.LastName}",
             UserId = claims.Id.ToString(),
-            Status = entity.Status
+            Status = entity.Status,
+            // RejectedBy = entity.RejectedBy
         };
     }
 

@@ -35,6 +35,8 @@ namespace WebApi.Models.Documents
         public string ProcedureId { get; set; }
         
         public string UserFullName { get; set; }
+
+        public string Status { get; set; }
     }
 
     public class DocumentProcedureStepDto : DocumentDto
@@ -58,6 +60,8 @@ namespace WebApi.Models.Documents
         public string ProcedureName { get; set; }
         public string ProcedureId { get; set; }
         public string UserFullName { get; set; }
+        public string Status { get; set; }
+
         public AssignStepDto Step { get; set; }
 
     }
