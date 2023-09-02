@@ -49,6 +49,7 @@ public class DocumentController : BaseController
                 result = await _documentService.GetDepartmentDocs(Claims, query);
                 return result;
             default:
+                query.CreatedBy = Claims.Id.ToString();
                 result = await _documentService.GetUserDocs(Claims, query);
                 return result;
         }
