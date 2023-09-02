@@ -1,6 +1,7 @@
 ﻿using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Options;
+using Nest;
 
 namespace WebApi.Helpers
 {
@@ -23,6 +24,17 @@ namespace WebApi.Helpers
             var client = new ElasticsearchClient(settings);
             return client;
         }
+
+        public ElasticClient GetNESTClient(string index)
+        {
+            var settings = new ConnectionSettings(new Uri(_appSettings.Elasticsearch.Url))
+                           .CertificateFingerprint(_appSettings.Elasticsearch.FingerPrint)
+                           .BasicAuthentication(_appSettings.Elasticsearch.Username, _appSettings.Elasticsearch.Password)
+                           .DefaultIndex(index);
+            var client = new ElasticClient(settings);
+            return client;
+        }
+
 
         public async Task<bool> CreateIndexIfNotExist(string name)
         {

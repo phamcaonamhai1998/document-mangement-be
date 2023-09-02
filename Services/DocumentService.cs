@@ -2,6 +2,7 @@
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Nest;
 using Org.BouncyCastle.Crypto.Digests;
 using WebApi.Common.Constants;
 using WebApi.Entities;
@@ -501,103 +502,141 @@ public class DocumentService : IDocumentService
 
     public async Task<List<EsDocument>> SearchDocuments(GetDocumentsRequest payload, string index, UserClaims claims)
     {
-
-        QueryDescriptor<EsDocument> conditionQuery = new QueryDescriptor<EsDocument>();
+        var esDocClient = _elasticSearchHelper.GetNESTClient(index);
+        var boolQuery = new Nest.BoolQuery();
+        var mustQueries = new List<QueryContainer>();
 
         if (IsExistStringFilter(payload.Title))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.Title).Query(payload.Title)
-                                           );
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "title",
+                Query = payload.Title
+            });
         }
 
         if (IsExistStringFilter(payload.UserFullName))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.UserFullName).Query(payload.UserFullName)
-                                           );
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "userFullName",
+                Query = payload.UserFullName
+            });
         }
 
         if (IsExistStringFilter(payload.OrgName))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.OrgName).Query(payload.OrgName)
-                                           );
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "orgName",
+                Query = payload.OrgName
+            });
         }
 
         if (IsExistStringFilter(payload.DepartmentName))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.DepartmentName).Query(payload.DepartmentName)
-                                           );
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "departmentName",
+                Query = payload.DepartmentName
+            });
         }
 
         if (IsExistStringFilter(payload.ProcedureName))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.ProcedureName).Query(payload.ProcedureName)
-                                           );
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "procedureName",
+                Query = payload.ProcedureName
+            });
         }
 
         if (IsExistStringFilter(payload.Status))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.Status).Query(payload.Status)
-                                           );
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "status",
+                Query = payload.Status
+            });
         }
 
         if (IsExistStringFilter(payload.CreatedBy))
         {
-            conditionQuery = conditionQuery.Term(term => term.CreatedBy, payload.CreatedBy);
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "createdBy",
+                Query = payload.CreatedBy
+            });
         }
 
         if (IsExistStringFilter(payload.OrgId))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.OrgId).Query(payload.OrgId)
-                                           );
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "orgId",
+                Query = payload.OrgId
+            });
         }
 
         if (IsExistStringFilter(payload.DepartmentId))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.DepartmentId).Query(payload.DepartmentId)
-                                           );
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "departmentId",
+                Query = payload.DepartmentId
+            });
         }
 
         if (IsExistStringFilter(payload.UserId))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.UserId).Query(payload.UserId)
-                                           );
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "userId",
+                Query = payload.UserId
+            });
         }
 
         if (IsExistStringFilter(payload.AssignId))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.AssignIds).Query(payload.AssignId)
-                                           );
+            //mustQueries.Add(new Nest.NestedQuery
+            //{
+            //    Path = "assignIds",
+            //    Query = new Nest.MatchQuery
+            //    {
+            //        Field = "assignIds.element",
+            //        Query = payload.AssignId
+            //    }
+            //});
+
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "assignIds",
+                Query = payload.AssignId
+            });
         }
 
         if (IsExistStringFilter(payload.RejectedBy))
         {
-            conditionQuery = conditionQuery.Match(mat =>
-                                            mat.Field(f => f.RejectedBy).Query(payload.RejectedBy)
-                                           );
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "rejectedBy",
+                Query = payload.RejectedBy
+            });
         }
 
-        var response = await _elasticSearchHelper.Client.SearchAsync<EsDocument>(
-                   es =>
-                   {
-                       es.Index(index);
-                       es.Query(q =>
-                               q.Bool(b =>
-                                   b.Must(conditionQuery)
-                                )
-                          );
-                   });
+        var searchRequest = new SearchRequest
+        {
+            Query = boolQuery
+        };
 
-        if (response.IsValidResponse)
+        var response = esDocClient.Search<EsDocument>(s => s
+            .Query(q => q
+                .Bool(b => b
+                    .Must(mustQueries.ToArray()) // Convert the list to an array
+                )
+            ));
+
+        if (response.IsValid)
         {
             return response.Documents.ToList();
         }
@@ -635,7 +674,7 @@ public class DocumentService : IDocumentService
     }
 
     //pe-condition: all procedure steps of document must be processing
-    private async Task<List<string>> _HandleAssignDocToProcedureSteps(Document doc, Guid procedureId)
+    private async Task<string> _HandleAssignDocToProcedureSteps(Document doc, Guid procedureId)
     {
         //remove old steps
         List<DocumentProcedureStep> docSteps = _dbContext.DocumentProcedureSteps.Where(ds => ds.Document.Id == doc.Id).ToList();
@@ -647,7 +686,7 @@ public class DocumentService : IDocumentService
 
         _dbContext.SaveChanges();
 
-        var assignIds = new List<string>();
+        var assignIds = "";
         //add new steps
         List<ProcedureStep> steps = _dbContext.ProcedureSteps.Where(ps => ps.Procedure.Id == procedureId).ToList();
         steps.ForEach(step =>
@@ -655,7 +694,8 @@ public class DocumentService : IDocumentService
             var dps = new DocumentProcedureStep(procedureId, DocumentStepStatus.PROCESSING);
             dps.Document = doc;
             dps.ProcedureStep = step;
-            assignIds.Add(step.AssignId.ToString());
+            assignIds.Concat(",");
+            assignIds.Concat(step.AssignId.ToString());
             _dbContext.DocumentProcedureSteps.Add(dps);
         });
 
