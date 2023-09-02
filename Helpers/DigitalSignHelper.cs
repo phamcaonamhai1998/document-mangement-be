@@ -9,7 +9,7 @@ namespace WebApi.Helpers;
 
 public class DigitalSignHelper
 {
-    public async Task<SignedFileResponse> SignDocument(string filePath, byte[] userCert, string docId, string pwd, string signName, string signPwd, string fullName, string userId)
+    public async Task<SignedFileResponse> SignDocument(string filePath, byte[] userCert, string docName, string pwd, string signName, string signPwd, string fullName, int priority)
     {
         var isValidPwd = BCrypt.Net.BCrypt.Verify(pwd, signPwd);
         if (!isValidPwd)
@@ -51,7 +51,7 @@ public class DigitalSignHelper
             Directory.CreateDirectory(path);
         }
 
-        var fileName = $"{userId}_{docId}.pdf";
+        var fileName = $"{fullName}_{docName}_{priority}.pdf";
         var savePath = Path.Combine(path, fileName);
         doc.SaveToFile(savePath);
         doc.Close();

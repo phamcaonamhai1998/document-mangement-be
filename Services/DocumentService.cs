@@ -324,7 +324,7 @@ public class DocumentService : IDocumentService
         if (payload.IsSign)
         {
             //sign document;
-            var signedDocId = await SignDoc(id, payload.SignaturePassword, claims);
+            var signedDocId = await SignDoc(id, payload.SignaturePassword, claims, step.Priority);
             var driveDoc = await _storageHelper.GetFile(signedDocId);
 
             docStep.DocSignedPath = driveDoc.WebContentLink;
@@ -347,7 +347,7 @@ public class DocumentService : IDocumentService
 
         if (isAllApproved)
         {
-            Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+            Document doc = _dbContext.Documents.Include(d => d.Procedure).SingleOrDefault(d => d.Id == Guid.Parse(id));
             doc.Status = DocumentStatus.PUBLISHED;
             _dbContext.Documents.Update(doc);
             _dbContext.SaveChanges();
@@ -367,12 +367,12 @@ public class DocumentService : IDocumentService
     }
 
 
-    private async Task<string> SignDoc(string docId, string pwd, UserClaims claims)
+    private async Task<string> SignDoc(string docId, string pwd, UserClaims claims, int priority)
     {
         try
         {
             //get data
-            var user = _dbContext.Accounts.Where(a => a.Id == claims.Id).SingleOrDefault();
+            var user = _dbContext.Accounts.Include(a => a.Department).Where(a => a.Id == claims.Id).SingleOrDefault();
             var sign = _dbContext.DigitalSignature.Where(ds => ds.User.Id == user.Id && ds.IsDefault == true).FirstOrDefault();
             var doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(docId));
 
@@ -382,9 +382,9 @@ public class DocumentService : IDocumentService
             }
 
             //sign
-            var filePath= await _storageHelper.DownloadDoc(doc.DriveDocId, claims.Id.ToString());
+            var filePath = await _storageHelper.DownloadDoc(doc.DriveDocId, claims.Id.ToString());
             var cert = await _storageHelper.DownloadCert(sign.FileId);
-            var signedDoc = await _digitalSignHelper.SignDocument(filePath, cert, docId, pwd, sign.Name, sign.HashPassword, $"{user.FirstName} {user.LastName}", user.Id.ToString());
+            var signedDoc = await _digitalSignHelper.SignDocument(filePath, cert, doc.Title, pwd, sign.Name, sign.HashPassword, $"{user.FirstName} {user.LastName}", priority);
 
             //save signed file
             Organization org = new Organization();
@@ -394,11 +394,11 @@ public class DocumentService : IDocumentService
 
             if (user.OrgId != null)
             {
-                org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(user.OrgId));
+                org = _dbContext.Organizations.SingleOrDefault(o => o.Id == Guid.Parse(user.OrgId));
             }
             if (user.Department != null)
             {
-                dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
+                dep = _dbContext.Departments.SingleOrDefault(d => d.Id == user.Department.Id);
             }
 
             using (FileStream stream = new FileStream(Path.Combine(signedDoc.Path), FileMode.Open))
@@ -408,8 +408,28 @@ public class DocumentService : IDocumentService
                 if (dep != null && dep.DepartmentDriveFolderId != null && dep.DepartmentDriveFolderId.Count() > 0) driveFolderId = dep.DepartmentDriveFolderId;
 
                 string fileMime = MimeMapping.MimeUtility.GetMimeMapping(signedDoc.Name);
-                fileId = await _storageHelper.UploadFile(stream, signedDoc.Name, fileMime, driveFolderId);
+                fileId = await _storageHelper.UploadFile(stream, $"Approved_{signedDoc.Name}", fileMime, driveFolderId);
             }
+
+            System.IO.DirectoryInfo signDir = new DirectoryInfo("~/SignedDocs");
+            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+
+            foreach (FileInfo file in signDir.GetFiles())
+            {
+                if (signedDoc.Path.Contains(file.Name))
+                {
+                    file.Delete();
+                }
+            }
+
+            foreach (FileInfo file in downloadDir.GetFiles())
+            {
+                if (filePath.Contains(file.Name))
+                {
+                    file.Delete();
+                }
+            }
+
             return fileId;
 
         }
@@ -448,7 +468,7 @@ public class DocumentService : IDocumentService
         });
 
         _dbContext.SaveChanges();
-        Document doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+        Document doc = _dbContext.Documents.Include(d => d.Procedure).SingleOrDefault(d => d.Id == Guid.Parse(id));
         doc.Status = DocumentStatus.REJECTED;
         _dbContext.Documents.Update(doc);
         _dbContext.SaveChanges();

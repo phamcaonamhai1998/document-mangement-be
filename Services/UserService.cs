@@ -362,9 +362,12 @@ public class UserService : IUserService
         return true;
     }
 
-    public async Task<string> UploadCert(IFormFile file, UserClaims claims)
+    public async Task<string> UploadCert(IFormFile file, string userId)
     {
-        string wwwPath = _hostingEnvironment.WebRootPath;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(userId))
+        {
+            throw new Exception("user_id_is_empty");
+        }
         string path = Path.Combine("~/", "DigitalSigns");
 
         if (!Directory.Exists(path))
@@ -374,7 +377,7 @@ public class UserService : IUserService
 
         string fileName = Path.GetFileName(file.Name);
         string fileId = "";
-        Account user = _dbContext.Accounts.Include(a => a.Department).SingleOrDefault(a => a.Id == claims.Id);
+        Account user = _dbContext.Accounts.Include(a => a.Department).SingleOrDefault(a => a.Id == Guid.Parse(userId));
         Organization org = new Organization();
         Department dep = new Department();
         if (user.OrgId != null)

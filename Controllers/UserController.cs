@@ -19,7 +19,7 @@ public class UserController : BaseController
     private readonly IUserService _userService;
     DataContext _dbContext;
 
-    public UserController(IUserService userService, IJwtUtils jwtUtils,  DataContext dbContext)
+    public UserController(IUserService userService, IJwtUtils jwtUtils, DataContext dbContext)
     {
         _userService = userService;
         _dbContext = dbContext;
@@ -93,12 +93,12 @@ public class UserController : BaseController
         return deleteResult;
     }
 
-    [HttpPost("cert/upload")]
+    [HttpPost("cert/upload/{userId}")]
     [Authorize]
     [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
-    public async Task<string> UploadCert([FromForm] IFormFile file)
+    public async Task<string> UploadCert([FromForm] IFormFile file, string userId)
     {
-        return await _userService.UploadCert(file, Claims);
+        return await _userService.UploadCert(file, userId);
     }
 
     [HttpPost("cert")]

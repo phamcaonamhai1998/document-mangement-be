@@ -113,7 +113,7 @@ namespace WebApi.Helpers
                 request.Download(stream);
 
                 var path = Path.Combine("~/", "Downloads");
-                var pathFile = Path.Combine(path, userId);
+                var pathFile = Path.Combine(path, Guid.NewGuid().ToString());
 
                 if (!Directory.Exists(path))
                 {

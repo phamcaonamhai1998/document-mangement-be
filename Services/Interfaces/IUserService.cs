@@ -19,7 +19,7 @@ public interface IUserService
     public Task<LoginResponse> Login(LoginRequest payload);
     public Task<bool> ChangePassword(ChangePasswordRequest payload, UserClaims claims);
 
-    public Task<string> UploadCert(IFormFile file, UserClaims claims);
+    public Task<string> UploadCert(IFormFile file, string userId);
     public Task<bool> CreateCert(CreateDigitalSignature payload, UserClaims claims);
     public Task<List<DigitalSignDto>> GetUserCerts(UserClaims claims);
     public Task<bool> SetCertDefault(string id,UserClaims claims);
