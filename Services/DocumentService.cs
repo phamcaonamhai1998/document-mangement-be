@@ -306,7 +306,7 @@ public class DocumentService : IDocumentService
 
     public async Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims)
     {
-        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
+        DocumentProcedureStep docStep = _dbContext.DocumentProcedureSteps.Include(dps => dps.ProcedureStep).SingleOrDefault((dps) => dps.ProcedureStep.Id == Guid.Parse(payload.ProcedureStepId) && dps.Document.Id == Guid.Parse(id));
         if (docStep == null)
         {
             throw new Exception("doc_step_is_not_found");
