@@ -4,6 +4,8 @@ public class GoogleConfig
 {
     public string SharedFolder { get; set; }
 
+    public string CertsFolder { get; set; }
+
 }
 
 public class ElasticSearchConfig

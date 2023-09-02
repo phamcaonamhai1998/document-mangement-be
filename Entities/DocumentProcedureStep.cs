@@ -33,5 +33,10 @@ namespace WebApi.Entities
 
         public string RejectReason { get; set; }
 
+        public bool IsSigned { get; set; }
+
+        public string DocSignedPath{ get; set; }
+
+        public string DocSignedId{ get; set; }
     }
 }

@@ -1,8 +1,12 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
+using WebApi.Entities;
+using WebApi.Helpers;
 using WebApi.Models.Auth;
+using WebApi.Models.DigitalSignature;
 using WebApi.Models.Users;
 using WebApi.Services.Interfaces;
 
@@ -13,10 +17,12 @@ namespace WebApi.Controllers;
 public class UserController : BaseController
 {
     private readonly IUserService _userService;
+    DataContext _dbContext;
 
-    public UserController(IUserService userService, IJwtUtils jwtUtils)
+    public UserController(IUserService userService, IJwtUtils jwtUtils,  DataContext dbContext)
     {
         _userService = userService;
+        _dbContext = dbContext;
     }
 
     [HttpGet]
@@ -85,5 +91,37 @@ public class UserController : BaseController
     {
         bool deleteResult = await _userService.Delete(id);
         return deleteResult;
+    }
+
+    [HttpPost("cert/upload")]
+    [Authorize]
+    [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
+    public async Task<string> UploadCert([FromForm] IFormFile file)
+    {
+        return await _userService.UploadCert(file, Claims);
+    }
+
+    [HttpPost("cert")]
+    [Authorize]
+    [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
+    public async Task<bool> CreateCert(CreateDigitalSignature req)
+    {
+        return await _userService.CreateCert(req, Claims);
+    }
+
+
+    [HttpGet("certs")]
+    [Authorize]
+    public async Task<List<DigitalSignDto>> GetUserCerts()
+    {
+        return await _userService.GetUserCerts(Claims);
+    }
+
+
+    [HttpPut("certs-default/{id}")]
+    [Authorize]
+    public async Task<bool> SetCertDefault(string id)
+    {
+        return await _userService.SetCertDefault(id, Claims);
     }
 }

@@ -12,6 +12,9 @@ using WebApi.Models.Auth;
 using WebApi.Common.Constants;
 using WebApi.Models.Procedures;
 using WebApi.Models.Organizations;
+using System.Security.Claims;
+using Google.Apis.Drive.v3.Data;
+using WebApi.Models.DigitalSignature;
 
 namespace WebApi.Services;
 
@@ -20,14 +23,18 @@ public class UserService : IUserService
     private readonly DataContext _dbContext;
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
+    IWebHostEnvironment _hostingEnvironment;
+    StorageHelper _storageHelper;
     private readonly AppSettings _appSettings;
 
-    public UserService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
+    public UserService(DataContext dbContext, IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings, IWebHostEnvironment hostingEnvironment, StorageHelper storageHelper)
     {
         _dbContext = dbContext;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
         _appSettings = appSettings.Value;
+        _hostingEnvironment = hostingEnvironment;
+        _storageHelper = storageHelper;
     }
 
     public Task<CreateUserResponse> Create(CreateUserRequest payload)
@@ -351,6 +358,131 @@ public class UserService : IUserService
         user.PasswordHash = newPwd;
 
         _dbContext.Accounts.Update(user);
+        _dbContext.SaveChanges();
+        return true;
+    }
+
+    public async Task<string> UploadCert(IFormFile file, UserClaims claims)
+    {
+        string wwwPath = _hostingEnvironment.WebRootPath;
+        string path = Path.Combine("~/", "DigitalSigns");
+
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        string fileName = Path.GetFileName(file.Name);
+        string fileId = "";
+        Account user = _dbContext.Accounts.Include(a => a.Department).SingleOrDefault(a => a.Id == claims.Id);
+        Organization org = new Organization();
+        Department dep = new Department();
+        if (user.OrgId != null)
+        {
+            org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(user.OrgId));
+        }
+        if (user.Department != null)
+        {
+            dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
+        }
+
+        //create cert folder for user if not exist
+        if (user.CertFolderId == null)
+        {
+            var _certFolderId = await _storageHelper.CreateUserCertFolder(user.Id.ToString(), $"{user.FirstName} {user.LastName}");
+            user.CertFolderId = _certFolderId;
+            _dbContext.Update(user);
+            _dbContext.SaveChanges();
+        }
+
+        using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+        {
+            file.CopyTo(stream);
+            string fileMime = MimeMapping.MimeUtility.GetMimeMapping(file.FileName);
+            string driveFolderId = null;
+
+            if (org != null && org.OrgDriveFolderId != null && org.OrgDriveFolderId.Count() > 0) driveFolderId = org.OrgDriveFolderId;
+            if (dep != null && dep.DepartmentDriveFolderId != null && dep.DepartmentDriveFolderId.Count() > 0) driveFolderId = dep.DepartmentDriveFolderId;
+            fileId = await _storageHelper.UploadCert(stream, file.Name, "application/x-pkcs12", user.CertFolderId);
+
+            _dbContext.DigitalSignature.Where(ds => ds.User.Id == user.Id).ExecuteUpdate(setter => setter.SetProperty(ds => ds.IsDefault, false));
+
+            //save file to digital signature table
+            var certFile = await _storageHelper.GetFile(fileId);
+            var newDigitalSign = new DigitalSignature();
+            newDigitalSign.User = user;
+            newDigitalSign.Path = certFile.WebContentLink;
+            newDigitalSign.Name = $"{user.Id} - {user.FirstName} {user.LastName} - {DateTime.Now.ToLocalTime()}";
+            newDigitalSign.IsDefault = true;
+            newDigitalSign.FileId = fileId;
+
+            _dbContext.DigitalSignature.Add(newDigitalSign);
+            _dbContext.SaveChanges();
+        }
+        return fileId;
+    }
+
+    public Task<List<DigitalSignDto>> GetUserCerts(UserClaims claims)
+    {
+        try
+        {
+            var certs = _dbContext.DigitalSignature.Where(ds => ds.User.Id == claims.Id).ToList();
+            return Task.FromResult(_mapper.Map<List<DigitalSignDto>>(certs));
+        }
+        catch (Exception err)
+        {
+            throw err;
+        }
+    }
+    public Task<bool> SetCertDefault(string id, UserClaims claims)
+    {
+        try
+        {
+
+            var cert = _dbContext.DigitalSignature.Where(ds => ds.User.Id == claims.Id && ds.Id == Guid.Parse(id)).SingleOrDefault();
+            if (cert == null)
+            {
+                throw new Exception("cert_is_not_found");
+            }
+
+            _dbContext.DigitalSignature.Where(ds => ds.User.Id == claims.Id).ExecuteUpdate(setter => setter.SetProperty(ds => ds.IsDefault, false));
+
+            cert.IsDefault = true;
+            _dbContext.DigitalSignature.Update(cert);
+            _dbContext.SaveChanges();
+            return Task.FromResult(true);
+        }
+        catch (Exception err)
+        {
+            throw err;
+        }
+    }
+
+    public async Task<bool> CreateCert(CreateDigitalSignature payload, UserClaims claims)
+    {
+        Account user = _dbContext.Accounts.Include(a => a.Department).SingleOrDefault(a => a.Id == claims.Id);
+        Organization org = new Organization();
+        Department dep = new Department();
+        if (user.OrgId != null)
+        {
+            org = _dbContext.Organizations.SingleOrDefault(a => a.Id == Guid.Parse(user.OrgId));
+        }
+        if (user.Department != null)
+        {
+            dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
+        }
+
+
+        //save file to digital signature table
+        var certFile = await _storageHelper.GetFile(payload.FileId);
+        var newDigitalSign = new DigitalSignature();
+        newDigitalSign.User = user;
+        newDigitalSign.Path = certFile.WebContentLink;
+        newDigitalSign.FileId = payload.FileId;
+        newDigitalSign.Name = $"{user.Id} - {user.FirstName} {user.LastName} - {DateTime.Now.ToLocalTime()}";
+        newDigitalSign.IsDefault = true;
+        newDigitalSign.HashPassword = BCrypt.Net.BCrypt.HashPassword(payload.Password);
+        _dbContext.DigitalSignature.Add(newDigitalSign);
         _dbContext.SaveChanges();
         return true;
     }

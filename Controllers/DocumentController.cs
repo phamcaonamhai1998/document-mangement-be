@@ -84,15 +84,12 @@ public class DocumentController : BaseController
     // [AuthorizeAttribute("Document:Create")]
     public async Task<string> UploadFile([FromForm] IFormFile file, String id)
     {
-        string wwwPath = _hostingEnvironment.WebRootPath;
         string path = Path.Combine("~/", "Uploads");
 
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
-
-
 
         string fileName = Path.GetFileName(file.Name);
         string fileId = "";
@@ -161,13 +158,5 @@ public class DocumentController : BaseController
     {
         var result = await _documentService.Delete(id, Claims);
         return result;
-    }
-
-
-    [HttpPost("sign-doc")]
-    public async void SignDoc(string id)
-    {
-        _digitalSignHelper.SignDocument();
-
     }
 }
