@@ -204,7 +204,7 @@ public class DocumentService : IDocumentService
 
     public async Task<DocumentDto> GetUserDoc(string id, UserClaims claims)
     {
-        var doc = _dbContext.Documents.SingleOrDefault(d => d.Id == Guid.Parse(id));
+        var doc = _dbContext.Documents.Include(d => d.Procedure).SingleOrDefault(d => d.Id == Guid.Parse(id));
 
         if (doc == null || doc.UserId != claims.Id || doc.OrgId != claims.Organization.Id)
         {
