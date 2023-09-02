@@ -126,14 +126,6 @@ public class DocumentController : BaseController
         return result;
     }
 
-    [HttpPut("{id}")]
-    [AuthorizeAttribute("Document:Update")]
-    public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
-    {
-        var result = await _documentService.UpdateDoc(req, id, Claims);
-        return result;
-    }
-
     [HttpPut("approve/{id}")]
     [AuthorizeAttribute("Document:Approve")]
     public async Task<bool> ApproveDocStep([FromBody] ApproveDocumentRequest req, string id)
@@ -141,13 +133,19 @@ public class DocumentController : BaseController
         var result = await _documentService.ApproveDocStep(req, id, Claims);
         return result;
     }
-
-
     [HttpPut("reject/{id}")]
     [AuthorizeAttribute("Document:Approve")]
     public async Task<bool> RejectDocStep([FromBody] RejectDocumentRequest req, string id)
     {
         var result = await _documentService.RejectDocStep(req, id, Claims);
+        return result;
+    }
+
+    [HttpPut("{id}")]
+    [AuthorizeAttribute("Document:Update")]
+    public async Task<bool> UpdateDocProcedure([FromBody] UpdateDocProcedure req, string id)
+    {
+        var result = await _documentService.UpdateDoc(req, id, Claims);
         return result;
     }
 

@@ -403,21 +403,7 @@ public class UserService : IUserService
 
             if (org != null && org.OrgDriveFolderId != null && org.OrgDriveFolderId.Count() > 0) driveFolderId = org.OrgDriveFolderId;
             if (dep != null && dep.DepartmentDriveFolderId != null && dep.DepartmentDriveFolderId.Count() > 0) driveFolderId = dep.DepartmentDriveFolderId;
-            fileId = await _storageHelper.UploadCert(stream, file.Name, "application/x-pkcs12", user.CertFolderId);
-
-            _dbContext.DigitalSignature.Where(ds => ds.User.Id == user.Id).ExecuteUpdate(setter => setter.SetProperty(ds => ds.IsDefault, false));
-
-            //save file to digital signature table
-            var certFile = await _storageHelper.GetFile(fileId);
-            var newDigitalSign = new DigitalSignature();
-            newDigitalSign.User = user;
-            newDigitalSign.Path = certFile.WebContentLink;
-            newDigitalSign.Name = $"{user.Id} - {user.FirstName} {user.LastName} - {DateTime.Now.ToLocalTime()}";
-            newDigitalSign.IsDefault = true;
-            newDigitalSign.FileId = fileId;
-
-            _dbContext.DigitalSignature.Add(newDigitalSign);
-            _dbContext.SaveChanges();
+            fileId = await _storageHelper.UploadCert(stream, file.Name, user.CertFolderId);
         }
         return fileId;
     }
@@ -472,6 +458,7 @@ public class UserService : IUserService
             dep = _dbContext.Departments.SingleOrDefault(a => a.Id == user.Department.Id);
         }
 
+        _dbContext.DigitalSignature.Where(ds => ds.User.Id == user.Id).ExecuteUpdate(setter => setter.SetProperty(ds => ds.IsDefault, false));
 
         //save file to digital signature table
         var certFile = await _storageHelper.GetFile(payload.FileId);

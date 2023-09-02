@@ -21,12 +21,13 @@ public class DocumentService : IDocumentService
     private readonly StorageHelper _storageHelper;
     private readonly ElasticSearchHelper _elasticSearchHelper;
     private readonly DigitalSignHelper _digitalSignHelper;
-    public DocumentService(DataContext dbContext, IMapper mapper, StorageHelper storageHelper, ElasticSearchHelper elasticSearchHelper)
+    public DocumentService(DataContext dbContext, IMapper mapper, StorageHelper storageHelper, ElasticSearchHelper elasticSearchHelper, DigitalSignHelper digitalSignHelper)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _storageHelper = storageHelper;
         _elasticSearchHelper = elasticSearchHelper;
+        _digitalSignHelper = digitalSignHelper;
     }
     public async Task<bool> Create(CreateDocumentRequest payload, UserClaims claims)
     {
@@ -381,9 +382,9 @@ public class DocumentService : IDocumentService
             }
 
             //sign
-            var fileStream = await _storageHelper.DownloadDoc(doc.DriveDocId);
+            var filePath= await _storageHelper.DownloadDoc(doc.DriveDocId, claims.Id.ToString());
             var cert = await _storageHelper.DownloadCert(sign.FileId);
-            var signedDoc = await _digitalSignHelper.SignDocument(fileStream, cert, docId, sign, pwd, user);
+            var signedDoc = await _digitalSignHelper.SignDocument(filePath, cert, docId, pwd, sign.Name, sign.HashPassword, $"{user.FirstName} {user.LastName}", user.Id.ToString());
 
             //save signed file
             Organization org = new Organization();

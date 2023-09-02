@@ -102,7 +102,7 @@ namespace WebApi.Helpers
             return true;
         }
 
-        public async Task<FileStream> DownloadDoc(string fileId)
+        public async Task<string> DownloadDoc(string fileId, string userId)
         {
             try
             {
@@ -112,11 +112,18 @@ namespace WebApi.Helpers
                 var stream = new MemoryStream();
                 request.Download(stream);
 
-                FileStream file = new FileStream("~/Downloads", FileMode.Create, FileAccess.Write);
+                var path = Path.Combine("~/", "Downloads");
+                var pathFile = Path.Combine(path, userId);
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+
+                FileStream file = new FileStream($"{pathFile}.pdf", FileMode.Create, FileAccess.Write);
                 stream.WriteTo(file);
-                file.Close();
-                stream.Close();
-                return file;
+                return $"{pathFile}.pdf";
             }
             catch (Exception err)
             {
@@ -190,7 +197,7 @@ namespace WebApi.Helpers
         }
 
 
-        public async Task<string> UploadCert(Stream file, string fileName, string fileMime, string folderId)
+        public async Task<string> UploadCert(Stream file, string fileName, string folderId)
         {
             DriveService service = await GetService();
 

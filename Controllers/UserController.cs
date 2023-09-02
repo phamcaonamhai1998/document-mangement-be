@@ -103,7 +103,6 @@ public class UserController : BaseController
 
     [HttpPost("cert")]
     [Authorize]
-    [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
     public async Task<bool> CreateCert(CreateDigitalSignature req)
     {
         return await _userService.CreateCert(req, Claims);

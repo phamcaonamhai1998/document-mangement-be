@@ -9,9 +9,9 @@ namespace WebApi.Helpers;
 
 public class DigitalSignHelper
 {
-    public async Task<SignedFileResponse> SignDocument(FileStream file, byte[] userCert, string docId, DigitalSignature sign, string pwd, Account user)
+    public async Task<SignedFileResponse> SignDocument(string filePath, byte[] userCert, string docId, string pwd, string signName, string signPwd, string fullName, string userId)
     {
-        var isValidPwd = BCrypt.Net.BCrypt.Verify(pwd, sign.HashPassword);
+        var isValidPwd = BCrypt.Net.BCrypt.Verify(pwd, signPwd);
         if (!isValidPwd)
         {
             throw new Exception("password_of_signature_is_invalid");
@@ -19,23 +19,23 @@ public class DigitalSignHelper
 
         // create pdf doc
         PdfDocument doc = new PdfDocument();
-        doc.LoadFromStream(file);
+        doc.LoadFromFile(filePath);
 
         // load cert
         PdfCertificate cert = new PdfCertificate(userCert, pwd);
 
         //create signature obj
-        PdfSignature signature = new PdfSignature(doc, doc.Pages[doc.Pages.Count - 1], cert, sign.Name);
+        PdfSignature signature = new PdfSignature(doc, doc.Pages[doc.Pages.Count - 1], cert, signName);
 
-        RectangleF rectangleF = new RectangleF(doc.Pages[0].ActualSize.Width - 260 - 54, 200, 260, 110);
+        RectangleF rectangleF = new RectangleF(doc.Pages[0].ActualSize.Width - 300, doc.Pages[0].ActualSize.Height - 110, 260, 110);
         signature.Bounds = rectangleF;
         signature.Certificated = true;
 
         //set the graphic mode to image and sign detail
-        //signature.GraphicsMode = GraphicMode.SignImageAndSignDetail;
+        signature.GraphicsMode = GraphicMode.SignImageAndSignDetail;
         //Set the signature content
         signature.NameLabel = "Signer:";
-        signature.Name = $"{user.FirstName} {user.LastName}";
+        signature.Name = fullName;
         signature.DateLabel = "Date:";
         signature.Date = DateTime.Now;
 
@@ -51,7 +51,7 @@ public class DigitalSignHelper
             Directory.CreateDirectory(path);
         }
 
-        var fileName = $"{user.Id}_{docId}.pdf";
+        var fileName = $"{userId}_{docId}.pdf";
         var savePath = Path.Combine(path, fileName);
         doc.SaveToFile(savePath);
         doc.Close();
