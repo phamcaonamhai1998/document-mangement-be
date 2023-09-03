@@ -15,6 +15,7 @@ using WebApi.Models.Organizations;
 using System.Security.Claims;
 using Google.Apis.Drive.v3.Data;
 using WebApi.Models.DigitalSignature;
+using System.Data;
 
 namespace WebApi.Services;
 
@@ -416,6 +417,14 @@ public class UserService : IUserService
         try
         {
             var certs = _dbContext.DigitalSignature.Where(ds => ds.User.Id == claims.Id).ToList();
+            //List<DigitalSignDto> certDtos = new List<DigitalSignDto>();
+
+            //certs.ForEach((cert) =>
+            //{
+            //    var certDto = _mapper.Map<DigitalSignDto>(cert);
+            //    certDtos.Add(certDto);
+            //});
+            //return Task.FromResult(certDtos);
             return Task.FromResult(_mapper.Map<List<DigitalSignDto>>(certs));
         }
         catch (Exception err)
