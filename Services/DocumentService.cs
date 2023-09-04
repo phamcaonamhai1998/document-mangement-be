@@ -366,7 +366,8 @@ public class DocumentService : IDocumentService
             _dbContext.SaveChanges();
             try
             {
-                var esDoc = GetESDoc(doc, claims);
+                var esDoc = await _elasticSearchHelper.GetDoc<EsDocument>(id, ElasticSearchConstants.DOCUMENT_INDEX);
+                esDoc.Status = doc.Status;
                 await _elasticSearchHelper.UpdateDoc<EsDocument>(esDoc, id, ElasticSearchConstants.DOCUMENT_INDEX);
             }
             catch (Exception ex)
@@ -488,8 +489,9 @@ public class DocumentService : IDocumentService
 
         try
         {
-            var esDoc = GetESDoc(doc, claims);
+            var esDoc = await _elasticSearchHelper.GetDoc<EsDocument>(id, ElasticSearchConstants.DOCUMENT_INDEX);
             esDoc.RejectedBy = claims.Id.ToString();
+            esDoc.Status = doc.Status;
             await _elasticSearchHelper.UpdateDoc<EsDocument>(esDoc, id, ElasticSearchConstants.DOCUMENT_INDEX);
         }
         catch (Exception ex)
