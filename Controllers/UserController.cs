@@ -94,7 +94,7 @@ public class UserController : BaseController
     }
 
     [HttpPost("cert/upload/{userId}")]
-    [Authorize]
+    // [Authorize]
     [RequestFormLimits(MultipartBoundaryLengthLimit = 104857600)]
     public async Task<string> UploadCert([FromForm] IFormFile file, string userId)
     {
