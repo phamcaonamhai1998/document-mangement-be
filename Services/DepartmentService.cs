@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
 using WebApi.Common.Constants;
@@ -149,9 +150,18 @@ public class DepartmentService : IDepartmentService
         try
         {
             var deps = _dbContext.Departments.Where(d => d.Organization.Id == Guid.Parse(orgId)).ToList();
-            var existDepIds = _dbContext.Accounts.Where(a => a.OrgId != orgId && a.Department != null).ToList().Select(a => a.Department.Id.ToString()).Distinct();
-            var newDeps = deps.Where(d => !existDepIds.Any(id => id == d.Id.ToString())).ToList();
-            return _mapper.Map<List<DepartmentDto>>(newDeps);
+            var existDep = _dbContext.Accounts.Include(a => a.Department).Where(a => a.OrgId != orgId && a.Department != null).ToList();
+            if (existDep.Count() > 0)
+            {
+                var existDepIds = existDep.Select(a => a.Department.Id.ToString()).Distinct();
+                if (existDepIds.Count() > 0)
+                {
+                    var newDeps = deps.Where(d => !existDepIds.Any(id => id == d.Id.ToString())).ToList();
+                    return _mapper.Map<List<DepartmentDto>>(newDeps);
+                }
+                return _mapper.Map<List<DepartmentDto>>(deps);
+            }
+            return new List<DepartmentDto>();
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
-﻿using Spire.Pdf;
+﻿using System.Drawing;
+using Spire.Pdf;
 using Spire.Pdf.Graphics;
 using Spire.Pdf.Security;
 using WebApi.Entities;
@@ -61,10 +62,9 @@ public class DigitalSignHelper
             res.Name = fileName;
             res.Path = savePath;
             return res;
-
-        } catch (Exception err) {
-            Console.WriteLine(err);
-            return null;
+        } catch (Exception ex) {
+            Console.WriteLine(ex);
+            throw ex;
         }
         
     }
