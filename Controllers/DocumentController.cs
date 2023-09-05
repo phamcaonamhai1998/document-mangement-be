@@ -58,7 +58,7 @@ public class DocumentController : BaseController
 
 
     [HttpGet("search")]
-    [AuthorizeAttribute("Document:List")]
+    [Authorize]
     public async Task<List<DocumentDto>> SearchPublishDocs([FromQuery] SearchDocumentRequest query)
     {
         List<DocumentDto> result = new List<DocumentDto>();
