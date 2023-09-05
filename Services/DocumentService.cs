@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Docnet.Core;
+using Docnet.Core.Models;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -63,12 +65,40 @@ public class DocumentService : IDocumentService
 
         var assignIds = await _HandleAssignDocToProcedureSteps(entity, proc.Id);
 
+
+
         //sync document to elastic search
         try
         {
+            var filePath = await _storageHelper.DownloadDoc(payload.DriveDocId, claims.Id.ToString());
+            var content = "";
+            using (var docReader = DocLib.Instance.GetDocReader(filePath, new PageDimensions()))
+            {
+                for (var i = 0; i < docReader.GetPageCount(); i++)
+                {
+                    using (var pageReader = docReader.GetPageReader(i))
+                    {
+                        var text = pageReader.GetText();
+                        Console.WriteLine(text);
+                        content = content + " " + text;
+                    }
+                }
+            }
+            
+            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+            foreach (FileInfo file in downloadDir.GetFiles())
+            {
+                if (filePath.Contains(file.Name))
+                {
+                    file.Delete();
+                }
+            }
+
             var esDoc = GetESDoc(entity, claims);
+            esDoc.Content = content;
             esDoc.AssignIds = assignIds;
             await _elasticSearchHelper.CreateDoc<EsDocument>(esDoc, ElasticSearchConstants.DOCUMENT_INDEX);
+
         }
         catch (Exception ex)
         {
@@ -426,7 +456,6 @@ public class DocumentService : IDocumentService
             }
 
             System.IO.DirectoryInfo signDir = new DirectoryInfo("~/SignedDocs");
-            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
 
             foreach (FileInfo file in signDir.GetFiles())
             {
@@ -436,6 +465,7 @@ public class DocumentService : IDocumentService
                 }
             }
 
+            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
             foreach (FileInfo file in downloadDir.GetFiles())
             {
                 if (filePath.Contains(file.Name))
@@ -625,6 +655,33 @@ public class DocumentService : IDocumentService
                 Query = payload.RejectedBy
             });
         }
+
+        var searchRequest = new SearchRequest
+        {
+            Query = boolQuery
+        };
+
+        var response = esDocClient.Search<EsDocument>(s => s
+            .Query(q => q
+                .Bool(b => b
+                    .Must(mustQueries.ToArray()) // Convert the list to an array
+                )
+            ));
+
+        if (response.IsValid)
+        {
+            return response.Documents.ToList();
+        }
+
+        return new List<EsDocument>();
+    }
+
+
+    public async Task<List<EsDocument>> SearchPublishedDocuments()
+    {
+        var esDocClient = _elasticSearchHelper.GetNESTClient(ElasticSearchConstants.DOCUMENT_INDEX);
+        var boolQuery = new Nest.BoolQuery();
+        var mustQueries = new List<QueryContainer>();
 
         var searchRequest = new SearchRequest
         {
