@@ -684,10 +684,10 @@ public class DocumentService : IDocumentService
 
         if (IsExistStringFilter(query.Filter))
         {
-            mustQueries.Add(new Nest.TermQuery
+            mustQueries.Add(new Nest.MatchQuery
             {
                 Field = "content",
-                Value = query.Filter
+                Query = query.Filter
             });
         }
 
