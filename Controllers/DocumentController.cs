@@ -56,6 +56,18 @@ public class DocumentController : BaseController
 
     }
 
+
+    [HttpGet("search")]
+    [AuthorizeAttribute("Document:List")]
+    public async Task<List<DocumentDto>> SearchPublishDocs([FromQuery] SearchDocumentRequest query)
+    {
+        List<DocumentDto> result = new List<DocumentDto>();
+        result = await _documentService.SearchPublishDocs(query);
+        return result;
+
+    }
+
+
     [HttpGet("assigned")]
     [AuthorizeAttribute("Document:List")]
     public async Task<List<AssignDocumentDto>> GetAssignedDocs([FromQuery] GetDocumentsRequest query)
@@ -134,6 +146,7 @@ public class DocumentController : BaseController
         var result = await _documentService.ApproveDocStep(req, id, Claims);
         return result;
     }
+
     [HttpPut("reject/{id}")]
     [AuthorizeAttribute("Document:Approve")]
     public async Task<bool> RejectDocStep([FromBody] RejectDocumentRequest req, string id)
@@ -149,8 +162,7 @@ public class DocumentController : BaseController
         var result = await _documentService.UpdateDoc(req, id, Claims);
         return result;
     }
-
-
+    
     [HttpDelete("{id}")]
     [AuthorizeAttribute("Document:Delete")]
     public async Task<bool> Delete(string id)
@@ -158,4 +170,6 @@ public class DocumentController : BaseController
         var result = await _documentService.Delete(id, Claims);
         return result;
     }
+
+    
 }

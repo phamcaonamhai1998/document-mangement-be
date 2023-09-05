@@ -84,7 +84,7 @@ public class DocumentService : IDocumentService
                     }
                 }
             }
-            
+
             System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
             foreach (FileInfo file in downloadDir.GetFiles())
             {
@@ -410,7 +410,6 @@ public class DocumentService : IDocumentService
         return true;
     }
 
-
     private async Task<string> SignDoc(string docId, string pwd, UserClaims claims, int priority)
     {
         try
@@ -677,11 +676,20 @@ public class DocumentService : IDocumentService
     }
 
 
-    public async Task<List<EsDocument>> SearchPublishedDocuments()
+    public async Task<List<DocumentDto>> SearchPublishDocs(SearchDocumentRequest query)
     {
         var esDocClient = _elasticSearchHelper.GetNESTClient(ElasticSearchConstants.DOCUMENT_INDEX);
         var boolQuery = new Nest.BoolQuery();
         var mustQueries = new List<QueryContainer>();
+
+        if (IsExistStringFilter(query.Filter))
+        {
+            mustQueries.Add(new Nest.TermQuery
+            {
+                Field = "content",
+                Value = query.Filter
+            });
+        }
 
         var searchRequest = new SearchRequest
         {
@@ -695,12 +703,35 @@ public class DocumentService : IDocumentService
                 )
             ));
 
+        var esDocuments = new List<EsDocument>();
         if (response.IsValid)
         {
-            return response.Documents.ToList();
+            esDocuments = response.Documents.ToList();
         }
 
-        return new List<EsDocument>();
+        List<string> documentIds = esDocuments.Select(doc => doc.Id).ToList();
+
+        if (documentIds.Count() == 0 || documentIds == null)
+        {
+            return new List<DocumentDto>();
+        }
+
+        var docs = _dbContext.Documents.Where(doc => documentIds.Any(id => id == doc.Id.ToString())).ToList();
+
+        var dto = _mapper.Map<List<DocumentDto>>(docs);
+
+        dto.ForEach(dto =>
+        {
+            var esDoc = esDocuments.SingleOrDefault(ed => ed.Id == dto.Id.ToString());
+            if (esDoc != null)
+            {
+                dto.OrgName = esDoc.OrgName;
+                dto.DepartmentName = esDoc.DepartmentName;
+                dto.ProcedureName = esDoc.ProcedureName;
+                dto.UserFullName = esDoc.UserFullName;
+            }
+        });
+        return dto;
     }
 
     private async Task<List<DocumentDto>> FormatDocuments(GetDocumentsRequest query, UserClaims claims)

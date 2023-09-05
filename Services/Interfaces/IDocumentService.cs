@@ -1,4 +1,5 @@
-﻿using WebApi.Models.Documents;
+﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.Models.Documents;
 using WebApi.Models.Users;
 
 namespace WebApi.Services.Interfaces
@@ -18,6 +19,6 @@ namespace WebApi.Services.Interfaces
         public Task<bool> Delete(string id, UserClaims claims);
         public Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims);
         public Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims);
-     
+        public Task<List<DocumentDto>> SearchPublishDocs(SearchDocumentRequest query);
     }
 }
