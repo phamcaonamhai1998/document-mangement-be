@@ -68,7 +68,7 @@ namespace WebApi.Helpers
 
         public async Task<E?> GetDoc<E>(string id, string index)
         {
-            var response = await Client.GetAsync<E>(1, idx => idx.Index(index));
+            var response = await Client.GetAsync<E>(id, idx => idx.Index(index));
 
             if (response.IsValidResponse)
             {
