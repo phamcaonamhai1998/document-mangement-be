@@ -86,5 +86,8 @@ namespace WebApi.Models.Documents
         public bool IsSigned { get; set; }
         public string DocSignedPath { get; set; }
         public string DocSignedId { get; set; }
+        public string ProcedureId { get; set; }
+        public string DocumentId { get; set; }
+        public string ProcedureStepId { get; set; }
     }
 }

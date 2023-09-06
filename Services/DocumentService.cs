@@ -858,7 +858,7 @@ public class DocumentService : IDocumentService
     {
         try
         {
-            var docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.Document.Id == Guid.Parse(id));
+            var docSteps = _dbContext.DocumentProcedureSteps.Include(dps => dps.Document).Include(dps => dps.ProcedureStep).Where(dps => dps.Document.Id == Guid.Parse(id));
 
             if (docSteps.Count() < 0)
             {
