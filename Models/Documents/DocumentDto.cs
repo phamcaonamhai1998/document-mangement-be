@@ -90,6 +90,7 @@ namespace WebApi.Models.Documents
         public string DocumentId { get; set; }
         public string ProcedureStepId { get; set; }
         public int Priority { get; set; }
+        public string Assigner { get; set; }
     }
 }
     

@@ -889,6 +889,9 @@ public class DocumentService : IDocumentService
             {
                 var docStep = docSteps.FirstOrDefault(ds => ds.Id == Guid.Parse(r.Id));
                 r.Priority = docStep.ProcedureStep.Priority;
+
+                var user = _dbContext.Accounts.SingleOrDefault(a => a.Id == docStep.ProcedureStep.AssignId);
+                r.Assigner = $"{user.FirstName} {user.LastName}";
             });
 
             return result;
