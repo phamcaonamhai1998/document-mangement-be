@@ -77,4 +77,14 @@ namespace WebApi.Models.Documents
         public string Status { get; set; }
 
     }
+    
+    public class DocStepDto
+    {
+        public string Id { get; set; }
+        public string Status { get; set; }
+        public string RejectReason { get; set; }
+        public bool IsSigned { get; set; }
+        public string DocSignedPath { get; set; }
+        public string DocSignedId { get; set; }
+    }
 }

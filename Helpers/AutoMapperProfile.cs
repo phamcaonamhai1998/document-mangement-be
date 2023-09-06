@@ -90,7 +90,7 @@ public class AutoMapperProfile : Profile
         CreateMap<Document, AssignDocumentDto>();
         CreateMap<ProcedureStep, AssignStepDto>();
 
-
+        CreateMap<DocumentProcedureStep, DocStepDto>();
         CreateMap<DigitalSignature, DigitalSignDto>();
     }
 }

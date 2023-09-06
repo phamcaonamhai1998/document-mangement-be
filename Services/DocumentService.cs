@@ -70,7 +70,7 @@ public class DocumentService : IDocumentService
         //sync document to elastic search
         try
         {
-            var filePath = await _storageHelper.DownloadDoc(payload.DriveDocId, claims.Id.ToString());
+            var filePath = await _storageHelper.DownloadDoc(payload.DriveDocId);
             var content = "";
             using (var docReader = DocLib.Instance.GetDocReader(filePath, new PageDimensions()))
             {
@@ -425,7 +425,7 @@ public class DocumentService : IDocumentService
             }
 
             //sign
-            var filePath = await _storageHelper.DownloadDoc(doc.DriveDocId, claims.Id.ToString());
+            var filePath = await _storageHelper.DownloadDoc(doc.DriveDocId);
             var cert = await _storageHelper.DownloadCert(sign.FileId);
             var signedDoc = await _digitalSignHelper.SignDocument(filePath, cert, doc.Title, pwd, sign.Name, sign.HashPassword, $"{user.FirstName} {user.LastName}", priority);
 
@@ -821,4 +821,55 @@ public class DocumentService : IDocumentService
         return !value.IsNullOrEmpty() && value.Count() > 0;
     }
 
+    public async Task<bool> VerifyDocSignature(VerifyDocumentSignatureRequest req, UserClaims claims)
+    {
+        try
+        {
+            var docStep = _dbContext.DocumentProcedureSteps.SingleOrDefault(dps => dps.Document.Id == Guid.Parse(req.DocId) && dps.ProcedureStep.Id == Guid.Parse(req.ProcedureStepId));
+            if (docStep != null && !docStep.IsSigned)
+            {
+                throw new Exception("document_was_not_signed");
+            }
+
+            var filePath = await _storageHelper.DownloadDoc(docStep.DocSignedId);
+
+            var signature = await _digitalSignHelper.GetSignature(filePath);
+            var isValid = _digitalSignHelper.VerifySignature(signature);
+
+            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+
+            foreach (FileInfo file in downloadDir.GetFiles())
+            {
+                if (filePath.Contains(file.Name))
+                {
+                    file.Delete();
+                }
+            }
+
+            return isValid;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public async Task<List<DocStepDto>> GetDocSteps(string id, UserClaims claims)
+    {
+        try
+        {
+            var docSteps = _dbContext.DocumentProcedureSteps.Where(dps => dps.Document.Id == Guid.Parse(id));
+
+            if (docSteps.Count() < 0)
+            {
+                return new List<DocStepDto>();
+            }
+            return _mapper.Map<List<DocStepDto>>(docSteps);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 }
+

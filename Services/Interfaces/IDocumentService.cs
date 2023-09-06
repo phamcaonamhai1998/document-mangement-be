@@ -20,5 +20,7 @@ namespace WebApi.Services.Interfaces
         public Task<bool> ApproveDocStep(ApproveDocumentRequest payload, string id, UserClaims claims);
         public Task<bool> RejectDocStep(RejectDocumentRequest payload, string id, UserClaims claims);
         public Task<List<DocumentDto>> SearchPublishDocs(SearchDocumentRequest query);
+        public Task<bool> VerifyDocSignature(VerifyDocumentSignatureRequest req, UserClaims claims);
+        public Task<List<DocStepDto>> GetDocSteps(string id, UserClaims claims);
     }
 }

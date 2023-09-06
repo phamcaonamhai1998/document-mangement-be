@@ -67,7 +67,6 @@ public class DocumentController : BaseController
 
     }
 
-
     [HttpGet("assigned")]
     [AuthorizeAttribute("Document:List")]
     public async Task<List<AssignDocumentDto>> GetAssignedDocs([FromQuery] GetDocumentsRequest query)
@@ -171,5 +170,20 @@ public class DocumentController : BaseController
         return result;
     }
 
-    
+    [HttpPost("verify-signature")]
+    [Authorize]
+    public async Task<bool> VerifySignature([FromBody] VerifyDocumentSignatureRequest req)
+    {
+        var result = await _documentService.VerifyDocSignature(req, Claims);
+        return result;
+    }
+
+    [HttpGet("doc-steps/{id}")]
+    [Authorize]
+    public async Task<List<DocStepDto>> GetDocSteps(string id)
+    {
+        var result = await _documentService.GetDocSteps(id, Claims);
+        return result;
+    }
+
 }

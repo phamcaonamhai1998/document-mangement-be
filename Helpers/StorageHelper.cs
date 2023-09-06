@@ -102,7 +102,7 @@ namespace WebApi.Helpers
             return true;
         }
 
-        public async Task<string> DownloadDoc(string fileId, string userId)
+        public async Task<string> DownloadDoc(string fileId)
         {
             try
             {

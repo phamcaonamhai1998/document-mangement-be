@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using Spire.Pdf;
-using Spire.Pdf.Graphics;
+﻿using Spire.Pdf;
 using Spire.Pdf.Security;
-using WebApi.Entities;
+using Spire.Pdf.Widget;
 using WebApi.Models.DigitalSignature;
 
 namespace WebApi.Helpers;
@@ -11,7 +9,8 @@ public class DigitalSignHelper
 {
     public async Task<SignedFileResponse> SignDocument(string filePath, byte[] userCert, string docName, string pwd, string signName, string signPwd, string fullName, int priority)
     {
-        try {
+        try
+        {
             var isValidPwd = BCrypt.Net.BCrypt.Verify(pwd, signPwd);
             if (!isValidPwd)
             {
@@ -62,10 +61,52 @@ public class DigitalSignHelper
             res.Name = fileName;
             res.Path = savePath;
             return res;
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             Console.WriteLine(ex);
             throw ex;
         }
-        
+
+    }
+
+    public async Task<PdfSignature> GetSignature(string filename)
+    {
+        try
+        {
+            List<PdfSignature> signatures = new List<PdfSignature>();
+
+            PdfDocument doc = new PdfDocument(filename);
+            PdfFormWidget form = (PdfFormWidget)doc.Form;
+            for (int i = 0; i < form.FieldsWidget.Count; ++i)
+            {
+
+                PdfSignatureFieldWidget field = form.FieldsWidget[i] as PdfSignatureFieldWidget;
+                if (field != null && field.Signature != null)
+                {
+                    PdfSignature signature = field.Signature;
+                    signatures.Add(signature);
+                }
+            }
+            return signatures.Count() > 0 ? signatures[0] : null;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+    }
+
+    public bool VerifySignature(PdfSignature sign)
+    {
+        try
+        {
+            return sign.VerifySignature();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
     }
 }
