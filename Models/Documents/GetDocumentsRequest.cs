@@ -25,5 +25,6 @@ namespace WebApi.Models.Documents
     public class SearchDocumentRequest
     {
         public string Filter { get; set;}
+        public string Title { get; set; }
     }
 }

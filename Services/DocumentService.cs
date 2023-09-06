@@ -691,6 +691,25 @@ public class DocumentService : IDocumentService
             });
         }
 
+        if (IsExistStringFilter(query.Title))
+        {
+            mustQueries.Add(new Nest.MatchQuery
+            {
+                Field = "title",
+                Query = query.Title
+            });
+        }
+
+        if (IsExistStringFilter(query.Title))
+        {
+            mustQueries.Add(new Nest.MatchPhraseQuery
+            {
+                Field = "status",
+                Query = DocumentStatus.PUBLISHED
+            });
+        }
+
+
         var searchRequest = new SearchRequest
         {
             Query = boolQuery
@@ -864,7 +883,15 @@ public class DocumentService : IDocumentService
             {
                 return new List<DocStepDto>();
             }
-            return _mapper.Map<List<DocStepDto>>(docSteps);
+            var result = _mapper.Map<List<DocStepDto>>(docSteps);
+
+            result.ForEach(r =>
+            {
+                var docStep = docSteps.FirstOrDefault(ds => ds.Id == Guid.Parse(r.Id));
+                r.Priority = docStep.ProcedureStep.Priority;
+            });
+
+            return result;
         }
         catch (Exception ex)
         {
