@@ -680,7 +680,9 @@ public class DocumentService : IDocumentService
     {
         var esDocClient = _elasticSearchHelper.GetNESTClient(ElasticSearchConstants.DOCUMENT_INDEX);
         var boolQuery = new Nest.BoolQuery();
+        var filterBoolQuery = new Nest.BoolQuery();
         var mustQueries = new List<QueryContainer>();
+        var shouldQueries = new List<QueryContainer>();
 
         mustQueries.Add(new Nest.MatchPhraseQuery
         {
@@ -690,20 +692,17 @@ public class DocumentService : IDocumentService
 
         if (IsExistStringFilter(query.Filter))
         {
-            mustQueries.Add(new Nest.MatchQuery
+            shouldQueries.Add(new Nest.MatchQuery
             {
                 Field = "content",
                 Query = query.Filter
             });
-            //mustQueries.Add(new Nest.MatchQuery
-            //{
-            //    Field = "title",
-            //    Query = query.Filter
-            //});
+            shouldQueries.Add(new Nest.MatchQuery
+            {
+                Field = "title",
+                Query = query.Filter
+            });
         }
-
-            
-
 
         var searchRequest = new SearchRequest
         {
@@ -714,7 +713,8 @@ public class DocumentService : IDocumentService
             .Query(q => q
                 .Bool(b => b
                     .Must(mustQueries.ToArray()) // Convert the list to an array
-                )
+                    .Should(shouldQueries.ToArray())
+                    )
             ));
 
         var esDocuments = new List<EsDocument>();
