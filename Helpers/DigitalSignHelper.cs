@@ -2,6 +2,7 @@
 using Spire.Pdf.Security;
 using Spire.Pdf.Widget;
 using WebApi.Models.DigitalSignature;
+using System.Drawing;
 
 namespace WebApi.Helpers;
 
@@ -27,8 +28,8 @@ public class DigitalSignHelper
             //create signature obj
             PdfSignature signature = new PdfSignature(doc, doc.Pages[doc.Pages.Count - 1], cert, signName);
 
-            //RectangleF rectangleF = new RectangleF(doc.Pages[0].ActualSize.Width - 300, doc.Pages[0].ActualSize.Height - 110, 260, 110);
-            //signature.Bounds = rectangleF;
+            RectangleF rectangleF = new RectangleF(doc.Pages[0].ActualSize.Width - 300, doc.Pages[0].ActualSize.Height - 110, 260, 110);
+            signature.Bounds = rectangleF;
             signature.Certificated = true;
 
             //set the graphic mode to image and sign detail

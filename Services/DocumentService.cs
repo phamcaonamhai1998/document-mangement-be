@@ -682,6 +682,12 @@ public class DocumentService : IDocumentService
         var boolQuery = new Nest.BoolQuery();
         var mustQueries = new List<QueryContainer>();
 
+        mustQueries.Add(new Nest.MatchPhraseQuery
+        {
+            Field = "status",
+            Query = DocumentStatus.PUBLISHED
+        });
+
         if (IsExistStringFilter(query.Filter))
         {
             mustQueries.Add(new Nest.MatchQuery
@@ -689,25 +695,14 @@ public class DocumentService : IDocumentService
                 Field = "content",
                 Query = query.Filter
             });
+            //mustQueries.Add(new Nest.MatchQuery
+            //{
+            //    Field = "title",
+            //    Query = query.Filter
+            //});
         }
 
-        if (IsExistStringFilter(query.Title))
-        {
-            mustQueries.Add(new Nest.MatchQuery
-            {
-                Field = "title",
-                Query = query.Title
-            });
-        }
-
-        if (IsExistStringFilter(query.Title))
-        {
-            mustQueries.Add(new Nest.MatchPhraseQuery
-            {
-                Field = "status",
-                Query = DocumentStatus.PUBLISHED
-            });
-        }
+            
 
 
         var searchRequest = new SearchRequest
