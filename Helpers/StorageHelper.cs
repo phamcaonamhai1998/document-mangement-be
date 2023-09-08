@@ -123,6 +123,7 @@ namespace WebApi.Helpers
 
                 FileStream file = new FileStream($"{pathFile}.pdf", FileMode.Create, FileAccess.Write);
                 stream.WriteTo(file);
+                file.Close();
                 return $"{pathFile}.pdf";
             }
             catch (Exception err)

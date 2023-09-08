@@ -85,14 +85,14 @@ public class DocumentService : IDocumentService
                 }
             }
 
-            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
-            foreach (FileInfo file in downloadDir.GetFiles())
-            {
-                if (filePath.Contains(file.Name))
-                {
-                    file.Delete();
-                }
-            }
+            //System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+            //foreach (FileInfo file in downloadDir.GetFiles())
+            //{
+            //    if (filePath.Contains(file.Name))
+            //    {
+            //        file.Delete();
+            //    }
+            //}
 
             var esDoc = GetESDoc(entity, claims);
             esDoc.Content = content;
@@ -454,24 +454,24 @@ public class DocumentService : IDocumentService
                 fileId = await _storageHelper.UploadFile(stream, $"Approved_{signedDoc.Name}", fileMime, driveFolderId);
             }
 
-            System.IO.DirectoryInfo signDir = new DirectoryInfo("~/SignedDocs");
+            //System.IO.DirectoryInfo signDir = new DirectoryInfo("~/SignedDocs");
 
-            foreach (FileInfo file in signDir.GetFiles())
-            {
-                if (signedDoc.Path.Contains(file.Name))
-                {
-                    file.Delete();
-                }
-            }
+            //foreach (FileInfo file in signDir.GetFiles())
+            //{
+            //    if (signedDoc.Path.Contains(file.Name))
+            //    {
+            //        file.Delete();
+            //    }
+            //}
 
-            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
-            foreach (FileInfo file in downloadDir.GetFiles())
-            {
-                if (filePath.Contains(file.Name))
-                {
-                    file.Delete();
-                }
-            }
+            //System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+            //foreach (FileInfo file in downloadDir.GetFiles())
+            //{
+            //    if (filePath.Contains(file.Name))
+            //    {
+            //        file.Delete();
+            //    }
+            //}
 
             return fileId;
 
@@ -850,15 +850,15 @@ public class DocumentService : IDocumentService
             var signature = await _digitalSignHelper.GetSignature(filePath);
             var isValid = _digitalSignHelper.VerifySignature(signature);
 
-            System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
+            //System.IO.DirectoryInfo downloadDir = new DirectoryInfo("~/Downloads");
 
-            foreach (FileInfo file in downloadDir.GetFiles())
-            {
-                if (filePath.Contains(file.Name))
-                {
-                    file.Delete();
-                }
-            }
+            //foreach (FileInfo file in downloadDir.GetFiles())
+            //{
+            //    if (filePath.Contains(file.Name))
+            //    {
+            //        file.Delete();
+            //    }
+            //}
 
             return isValid;
         }

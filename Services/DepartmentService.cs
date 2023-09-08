@@ -150,7 +150,7 @@ public class DepartmentService : IDepartmentService
         try
         {
             var deps = _dbContext.Departments.Where(d => d.Organization.Id == Guid.Parse(orgId)).ToList();
-            var existDep = _dbContext.Accounts.Include(a => a.Department).Where(a => a.OrgId != orgId && a.Department != null).ToList();
+            var existDep = _dbContext.Accounts.Include(a => a.Department).Where(a => a.OrgId == orgId && a.Department != null).ToList();
             if (existDep.Count() > 0)
             {
                 var existDepIds = existDep.Select(a => a.Department.Id.ToString()).Distinct();
@@ -159,9 +159,8 @@ public class DepartmentService : IDepartmentService
                     var newDeps = deps.Where(d => !existDepIds.Any(id => id == d.Id.ToString())).ToList();
                     return _mapper.Map<List<DepartmentDto>>(newDeps);
                 }
-                return _mapper.Map<List<DepartmentDto>>(deps);
             }
-            return new List<DepartmentDto>();
+            return _mapper.Map<List<DepartmentDto>>(deps);
         }
         catch (Exception ex)
         {
