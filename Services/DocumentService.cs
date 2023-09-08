@@ -702,6 +702,10 @@ public class DocumentService : IDocumentService
                 Field = "title",
                 Query = query.Filter
             });
+
+            boolQuery.Should = shouldQueries;
+
+
         }
 
         var searchRequest = new SearchRequest
@@ -713,7 +717,7 @@ public class DocumentService : IDocumentService
             .Query(q => q
                 .Bool(b => b
                     .Must(mustQueries.ToArray()) // Convert the list to an array
-                    .Should(shouldQueries.ToArray())
+                    .Must(boolQuery)
                     )
             ));
 
